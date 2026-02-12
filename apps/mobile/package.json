@@ -12,6 +12,7 @@
     "build:dev": "eas build --profile development --platform ios",
     "build:dev-sim": "eas build --profile development-simulator --platform ios",
     "build:preview": "eas build --profile preview --platform ios",
+    "build:altstore": "eas build --profile altstore --platform ios",
     "dev-client": "expo start --dev-client"
   },
   "dependencies": {

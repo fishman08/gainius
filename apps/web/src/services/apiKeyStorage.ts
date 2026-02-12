@@ -1,5 +1,5 @@
 import { DEFAULT_NOTIFICATION_PREFERENCES } from '@fitness-tracker/shared';
-import type { NotificationPreferences } from '@fitness-tracker/shared';
+import type { NotificationPreferences, User } from '@fitness-tracker/shared';
 
 const API_KEY_STORAGE_KEY = 'claude_api_key';
 const CUSTOM_PROMPT_KEY = 'custom_system_prompt';
@@ -81,7 +81,8 @@ async function decrypt(stored: string): Promise<string> {
 
 // --- Public API (async for API key, sync for others) ---
 
-export async function getApiKey(): Promise<string | null> {
+export async function getApiKey(user?: User | null): Promise<string | null> {
+  if (user && user.role !== 'admin') return null;
   const stored = localStorage.getItem(API_KEY_STORAGE_KEY);
   if (!stored) return null;
 

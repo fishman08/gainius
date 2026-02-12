@@ -91,6 +91,20 @@ CREATE TRIGGER set_updated_at BEFORE UPDATE ON conversations
 CREATE TRIGGER set_updated_at BEFORE UPDATE ON chat_messages
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+-- Prevent users from changing their own role via the API
+CREATE OR REPLACE FUNCTION prevent_role_change()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.role IS DISTINCT FROM OLD.role THEN
+    RAISE EXCEPTION 'Role changes are not allowed through the API';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER guard_role_change BEFORE UPDATE ON users
+  FOR EACH ROW EXECUTE FUNCTION prevent_role_change();
+
 -- 7. Row Level Security
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE workout_plans ENABLE ROW LEVEL SECURITY;

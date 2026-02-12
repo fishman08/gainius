@@ -20,17 +20,6 @@
     },
     "preview": {
       "distribution": "internal"
-    },
-    "altstore": {
-      "distribution": "internal",
-      "ios": {
-        "simulator": false,
-        "buildConfiguration": "Release"
-      },
-      "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "https://smhwwctqrualehwthkvf.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_Mh6mcF_I_kdwKpv46duIaA_TZIuiMZH"
-      }
     }
   }
 }

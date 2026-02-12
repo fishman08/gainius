@@ -36,7 +36,7 @@ export default function SettingsPage() {
   }, [authUser, storage]);
 
   useEffect(() => {
-    getApiKey().then((key) => {
+    getApiKey(currentUser).then((key) => {
       if (key) {
         setApiKey(key);
         setHasKey(true);
@@ -44,9 +44,10 @@ export default function SettingsPage() {
     });
     const prompt = getCustomPrompt();
     if (prompt) setCustomPrompt(prompt);
-  }, []);
+  }, [currentUser]);
 
   const handleSave = useCallback(async () => {
+    if (currentUser?.role !== 'admin') return;
     const trimmed = apiKey.trim();
     if (!trimmed) {
       setMessage('Please enter an API key.');
@@ -70,14 +71,15 @@ export default function SettingsPage() {
     } finally {
       setIsValidating(false);
     }
-  }, [apiKey]);
+  }, [apiKey, currentUser]);
 
   const handleRemove = useCallback(async () => {
+    if (currentUser?.role !== 'admin') return;
     await deleteApiKey();
     setApiKey('');
     setHasKey(false);
     setMessage('API key removed.');
-  }, []);
+  }, [currentUser]);
 
   const handleSavePrompt = useCallback(() => {
     saveCustomPrompt(customPrompt);

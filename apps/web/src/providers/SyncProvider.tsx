@@ -107,7 +107,6 @@ export function SyncProvider({ children }: { children: ReactNode }) {
           id: user.id,
           email: user.email,
           name: user.email?.split('@')[0] ?? 'User',
-          role: 'user',
           preferences: {},
           created_at: new Date().toISOString(),
         });

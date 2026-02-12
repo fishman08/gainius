@@ -39,7 +39,7 @@ export default function SettingsScreen() {
   }, [authUser, storage]);
 
   useEffect(() => {
-    getApiKey().then((key) => {
+    getApiKey(currentUser).then((key) => {
       if (key) {
         setApiKey(key);
         setHasKey(true);
@@ -48,9 +48,10 @@ export default function SettingsScreen() {
     getCustomPrompt().then((prompt) => {
       if (prompt) setCustomPrompt(prompt);
     });
-  }, []);
+  }, [currentUser]);
 
   const handleSave = useCallback(async () => {
+    if (currentUser?.role !== 'admin') return;
     const trimmed = apiKey.trim();
     if (!trimmed) {
       Alert.alert('Error', 'Please enter an API key');
@@ -76,13 +77,14 @@ export default function SettingsScreen() {
     } finally {
       setIsValidating(false);
     }
-  }, [apiKey]);
+  }, [apiKey, currentUser]);
 
   const handleRemove = useCallback(async () => {
+    if (currentUser?.role !== 'admin') return;
     await deleteApiKey();
     setApiKey('');
     setHasKey(false);
-  }, []);
+  }, [currentUser]);
 
   const handleSavePrompt = useCallback(async () => {
     await saveCustomPrompt(customPrompt);

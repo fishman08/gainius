@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Banner } from 'react-native-paper';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../store';
 import { isPlanExpired, isPlanExpiringSoon, getDaysRemainingInPlan } from '@fitness-tracker/shared';
 import { useNavigation } from '@react-navigation/native';
+import { useAppTheme } from '../../providers/ThemeProvider';
 
 export default function PlanUpdateBanner() {
   const currentPlan = useSelector((state: RootState) => state.workout.currentPlan);
   const navigation = useNavigation<any>();
+  const { theme } = useAppTheme();
+
+  const bannerColors = useMemo(
+    () => ({
+      expired: theme.mode === 'dark' ? '#3d2e00' : '#FFF3E0',
+      expiring: theme.mode === 'dark' ? '#1b2d3d' : '#E3F2FD',
+    }),
+    [theme],
+  );
 
   if (!currentPlan) return null;
 
@@ -31,7 +41,10 @@ export default function PlanUpdateBanner() {
           onPress: () => navigation.navigate('Chat'),
         },
       ]}
-      style={{ backgroundColor: expired ? '#FFF3E0' : '#E3F2FD', marginBottom: 12 }}
+      style={{
+        backgroundColor: expired ? bannerColors.expired : bannerColors.expiring,
+        marginBottom: 12,
+      }}
     >
       {message}
     </Banner>

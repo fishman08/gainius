@@ -1,10 +1,13 @@
 import type { PersonalRecord } from '@fitness-tracker/shared';
+import { useTheme } from '../../providers/ThemeProvider';
 
 interface RecentPRsListProps {
   records: PersonalRecord[];
 }
 
 export function RecentPRsList({ records }: RecentPRsListProps) {
+  const { theme } = useTheme();
+
   if (records.length === 0) {
     return null;
   }
@@ -12,8 +15,8 @@ export function RecentPRsList({ records }: RecentPRsListProps) {
   return (
     <div
       style={{
-        background: 'white',
-        border: '1px solid #e0e0e0',
+        background: theme.colors.surface,
+        border: `1px solid ${theme.colors.surfaceBorder}`,
         borderRadius: 12,
         padding: 20,
         marginBottom: 24,
@@ -28,17 +31,19 @@ export function RecentPRsList({ records }: RecentPRsListProps) {
             justifyContent: 'space-between',
             alignItems: 'center',
             padding: '8px 0',
-            borderBottom: i < records.length - 1 ? '1px solid #f0f0f0' : 'none',
+            borderBottom: i < records.length - 1 ? `1px solid ${theme.colors.background}` : 'none',
           }}
         >
           <div>
             <span style={{ fontWeight: 600, fontSize: 14 }}>{pr.exerciseName}</span>
-            <span style={{ color: '#888', fontSize: 13, marginLeft: 8 }}>{pr.date}</span>
+            <span style={{ color: theme.colors.textHint, fontSize: 13, marginLeft: 8 }}>
+              {pr.date}
+            </span>
           </div>
           <div style={{ textAlign: 'right' }}>
             <span style={{ fontWeight: 700, fontSize: 15 }}>{pr.weight} lbs</span>
             {pr.previousBest !== null && (
-              <span style={{ color: '#4CAF50', fontSize: 12, marginLeft: 8 }}>
+              <span style={{ color: theme.colors.success, fontSize: 12, marginLeft: 8 }}>
                 +{pr.weight - pr.previousBest} lbs
               </span>
             )}

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { validateApiKey } from '@fitness-tracker/shared';
+import type { User } from '@fitness-tracker/shared';
 import {
   getApiKey,
   saveApiKey,
@@ -12,6 +13,10 @@ import { AuthSection } from '../components/settings/AuthSection';
 import { SyncSettings } from '../components/settings/SyncSettings';
 import { DataExport } from '../components/settings/DataExport';
 import { useSync } from '../providers/SyncProvider';
+import { useAuth } from '../providers/AuthProvider';
+import { useStorage } from '../providers/StorageProvider';
+import { useTheme } from '../providers/ThemeProvider';
+import type { ThemeMode } from '@fitness-tracker/shared';
 
 export default function SettingsPage() {
   const [apiKey, setApiKey] = useState('');
@@ -20,6 +25,15 @@ export default function SettingsPage() {
   const [message, setMessage] = useState('');
   const [customPrompt, setCustomPrompt] = useState('');
   const [promptMessage, setPromptMessage] = useState('');
+  const { user: authUser } = useAuth();
+  const storage = useStorage();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    if (authUser?.id) {
+      storage.getUser(authUser.id).then(setCurrentUser);
+    }
+  }, [authUser, storage]);
 
   useEffect(() => {
     getApiKey().then((key) => {
@@ -76,85 +90,142 @@ export default function SettingsPage() {
     syncNow();
   }, [syncNow]);
 
+  const { theme, themeMode, setThemeMode } = useTheme();
+  const themeModes: { value: ThemeMode; label: string }[] = [
+    { value: 'light', label: 'Light' },
+    { value: 'dark', label: 'Dark' },
+    { value: 'system', label: 'System' },
+  ];
+
   return (
     <div style={{ maxWidth: 500, margin: '40px auto', padding: 24 }}>
-      <div
-        style={{
-          background: '#fff',
-          borderRadius: 12,
-          padding: 24,
-          border: '1px solid #ddd',
-          marginBottom: 16,
-        }}
-      >
-        <h2 style={{ marginTop: 0, marginBottom: 8 }}>Claude API Key</h2>
-        <p style={{ color: '#666', fontSize: 14, marginBottom: 16 }}>
-          Enter your Anthropic API key to enable AI chat. Your key is stored in this browser.
-        </p>
-        <input
-          type={hasKey ? 'password' : 'text'}
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          placeholder="sk-ant-..."
+      {currentUser?.role === 'admin' && (
+        <div
           style={{
-            width: '100%',
-            padding: 12,
-            border: '1px solid #ddd',
-            borderRadius: 8,
-            fontSize: 16,
+            background: theme.colors.surface,
+            borderRadius: 12,
+            padding: 24,
+            border: `1px solid ${theme.colors.surfaceBorder}`,
             marginBottom: 16,
-            boxSizing: 'border-box' as const,
           }}
-        />
-        {message && (
-          <p
-            style={{
-              fontSize: 14,
-              color:
-                message.includes('Invalid') || message.includes('Please') ? '#dc3545' : '#198754',
-              marginBottom: 12,
-            }}
-          >
-            {message}
+        >
+          <h2 style={{ marginTop: 0, marginBottom: 8 }}>Claude API Key</h2>
+          <p style={{ color: theme.colors.textSecondary, fontSize: 14, marginBottom: 16 }}>
+            Enter your Anthropic API key to enable AI chat. Your key is stored in this browser.
           </p>
-        )}
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button
-            onClick={handleSave}
-            disabled={isValidating || !apiKey.trim()}
+          <input
+            type={hasKey ? 'password' : 'text'}
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder="sk-ant-..."
             style={{
-              flex: 1,
+              width: '100%',
               padding: 12,
-              backgroundColor: '#4A90E2',
-              color: '#fff',
-              border: 'none',
+              border: `1px solid ${theme.colors.inputBorder}`,
               borderRadius: 8,
-              fontWeight: 600,
               fontSize: 16,
-              cursor: 'pointer',
-              opacity: isValidating || !apiKey.trim() ? 0.5 : 1,
+              marginBottom: 16,
+              boxSizing: 'border-box' as const,
+              backgroundColor: theme.colors.inputBackground,
+              color: theme.colors.text,
             }}
-          >
-            {isValidating ? 'Validating...' : hasKey ? 'Update Key' : 'Save Key'}
-          </button>
-          {hasKey && (
+          />
+          {message && (
+            <p
+              style={{
+                fontSize: 14,
+                color:
+                  message.includes('Invalid') || message.includes('Please')
+                    ? theme.colors.error
+                    : theme.colors.success,
+                marginBottom: 12,
+              }}
+            >
+              {message}
+            </p>
+          )}
+          <div style={{ display: 'flex', gap: 12 }}>
             <button
-              onClick={handleRemove}
+              onClick={handleSave}
+              disabled={isValidating || !apiKey.trim()}
               style={{
                 flex: 1,
                 padding: 12,
-                backgroundColor: 'transparent',
-                color: '#666',
-                border: '1px solid #ddd',
+                backgroundColor: theme.colors.primary,
+                color: theme.colors.primaryText,
+                border: 'none',
                 borderRadius: 8,
                 fontWeight: 600,
                 fontSize: 16,
                 cursor: 'pointer',
+                opacity: isValidating || !apiKey.trim() ? 0.5 : 1,
               }}
             >
-              Remove Key
+              {isValidating ? 'Validating...' : hasKey ? 'Update Key' : 'Save Key'}
             </button>
-          )}
+            {hasKey && (
+              <button
+                onClick={handleRemove}
+                style={{
+                  flex: 1,
+                  padding: 12,
+                  backgroundColor: 'transparent',
+                  color: theme.colors.textSecondary,
+                  border: `1px solid ${theme.colors.surfaceBorder}`,
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  fontSize: 16,
+                  cursor: 'pointer',
+                }}
+              >
+                Remove Key
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div
+        style={{
+          background: theme.colors.surface,
+          borderRadius: 12,
+          padding: 24,
+          border: `1px solid ${theme.colors.surfaceBorder}`,
+          marginBottom: 16,
+        }}
+      >
+        <h2 style={{ marginTop: 0, marginBottom: 8 }}>Appearance</h2>
+        <p style={{ color: theme.colors.textSecondary, fontSize: 14, marginBottom: 16 }}>
+          Choose your preferred color theme.
+        </p>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {themeModes.map((m) => (
+            <button
+              key={m.value}
+              onClick={() => setThemeMode(m.value)}
+              style={{
+                flex: 1,
+                padding: 10,
+                border:
+                  themeMode === m.value
+                    ? `2px solid ${theme.colors.primary}`
+                    : `1px solid ${theme.colors.surfaceBorder}`,
+                borderRadius: 8,
+                backgroundColor:
+                  themeMode === m.value
+                    ? theme.mode === 'dark'
+                      ? '#1a2a3a'
+                      : '#EBF3FC'
+                    : 'transparent',
+                color: themeMode === m.value ? theme.colors.primary : theme.colors.textSecondary,
+                fontWeight: themeMode === m.value ? 600 : 400,
+                fontSize: 14,
+                cursor: 'pointer',
+              }}
+            >
+              {m.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -164,58 +235,64 @@ export default function SettingsPage() {
 
       <NotificationSettings />
 
-      <div
-        style={{
-          background: '#fff',
-          borderRadius: 12,
-          padding: 24,
-          border: '1px solid #ddd',
-          marginBottom: 16,
-        }}
-      >
-        <h2 style={{ marginTop: 0, marginBottom: 8 }}>Custom AI Instructions</h2>
-        <p style={{ color: '#666', fontSize: 14, marginBottom: 16 }}>
-          Add custom instructions for the AI coach. These will be included in every conversation.
-        </p>
-        <textarea
-          value={customPrompt}
-          onChange={(e) => setCustomPrompt(e.target.value)}
-          placeholder="e.g., I prefer powerlifting-style programming with RPE-based intensity..."
-          rows={4}
+      {currentUser?.role === 'admin' && (
+        <div
           style={{
-            width: '100%',
-            padding: 12,
-            border: '1px solid #ddd',
-            borderRadius: 8,
-            fontSize: 14,
+            background: theme.colors.surface,
+            borderRadius: 12,
+            padding: 24,
+            border: `1px solid ${theme.colors.surfaceBorder}`,
             marginBottom: 16,
-            boxSizing: 'border-box' as const,
-            resize: 'vertical' as const,
-            fontFamily: 'inherit',
-          }}
-        />
-        {promptMessage && (
-          <p style={{ fontSize: 14, color: '#198754', marginBottom: 12 }}>{promptMessage}</p>
-        )}
-        <button
-          onClick={handleSavePrompt}
-          style={{
-            width: '100%',
-            padding: 12,
-            backgroundColor: '#4A90E2',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 8,
-            fontWeight: 600,
-            fontSize: 16,
-            cursor: 'pointer',
           }}
         >
-          Save Instructions
-        </button>
-      </div>
+          <h2 style={{ marginTop: 0, marginBottom: 8 }}>Custom AI Instructions</h2>
+          <p style={{ color: theme.colors.textSecondary, fontSize: 14, marginBottom: 16 }}>
+            Add custom instructions for the AI coach. These will be included in every conversation.
+          </p>
+          <textarea
+            value={customPrompt}
+            onChange={(e) => setCustomPrompt(e.target.value)}
+            placeholder="e.g., I prefer powerlifting-style programming with RPE-based intensity..."
+            rows={4}
+            style={{
+              width: '100%',
+              padding: 12,
+              border: `1px solid ${theme.colors.inputBorder}`,
+              borderRadius: 8,
+              fontSize: 14,
+              marginBottom: 16,
+              boxSizing: 'border-box' as const,
+              resize: 'vertical' as const,
+              fontFamily: 'inherit',
+              backgroundColor: theme.colors.inputBackground,
+              color: theme.colors.text,
+            }}
+          />
+          {promptMessage && (
+            <p style={{ fontSize: 14, color: theme.colors.success, marginBottom: 12 }}>
+              {promptMessage}
+            </p>
+          )}
+          <button
+            onClick={handleSavePrompt}
+            style={{
+              width: '100%',
+              padding: 12,
+              backgroundColor: theme.colors.primary,
+              color: theme.colors.primaryText,
+              border: 'none',
+              borderRadius: 8,
+              fontWeight: 600,
+              fontSize: 16,
+              cursor: 'pointer',
+            }}
+          >
+            Save Instructions
+          </button>
+        </div>
+      )}
 
-      <DataExport />
+      {currentUser?.role === 'admin' && <DataExport />}
     </div>
   );
 }

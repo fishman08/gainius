@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../../store';
 import { useStorage } from '../../providers/StorageProvider';
+import { useTheme } from '../../providers/ThemeProvider';
 import { startWorkout, loadHistory } from '../../store/slices/workoutSlice';
 import { suggestWeightsForPlan } from '@fitness-tracker/shared';
 import { WorkoutHistoryList } from './WorkoutHistoryList';
@@ -12,6 +13,7 @@ import { useUserId } from '../../hooks/useUserId';
 export function PlanOverview() {
   const dispatch = useDispatch<AppDispatch>();
   const storage = useStorage();
+  const { theme } = useTheme();
   const userId = useUserId();
   const { currentPlan, history } = useSelector((state: RootState) => state.workout);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
@@ -50,14 +52,16 @@ export function PlanOverview() {
       <PlanUpdateBanner />
       <div
         style={{
-          background: 'white',
-          border: '1px solid #ddd',
+          background: theme.colors.surface,
+          border: `1px solid ${theme.colors.surfaceBorder}`,
           borderRadius: 12,
           padding: 24,
           marginBottom: 24,
         }}
       >
-        <h2 style={{ marginTop: 0, marginBottom: 16 }}>Week {currentPlan.weekNumber} Plan</h2>
+        <h2 style={{ marginTop: 0, marginBottom: 16, color: theme.colors.text }}>
+          Week {currentPlan.weekNumber} Plan
+        </h2>
 
         {currentPlan.exercises.map((ex) => {
           const suggestion = suggestions.find((s) => s.exerciseName === ex.exerciseName);
@@ -69,12 +73,14 @@ export function PlanOverview() {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '10px 0',
-                borderBottom: '1px solid #f0f0f0',
+                borderBottom: `1px solid ${theme.colors.surfaceBorder}`,
               }}
             >
-              <span style={{ fontWeight: 500, fontSize: 15 }}>{ex.exerciseName}</span>
+              <span style={{ fontWeight: 500, fontSize: 15, color: theme.colors.text }}>
+                {ex.exerciseName}
+              </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ color: '#666', fontSize: 14 }}>
+                <span style={{ color: theme.colors.textSecondary, fontSize: 14 }}>
                   {ex.targetSets} x {ex.targetReps}
                   {ex.suggestedWeight ? ` @ ${ex.suggestedWeight} lbs` : ''}
                 </span>
@@ -88,16 +94,24 @@ export function PlanOverview() {
                       borderRadius: 12,
                       background:
                         suggestion.direction === 'increase'
-                          ? '#E8F5E9'
+                          ? theme.mode === 'dark'
+                            ? '#1b3d1b'
+                            : '#E8F5E9'
                           : suggestion.direction === 'decrease'
-                            ? '#FFF3E0'
-                            : '#F5F5F5',
+                            ? theme.mode === 'dark'
+                              ? '#3d2e00'
+                              : '#FFF3E0'
+                            : theme.colors.background,
                       color:
                         suggestion.direction === 'increase'
-                          ? '#2E7D32'
+                          ? theme.mode === 'dark'
+                            ? '#66BB6A'
+                            : '#2E7D32'
                           : suggestion.direction === 'decrease'
-                            ? '#E65100'
-                            : '#666',
+                            ? theme.mode === 'dark'
+                              ? '#FFB74D'
+                              : '#E65100'
+                            : theme.colors.textSecondary,
                     }}
                   >
                     AI: {suggestion.suggestedWeight} lbs
@@ -113,8 +127,8 @@ export function PlanOverview() {
           style={{
             width: '100%',
             padding: '14px 0',
-            background: '#4A90E2',
-            color: 'white',
+            background: theme.colors.primary,
+            color: theme.colors.primaryText,
             border: 'none',
             borderRadius: 8,
             fontSize: 16,

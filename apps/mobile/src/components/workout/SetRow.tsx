@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, TextInput, IconButton } from 'react-native-paper';
+import { useAppTheme } from '../../providers/ThemeProvider';
 
 interface Props {
   setNumber: number;
@@ -10,6 +11,7 @@ interface Props {
   onRepsChange: (reps: number) => void;
   onWeightChange: (weight: number) => void;
   onToggleComplete: () => void;
+  onDelete?: () => void;
 }
 
 export default function SetRow({
@@ -20,9 +22,22 @@ export default function SetRow({
   onRepsChange,
   onWeightChange,
   onToggleComplete,
+  onDelete,
 }: Props) {
+  const { theme } = useAppTheme();
+
+  const themedStyles = useMemo(
+    () => ({
+      completedRow: {
+        backgroundColor: theme.mode === 'dark' ? '#1b3d1b' : '#E8F5E9',
+        borderRadius: 8,
+      },
+    }),
+    [theme],
+  );
+
   return (
-    <View style={[styles.row, completed && styles.completedRow]}>
+    <View style={[styles.row, completed && themedStyles.completedRow]}>
       <Text variant="bodyMedium" style={styles.label}>
         Set {setNumber}
       </Text>
@@ -46,10 +61,13 @@ export default function SetRow({
       />
       <IconButton
         icon={completed ? 'check-circle' : 'check-circle-outline'}
-        iconColor={completed ? '#4CAF50' : '#999'}
+        iconColor={completed ? theme.colors.success : theme.colors.textHint}
         size={24}
         onPress={onToggleComplete}
       />
+      {onDelete && (
+        <IconButton icon="close" size={18} iconColor={theme.colors.textHint} onPress={onDelete} />
+      )}
     </View>
   );
 }
@@ -60,10 +78,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 4,
     paddingHorizontal: 4,
-  },
-  completedRow: {
-    backgroundColor: '#E8F5E9',
-    borderRadius: 8,
   },
   label: {
     width: 48,

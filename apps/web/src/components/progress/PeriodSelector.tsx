@@ -1,4 +1,5 @@
 import type { TimePeriod } from '@fitness-tracker/shared';
+import { useTheme } from '../../providers/ThemeProvider';
 
 interface PeriodSelectorProps {
   value: TimePeriod;
@@ -12,6 +13,8 @@ const periods: { label: string; value: TimePeriod }[] = [
 ];
 
 export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
+  const { theme } = useTheme();
+
   return (
     <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
       {periods.map((p) => (
@@ -22,8 +25,8 @@ export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
             padding: '8px 20px',
             border: 'none',
             borderRadius: 20,
-            background: value === p.value ? '#4A90E2' : '#e8e8e8',
-            color: value === p.value ? '#fff' : '#555',
+            background: value === p.value ? theme.colors.primary : theme.colors.surfaceBorder,
+            color: value === p.value ? theme.colors.primaryText : theme.colors.textSecondary,
             fontWeight: 600,
             fontSize: 14,
             cursor: 'pointer',

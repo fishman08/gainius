@@ -21,6 +21,7 @@ export class DexieStorageService implements StorageService {
       id: user.id,
       email: user.email,
       name: user.name,
+      role: user.role,
       createdAt: user.createdAt,
       preferences: JSON.stringify(user.preferences),
     });
@@ -33,6 +34,7 @@ export class DexieStorageService implements StorageService {
       id: row.id,
       email: row.email,
       name: row.name,
+      role: (row.role as 'user' | 'admin') ?? 'user',
       createdAt: row.createdAt,
       preferences: JSON.parse(row.preferences),
     };

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Button, TextInput } from 'react-native-paper';
+import { useAppTheme } from '../../providers/ThemeProvider';
 
 interface Props {
   secondsLeft: number;
@@ -31,7 +32,21 @@ export default function RestTimer({
   onReset,
   onSetDuration,
 }: Props) {
+  const { theme } = useAppTheme();
   const [draftDuration, setDraftDuration] = useState(String(duration));
+
+  const themedStyles = useMemo(
+    () => ({
+      container: {
+        alignItems: 'center' as const,
+        padding: 16,
+        backgroundColor: theme.colors.surface,
+        borderRadius: 12,
+        marginBottom: 12,
+      },
+    }),
+    [theme],
+  );
 
   const handleDurationChange = (text: string) => {
     setDraftDuration(text);
@@ -42,7 +57,7 @@ export default function RestTimer({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={themedStyles.container}>
       <Text variant="titleMedium" style={styles.label}>
         Rest Timer
       </Text>
@@ -84,13 +99,6 @@ export default function RestTimer({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 12,
-  },
   label: {
     marginBottom: 4,
   },

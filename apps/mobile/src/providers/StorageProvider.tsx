@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
-import { ActivityIndicator, Text, View, StyleSheet } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 import type { StorageService } from '@fitness-tracker/shared';
 import {
@@ -11,6 +11,7 @@ import type { SyncEngine as SyncEngineType } from '@fitness-tracker/shared';
 import { SqliteStorageService } from '../storage';
 import { SqliteSyncQueueStorage } from '../storage/syncQueueStorage';
 import { useAuth } from './AuthProvider';
+import { useAppTheme } from './ThemeProvider';
 
 const StorageContext = createContext<StorageService | null>(null);
 const SyncEngineContext = createContext<SyncEngineType | null>(null);
@@ -29,6 +30,7 @@ export function useSyncEngine(): SyncEngineType | null {
 
 export function StorageProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { theme } = useAppTheme();
   const [storage, setStorage] = useState<StorageService | null>(null);
   const [syncEngine, setSyncEngine] = useState<SyncEngineType | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -73,17 +75,23 @@ export function StorageProvider({ children }: { children: React.ReactNode }) {
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorTitle}>Storage Error</Text>
-        <Text style={styles.errorMessage}>{error}</Text>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+        <Text
+          style={{ fontSize: 18, fontWeight: 'bold', color: theme.colors.error, marginBottom: 8 }}
+        >
+          Storage Error
+        </Text>
+        <Text style={{ fontSize: 14, color: theme.colors.textSecondary, textAlign: 'center' }}>
+          {error}
+        </Text>
       </View>
     );
   }
 
   if (!isReady) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366f1" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
@@ -94,28 +102,3 @@ export function StorageProvider({ children }: { children: React.ReactNode }) {
     </StorageContext.Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  errorTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#dc2626',
-    marginBottom: 8,
-  },
-  errorMessage: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

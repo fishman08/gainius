@@ -2,68 +2,90 @@ import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '../../store';
 import { clearPlanComparison } from '../../store/slices/workoutSlice';
 import type { PlanChange } from '@fitness-tracker/shared';
-
-const ROW_COLORS: Record<PlanChange['changeType'], string> = {
-  added: '#E8F5E9',
-  removed: '#FFEBEE',
-  modified: '#FFF8E1',
-  unchanged: '#FAFAFA',
-};
-
-const CHANGE_LABELS: Record<PlanChange['changeType'], string> = {
-  added: 'New',
-  removed: 'Removed',
-  modified: 'Modified',
-  unchanged: '',
-};
+import { useTheme } from '../../providers/ThemeProvider';
 
 export function PlanComparisonView() {
   const dispatch = useDispatch();
+  const { theme } = useTheme();
   const comparison = useSelector((state: RootState) => state.workout.planComparison);
 
   if (!comparison) return null;
 
+  const rowColors: Record<PlanChange['changeType'], string> = {
+    added: theme.mode === 'dark' ? '#1b3d1b' : '#E8F5E9',
+    removed: theme.mode === 'dark' ? '#3d1b1b' : '#FFEBEE',
+    modified: theme.mode === 'dark' ? '#3d2e00' : '#FFF8E1',
+    unchanged: theme.mode === 'dark' ? theme.colors.surface : '#FAFAFA',
+  };
+
+  const badgeColors: Record<string, string> = {
+    added: theme.mode === 'dark' ? '#388E3C' : '#A5D6A7',
+    removed: theme.mode === 'dark' ? '#C62828' : '#EF9A9A',
+    modified: theme.mode === 'dark' ? '#F9A825' : '#FFE082',
+  };
+
   return (
     <div
       style={{
-        background: '#fff',
-        border: '1px solid #ddd',
+        background: theme.colors.surface,
+        border: `1px solid ${theme.colors.surfaceBorder}`,
         borderRadius: 12,
         padding: 24,
         marginBottom: 24,
       }}
     >
-      <h2 style={{ marginTop: 0, textAlign: 'center' }}>
+      <h2 style={{ marginTop: 0, textAlign: 'center', color: theme.colors.text }}>
         Week {comparison.oldPlan.weekNumber} → Week {comparison.newPlan.weekNumber}
       </h2>
-      <p style={{ textAlign: 'center', color: '#666', fontSize: 13, marginBottom: 16 }}>
+      <p
+        style={{
+          textAlign: 'center',
+          color: theme.colors.textSecondary,
+          fontSize: 13,
+          marginBottom: 16,
+        }}
+      >
         {comparison.oldPlan.startDate} — {comparison.newPlan.endDate}
       </p>
 
       <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16 }}>
         <thead>
-          <tr style={{ borderBottom: '2px solid #ddd' }}>
-            <th style={{ textAlign: 'left', padding: 8 }}>Exercise</th>
-            <th style={{ textAlign: 'center', padding: 8 }}>Old Plan</th>
-            <th style={{ textAlign: 'center', padding: 8 }}>New Plan</th>
-            <th style={{ textAlign: 'center', padding: 8 }}>Status</th>
+          <tr style={{ borderBottom: `2px solid ${theme.colors.surfaceBorder}` }}>
+            <th style={{ textAlign: 'left', padding: 8, color: theme.colors.text }}>Exercise</th>
+            <th style={{ textAlign: 'center', padding: 8, color: theme.colors.text }}>Old Plan</th>
+            <th style={{ textAlign: 'center', padding: 8, color: theme.colors.text }}>New Plan</th>
+            <th style={{ textAlign: 'center', padding: 8, color: theme.colors.text }}>Status</th>
           </tr>
         </thead>
         <tbody>
           {comparison.changes.map((change, i) => (
             <tr
               key={i}
-              style={{ background: ROW_COLORS[change.changeType], borderBottom: '1px solid #eee' }}
+              style={{
+                background: rowColors[change.changeType],
+                borderBottom: `1px solid ${theme.colors.surfaceBorder}`,
+              }}
             >
-              <td style={{ padding: 8, fontWeight: 500 }}>{change.exerciseName}</td>
-              <td style={{ padding: 8, textAlign: 'center', color: '#666', fontSize: 13 }}>
+              <td style={{ padding: 8, fontWeight: 500, color: theme.colors.text }}>
+                {change.exerciseName}
+              </td>
+              <td
+                style={{
+                  padding: 8,
+                  textAlign: 'center',
+                  color: theme.colors.textSecondary,
+                  fontSize: 13,
+                }}
+              >
                 {change.oldValue ?? '—'}
               </td>
-              <td style={{ padding: 8, textAlign: 'center', color: '#333', fontSize: 13 }}>
+              <td
+                style={{ padding: 8, textAlign: 'center', color: theme.colors.text, fontSize: 13 }}
+              >
                 {change.newValue ?? '—'}
               </td>
               <td style={{ padding: 8, textAlign: 'center' }}>
-                {CHANGE_LABELS[change.changeType] && (
+                {change.changeType !== 'unchanged' && (
                   <span
                     style={{
                       fontSize: 11,
@@ -71,15 +93,15 @@ export function PlanComparisonView() {
                       textTransform: 'uppercase',
                       padding: '2px 8px',
                       borderRadius: 4,
-                      background:
-                        change.changeType === 'added'
-                          ? '#A5D6A7'
-                          : change.changeType === 'removed'
-                            ? '#EF9A9A'
-                            : '#FFE082',
+                      background: badgeColors[change.changeType],
+                      color: theme.colors.text,
                     }}
                   >
-                    {CHANGE_LABELS[change.changeType]}
+                    {change.changeType === 'added'
+                      ? 'New'
+                      : change.changeType === 'removed'
+                        ? 'Removed'
+                        : 'Modified'}
                   </span>
                 )}
               </td>
@@ -90,11 +112,18 @@ export function PlanComparisonView() {
 
       {comparison.changes.some((c) => c.details) && (
         <div style={{ marginBottom: 16 }}>
-          <h4 style={{ marginBottom: 8 }}>Changes Detail</h4>
+          <h4 style={{ marginBottom: 8, color: theme.colors.text }}>Changes Detail</h4>
           {comparison.changes
             .filter((c) => c.details)
             .map((c, i) => (
-              <p key={i} style={{ fontSize: 13, color: '#E65100', margin: '4px 0' }}>
+              <p
+                key={i}
+                style={{
+                  fontSize: 13,
+                  color: theme.mode === 'dark' ? '#FFB74D' : '#E65100',
+                  margin: '4px 0',
+                }}
+              >
                 {c.exerciseName}: {c.details}
               </p>
             ))}
@@ -102,9 +131,18 @@ export function PlanComparisonView() {
       )}
 
       {comparison.claudeReasoning && (
-        <div style={{ background: '#E3F2FD', borderRadius: 8, padding: 16, marginBottom: 16 }}>
-          <h4 style={{ marginTop: 0, marginBottom: 8 }}>AI Coach Reasoning</h4>
-          <p style={{ fontSize: 14, margin: 0, whiteSpace: 'pre-wrap' }}>
+        <div
+          style={{
+            background: theme.mode === 'dark' ? '#1b2d3d' : '#E3F2FD',
+            borderRadius: 8,
+            padding: 16,
+            marginBottom: 16,
+          }}
+        >
+          <h4 style={{ marginTop: 0, marginBottom: 8, color: theme.colors.text }}>
+            AI Coach Reasoning
+          </h4>
+          <p style={{ fontSize: 14, margin: 0, whiteSpace: 'pre-wrap', color: theme.colors.text }}>
             {comparison.claudeReasoning}
           </p>
         </div>
@@ -115,8 +153,8 @@ export function PlanComparisonView() {
         style={{
           width: '100%',
           padding: 12,
-          background: '#4A90E2',
-          color: 'white',
+          background: theme.colors.primary,
+          color: theme.colors.primaryText,
           border: 'none',
           borderRadius: 8,
           fontSize: 16,

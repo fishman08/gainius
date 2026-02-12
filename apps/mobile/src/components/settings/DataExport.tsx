@@ -8,10 +8,12 @@ import { exportAllData, importData } from '@fitness-tracker/shared';
 import type { ExportedData } from '@fitness-tracker/shared';
 import { useStorage } from '../../providers/StorageProvider';
 import { useAuth } from '../../providers/AuthProvider';
+import { useAppTheme } from '../../providers/ThemeProvider';
 
 export default function DataExport() {
   const storage = useStorage();
   const { user } = useAuth();
+  const { theme } = useAppTheme();
   const userId = user?.id ?? 'local-user';
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
@@ -69,7 +71,7 @@ export default function DataExport() {
     <Card style={styles.card}>
       <Card.Title title="Data Management" />
       <Card.Content>
-        <Text variant="bodyMedium" style={styles.hint}>
+        <Text variant="bodyMedium" style={[styles.hint, { color: theme.colors.textSecondary }]}>
           Export your data as JSON for backup or transfer to another device.
         </Text>
         <Button
@@ -97,6 +99,6 @@ export default function DataExport() {
 
 const styles = StyleSheet.create({
   card: { marginBottom: 16 },
-  hint: { marginBottom: 12, color: '#666' },
+  hint: { marginBottom: 12 },
   button: { marginBottom: 12 },
 });

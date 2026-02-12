@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, IconButton } from 'react-native-paper';
+import { useAppTheme } from '../../providers/ThemeProvider';
 
 interface Props {
   onSend: (text: string) => void;
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function ChatInput({ onSend, disabled }: Props) {
+  const { theme } = useAppTheme();
   const [text, setText] = useState('');
 
   const handleSend = useCallback(() => {
@@ -18,7 +20,15 @@ export default function ChatInput({ onSend, disabled }: Props) {
   }, [text, onSend]);
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {
+          borderTopColor: theme.colors.surfaceBorder,
+          backgroundColor: theme.colors.surface,
+        },
+      ]}
+    >
       <TextInput
         value={text}
         onChangeText={setText}
@@ -50,8 +60,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 8,
     borderTopWidth: 1,
-    borderTopColor: '#ddd',
-    backgroundColor: '#fff',
   },
   input: { flex: 1, marginRight: 4, maxHeight: 100 },
 });

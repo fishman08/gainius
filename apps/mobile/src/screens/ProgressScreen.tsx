@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ScrollView, View, StyleSheet } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { Text, SegmentedButtons, List, Chip } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../store';
@@ -18,11 +18,13 @@ import {
 import StatCard from '../components/progress/StatCard';
 import VolumeChart from '../components/progress/VolumeChart';
 import ExerciseProgressChart from '../components/progress/ExerciseProgressChart';
+import { useAppTheme } from '../providers/ThemeProvider';
 
 export default function ProgressScreen() {
   const dispatch = useDispatch<AppDispatch>();
   const storage = useStorage();
   const { user } = useAuth();
+  const { theme } = useAppTheme();
   const userId = user?.id ?? 'local-user';
   const history = useSelector((state: RootState) => state.workout.history);
 
@@ -45,29 +47,36 @@ export default function ProgressScreen() {
 
   if (selectedExercise && exerciseAnalytics) {
     return (
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-        <Chip icon="arrow-left" onPress={() => setSelectedExercise(null)} style={styles.backChip}>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: theme.colors.background }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+      >
+        <Chip
+          icon="arrow-left"
+          onPress={() => setSelectedExercise(null)}
+          style={{ alignSelf: 'flex-start', marginBottom: 12 }}
+        >
           Back to overview
         </Chip>
 
-        <Text variant="headlineSmall" style={styles.heading}>
+        <Text variant="headlineSmall" style={{ marginBottom: 16 }}>
           {selectedExercise}
         </Text>
 
-        <View style={styles.statRow}>
+        <View style={{ flexDirection: 'row', marginBottom: 12 }}>
           <StatCard label="Best Weight" value={`${exerciseAnalytics.bestWeight} lbs`} />
-          <View style={styles.statGap} />
+          <View style={{ width: 12 }} />
           <StatCard label="Avg Weight" value={`${exerciseAnalytics.avgWeight} lbs`} />
         </View>
-        <View style={styles.statRow}>
+        <View style={{ flexDirection: 'row', marginBottom: 12 }}>
           <StatCard label="Sessions" value={exerciseAnalytics.sessionCount} />
-          <View style={styles.statGap} />
+          <View style={{ width: 12 }} />
           <StatCard label="Total Sets" value={exerciseAnalytics.totalSets} />
         </View>
 
         <ExerciseProgressChart analytics={exerciseAnalytics} />
 
-        <Text variant="titleSmall" style={styles.sectionTitle}>
+        <Text variant="titleSmall" style={{ marginTop: 8, marginBottom: 4 }}>
           Recent Sets
         </Text>
         {exerciseAnalytics.dataPoints
@@ -85,8 +94,11 @@ export default function ProgressScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text variant="headlineMedium" style={styles.heading}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+    >
+      <Text variant="headlineMedium" style={{ marginBottom: 16 }}>
         Progress
       </Text>
 
@@ -98,17 +110,17 @@ export default function ProgressScreen() {
           { value: 'month', label: 'Month' },
           { value: 'all', label: 'All' },
         ]}
-        style={styles.segmented}
+        style={{ marginBottom: 20 }}
       />
 
-      <View style={styles.statRow}>
+      <View style={{ flexDirection: 'row', marginBottom: 12 }}>
         <StatCard label="Workouts" value={stats.totalWorkouts} />
-        <View style={styles.statGap} />
+        <View style={{ width: 12 }} />
         <StatCard label="Total Volume" value={`${(stats.totalVolume / 1000).toFixed(1)}k`} />
       </View>
-      <View style={styles.statRow}>
+      <View style={{ flexDirection: 'row', marginBottom: 12 }}>
         <StatCard label="Total Sets" value={stats.totalSets} />
-        <View style={styles.statGap} />
+        <View style={{ width: 12 }} />
         <StatCard label="Avg/Week" value={stats.avgWorkoutsPerWeek} />
       </View>
 
@@ -116,7 +128,7 @@ export default function ProgressScreen() {
 
       {recentPRs.length > 0 && (
         <>
-          <Text variant="titleSmall" style={styles.sectionTitle}>
+          <Text variant="titleSmall" style={{ marginTop: 8, marginBottom: 4 }}>
             Personal Records
           </Text>
           {recentPRs.map((pr, i) => (
@@ -126,7 +138,16 @@ export default function ProgressScreen() {
               description={`${pr.weight} lbs — ${pr.date}`}
               right={() =>
                 pr.previousBest !== null ? (
-                  <Text style={styles.prDelta}>+{pr.weight - pr.previousBest}</Text>
+                  <Text
+                    style={{
+                      color: theme.colors.success,
+                      fontSize: 14,
+                      fontWeight: '600',
+                      alignSelf: 'center',
+                    }}
+                  >
+                    +{pr.weight - pr.previousBest}
+                  </Text>
                 ) : null
               }
             />
@@ -136,7 +157,7 @@ export default function ProgressScreen() {
 
       {exercises.length > 0 && (
         <>
-          <Text variant="titleSmall" style={styles.sectionTitle}>
+          <Text variant="titleSmall" style={{ marginTop: 8, marginBottom: 4 }}>
             Exercises
           </Text>
           {exercises.map((name) => (
@@ -151,21 +172,10 @@ export default function ProgressScreen() {
       )}
 
       {history.length === 0 && (
-        <Text style={styles.emptyText}>Complete some workouts to see your progress here.</Text>
+        <Text style={{ color: theme.colors.textHint, textAlign: 'center', marginTop: 40 }}>
+          Complete some workouts to see your progress here.
+        </Text>
       )}
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  content: { padding: 16, paddingBottom: 32 },
-  heading: { marginBottom: 16 },
-  segmented: { marginBottom: 20 },
-  statRow: { flexDirection: 'row', marginBottom: 12 },
-  statGap: { width: 12 },
-  sectionTitle: { marginTop: 8, marginBottom: 4 },
-  backChip: { alignSelf: 'flex-start', marginBottom: 12 },
-  prDelta: { color: '#4CAF50', fontSize: 14, fontWeight: '600', alignSelf: 'center' },
-  emptyText: { color: '#999', textAlign: 'center', marginTop: 40 },
-});

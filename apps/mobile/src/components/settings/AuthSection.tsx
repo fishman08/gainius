@@ -2,9 +2,11 @@ import React, { useState, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, Button, Text, Card } from 'react-native-paper';
 import { useAuth } from '../../providers/AuthProvider';
+import { useAppTheme } from '../../providers/ThemeProvider';
 
 export default function AuthSection() {
   const { user, signIn, signUp, signOut, isLoading } = useAuth();
+  const { theme } = useAppTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -41,7 +43,7 @@ export default function AuthSection() {
       <Card.Content>
         {user ? (
           <View>
-            <Text variant="bodyMedium" style={styles.hint}>
+            <Text variant="bodyMedium" style={[styles.hint, { color: theme.colors.textSecondary }]}>
               Signed in as {user.email}
             </Text>
             <Button mode="outlined" onPress={handleSignOut}>
@@ -50,7 +52,7 @@ export default function AuthSection() {
           </View>
         ) : (
           <View>
-            <Text variant="bodyMedium" style={styles.hint}>
+            <Text variant="bodyMedium" style={[styles.hint, { color: theme.colors.textSecondary }]}>
               Sign in or create an account to sync your data across devices.
             </Text>
             <TextInput
@@ -70,7 +72,9 @@ export default function AuthSection() {
               mode="outlined"
               style={styles.input}
             />
-            {error ? <Text style={styles.error}>{error}</Text> : null}
+            {error ? (
+              <Text style={[styles.error, { color: theme.colors.error }]}>{error}</Text>
+            ) : null}
             <View style={styles.buttons}>
               <Button
                 mode="contained"
@@ -100,9 +104,9 @@ export default function AuthSection() {
 
 const styles = StyleSheet.create({
   card: { marginBottom: 16 },
-  hint: { marginBottom: 12, color: '#666' },
+  hint: { marginBottom: 12 },
   input: { marginBottom: 12 },
-  error: { color: '#dc3545', fontSize: 14, marginBottom: 12 },
+  error: { fontSize: 14, marginBottom: 12 },
   buttons: { flexDirection: 'row', gap: 12 },
   button: { flex: 1 },
 });

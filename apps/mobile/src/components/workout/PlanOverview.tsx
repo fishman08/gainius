@@ -10,11 +10,13 @@ import WorkoutHistoryList from './WorkoutHistoryList';
 import EditWorkoutSession from './EditWorkoutSession';
 import PlanUpdateBanner from './PlanUpdateBanner';
 import { useAuth } from '../../providers/AuthProvider';
+import { useAppTheme } from '../../providers/ThemeProvider';
 
 export default function PlanOverview() {
   const dispatch = useDispatch<AppDispatch>();
   const storage = useStorage();
   const { user } = useAuth();
+  const { theme } = useAppTheme();
   const userId = user?.id ?? 'local-user';
   const currentPlan = useSelector((state: RootState) => state.workout.currentPlan);
   const history = useSelector((state: RootState) => state.workout.history);
@@ -24,6 +26,16 @@ export default function PlanOverview() {
     if (!currentPlan || history.length === 0) return [];
     return suggestWeightsForPlan(history, currentPlan.exercises);
   }, [currentPlan, history]);
+
+  const themedStyles = useMemo(
+    () => ({
+      container: { backgroundColor: theme.colors.background },
+      chip: { backgroundColor: theme.colors.background },
+      chipIncrease: { backgroundColor: theme.mode === 'dark' ? '#1b3d1b' : '#E8F5E9' },
+      chipDecrease: { backgroundColor: theme.mode === 'dark' ? '#3d2e00' : '#FFF3E0' },
+    }),
+    [theme],
+  );
 
   useEffect(() => {
     dispatch(loadHistory({ storage, userId }));
@@ -48,7 +60,10 @@ export default function PlanOverview() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={[styles.container, themedStyles.container]}
+      contentContainerStyle={styles.content}
+    >
       <PlanUpdateBanner />
       <Card style={styles.planCard}>
         <Card.Title title={`Week ${currentPlan.weekNumber} Plan`} />
@@ -66,9 +81,9 @@ export default function PlanOverview() {
                     compact
                     textStyle={styles.chipText}
                     style={[
-                      styles.chip,
-                      suggestion.direction === 'increase' && styles.chipIncrease,
-                      suggestion.direction === 'decrease' && styles.chipDecrease,
+                      themedStyles.chip,
+                      suggestion.direction === 'increase' && themedStyles.chipIncrease,
+                      suggestion.direction === 'decrease' && themedStyles.chipDecrease,
                     ]}
                   >
                     AI: {suggestion.suggestedWeight} lbs
@@ -84,7 +99,7 @@ export default function PlanOverview() {
         mode="contained"
         onPress={handleStart}
         style={styles.startButton}
-        buttonColor="#4A90E2"
+        buttonColor={theme.colors.primary}
       >
         Start Workout
       </Button>
@@ -99,7 +114,7 @@ export default function PlanOverview() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: { flex: 1 },
   content: { padding: 16, paddingBottom: 32 },
   planCard: { marginBottom: 16 },
   exerciseRow: {
@@ -109,9 +124,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   exercise: { flex: 1 },
-  chip: { backgroundColor: '#F5F5F5' },
-  chipIncrease: { backgroundColor: '#E8F5E9' },
-  chipDecrease: { backgroundColor: '#FFF3E0' },
   chipText: { fontSize: 11 },
   startButton: { marginBottom: 24 },
   historyHeading: { marginBottom: 12 },

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ScrollView, View, StyleSheet } from 'react-native';
 import { Card, Text, Button } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '../../store';
 import { clearActiveSession } from '../../store/slices/workoutSlice';
+import { useAppTheme } from '../../providers/ThemeProvider';
 
 interface Props {
   onDone: () => void;
@@ -21,8 +22,19 @@ function formatDuration(startTime: string, endTime?: string): string {
 
 export default function WorkoutSummary({ onDone }: Props) {
   const dispatch = useDispatch();
+  const { theme } = useAppTheme();
   const session = useSelector((state: RootState) => state.workout.history[0]);
   const currentPlan = useSelector((state: RootState) => state.workout.currentPlan);
+
+  const themedStyles = useMemo(
+    () => ({
+      container: { backgroundColor: theme.colors.background },
+      heading: { color: theme.colors.success },
+      detail: { color: theme.colors.text },
+      target: { color: theme.colors.textSecondary },
+    }),
+    [theme],
+  );
 
   if (!session) return null;
 
@@ -42,8 +54,11 @@ export default function WorkoutSummary({ onDone }: Props) {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text variant="headlineSmall" style={styles.heading}>
+    <ScrollView
+      style={[styles.container, themedStyles.container]}
+      contentContainerStyle={styles.content}
+    >
+      <Text variant="headlineSmall" style={[styles.heading, themedStyles.heading]}>
         Workout Complete
       </Text>
 
@@ -81,11 +96,11 @@ export default function WorkoutSummary({ onDone }: Props) {
           <Card key={ex.id} style={styles.exerciseCard}>
             <Card.Content>
               <Text variant="titleSmall">{ex.exerciseName}</Text>
-              <Text variant="bodySmall" style={styles.detail}>
+              <Text variant="bodySmall" style={[styles.detail, themedStyles.detail]}>
                 Completed: {completedSets} / {ex.sets.length} sets
               </Text>
               {planned && (
-                <Text variant="bodySmall" style={styles.target}>
+                <Text variant="bodySmall" style={[styles.target, themedStyles.target]}>
                   Target: {planned.targetSets}x{planned.targetReps}
                   {planned.suggestedWeight ? ` @ ${planned.suggestedWeight} lbs` : ''}
                 </Text>
@@ -103,9 +118,9 @@ export default function WorkoutSummary({ onDone }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: { flex: 1 },
   content: { padding: 16, paddingBottom: 32 },
-  heading: { textAlign: 'center', marginBottom: 16, color: '#4CAF50' },
+  heading: { textAlign: 'center', marginBottom: 16 },
   summaryCard: { marginBottom: 16 },
   statRow: {
     flexDirection: 'row',
@@ -114,7 +129,7 @@ const styles = StyleSheet.create({
   },
   detailHeading: { marginBottom: 8, marginTop: 8 },
   exerciseCard: { marginBottom: 8 },
-  detail: { color: '#333', marginTop: 2 },
-  target: { color: '#666', marginTop: 2 },
+  detail: { marginTop: 2 },
+  target: { marginTop: 2 },
   doneButton: { marginTop: 16 },
 });

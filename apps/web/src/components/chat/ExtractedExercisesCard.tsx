@@ -1,4 +1,5 @@
 import type { ExtractedExercise } from '@fitness-tracker/shared';
+import { useTheme } from '../../providers/ThemeProvider';
 
 interface Props {
   exercises: ExtractedExercise[];
@@ -11,19 +12,25 @@ function formatReps(reps: number | string): string {
 }
 
 export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss }: Props) {
+  const { theme } = useTheme();
+
   if (exercises.length === 0) return null;
+
+  const warningBg = theme.mode === 'dark' ? '#3d2e00' : '#FFF3CD';
+  const warningBorder = theme.mode === 'dark' ? '#665200' : '#FFE69C';
+  const warningText = theme.mode === 'dark' ? '#FFD54F' : '#856404';
 
   return (
     <div
       style={{
         margin: '0 12px 12px',
         padding: 12,
-        backgroundColor: '#FFF3CD',
-        border: '1px solid #FFE69C',
+        backgroundColor: warningBg,
+        border: `1px solid ${warningBorder}`,
         borderRadius: 8,
       }}
     >
-      <h4 style={{ margin: '0 0 8px', fontSize: 14, color: '#856404' }}>
+      <h4 style={{ margin: '0 0 8px', fontSize: 14, color: warningText }}>
         Extracted {exercises.length} exercise{exercises.length > 1 ? 's' : ''}
       </h4>
       {exercises.map((ex, i) => (
@@ -32,9 +39,10 @@ export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss
           style={{
             padding: 8,
             margin: '4px 0',
-            backgroundColor: '#fff',
+            backgroundColor: theme.colors.surface,
             borderRadius: 4,
             fontSize: 13,
+            color: theme.colors.text,
           }}
         >
           {ex.name} - {ex.sets}x{formatReps(ex.reps)}
@@ -46,8 +54,8 @@ export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss
           onClick={() => onConfirm(exercises)}
           style={{
             padding: '8px 16px',
-            backgroundColor: '#4A90E2',
-            color: '#fff',
+            backgroundColor: theme.colors.primary,
+            color: theme.colors.primaryText,
             border: 'none',
             borderRadius: 6,
             cursor: 'pointer',
@@ -61,8 +69,8 @@ export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss
           style={{
             padding: '8px 16px',
             backgroundColor: 'transparent',
-            color: '#666',
-            border: '1px solid #ccc',
+            color: theme.colors.textSecondary,
+            border: `1px solid ${theme.colors.surfaceBorder}`,
             borderRadius: 6,
             cursor: 'pointer',
           }}

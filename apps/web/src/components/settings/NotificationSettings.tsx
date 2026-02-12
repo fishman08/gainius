@@ -3,8 +3,10 @@ import type { NotificationPreferences } from '@fitness-tracker/shared';
 import { DEFAULT_NOTIFICATION_PREFERENCES } from '@fitness-tracker/shared';
 import { getNotificationPrefs, saveNotificationPrefs } from '../../services/apiKeyStorage';
 import { requestNotificationPermission } from '../../services/notificationService';
+import { useTheme } from '../../providers/ThemeProvider';
 
 export function NotificationSettings() {
+  const { theme } = useTheme();
   const [prefs, setPrefs] = useState<NotificationPreferences>({
     ...DEFAULT_NOTIFICATION_PREFERENCES,
   });
@@ -39,15 +41,15 @@ export function NotificationSettings() {
   return (
     <div
       style={{
-        background: '#fff',
+        background: theme.colors.surface,
         borderRadius: 12,
         padding: 24,
-        border: '1px solid #ddd',
+        border: `1px solid ${theme.colors.surfaceBorder}`,
         marginBottom: 16,
       }}
     >
-      <h2 style={{ marginTop: 0, marginBottom: 8 }}>Notifications</h2>
-      <p style={{ color: '#666', fontSize: 14, marginBottom: 16 }}>
+      <h2 style={{ marginTop: 0, marginBottom: 8, color: theme.colors.text }}>Notifications</h2>
+      <p style={{ color: theme.colors.textSecondary, fontSize: 14, marginBottom: 16 }}>
         Configure notification preferences for workout reminders and plan updates.
       </p>
 
@@ -58,7 +60,7 @@ export function NotificationSettings() {
           onChange={handleEnabledToggle}
           style={checkboxStyle}
         />
-        <label>Enable Notifications</label>
+        <label style={{ color: theme.colors.text }}>Enable Notifications</label>
       </div>
 
       {prefs.enabled && (
@@ -70,7 +72,7 @@ export function NotificationSettings() {
               onChange={() => update('workoutReminders', !prefs.workoutReminders)}
               style={checkboxStyle}
             />
-            <label>Workout Day Reminders</label>
+            <label style={{ color: theme.colors.text }}>Workout Day Reminders</label>
           </div>
           <div style={rowStyle}>
             <input
@@ -79,7 +81,7 @@ export function NotificationSettings() {
               onChange={() => update('planUpdateReminders', !prefs.planUpdateReminders)}
               style={checkboxStyle}
             />
-            <label>Plan Update Reminders</label>
+            <label style={{ color: theme.colors.text }}>Plan Update Reminders</label>
           </div>
           <div style={rowStyle}>
             <input
@@ -88,7 +90,7 @@ export function NotificationSettings() {
               onChange={() => update('restDayNotifications', !prefs.restDayNotifications)}
               style={checkboxStyle}
             />
-            <label>Rest Day Notifications</label>
+            <label style={{ color: theme.colors.text }}>Rest Day Notifications</label>
           </div>
           <div style={rowStyle}>
             <input
@@ -97,19 +99,21 @@ export function NotificationSettings() {
               onChange={() => update('achievementCelebrations', !prefs.achievementCelebrations)}
               style={checkboxStyle}
             />
-            <label>Achievement Celebrations</label>
+            <label style={{ color: theme.colors.text }}>Achievement Celebrations</label>
           </div>
           <div style={{ ...rowStyle, gap: 12 }}>
-            <label>Reminder Time:</label>
+            <label style={{ color: theme.colors.text }}>Reminder Time:</label>
             <input
               type="time"
               value={prefs.reminderTime}
               onChange={(e) => update('reminderTime', e.target.value)}
               style={{
                 padding: '6px 10px',
-                border: '1px solid #ddd',
+                border: `1px solid ${theme.colors.surfaceBorder}`,
                 borderRadius: 6,
                 fontSize: 14,
+                backgroundColor: theme.colors.inputBackground,
+                color: theme.colors.text,
               }}
             />
           </div>

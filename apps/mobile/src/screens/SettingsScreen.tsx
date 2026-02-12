@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { TextInput, Button, Text, Card } from 'react-native-paper';
 import { validateApiKey } from '@fitness-tracker/shared';
+import type { User } from '@fitness-tracker/shared';
 import {
   getApiKey,
   saveApiKey,
@@ -14,6 +15,11 @@ import AuthSection from '../components/settings/AuthSection';
 import SyncSettings from '../components/settings/SyncSettings';
 import DataExport from '../components/settings/DataExport';
 import { useSync } from '../providers/SyncProvider';
+import { useAuth } from '../providers/AuthProvider';
+import { useStorage } from '../providers/StorageProvider';
+import { useAppTheme } from '../providers/ThemeProvider';
+import type { ThemeMode } from '@fitness-tracker/shared';
+import { SegmentedButtons } from 'react-native-paper';
 
 export default function SettingsScreen() {
   const { syncNow } = useSync();
@@ -22,6 +28,15 @@ export default function SettingsScreen() {
   const [isValidating, setIsValidating] = useState(false);
   const [customPrompt, setCustomPrompt] = useState('');
   const [promptSaved, setPromptSaved] = useState(false);
+  const { user: authUser } = useAuth();
+  const storage = useStorage();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    if (authUser?.id) {
+      storage.getUser(authUser.id).then(setCurrentUser);
+    }
+  }, [authUser, storage]);
 
   useEffect(() => {
     getApiKey().then((key) => {
@@ -79,42 +94,65 @@ export default function SettingsScreen() {
     syncNow();
   }, [syncNow]);
 
+  const { theme, themeMode, setThemeMode } = useAppTheme();
+  const themeButtons = [
+    { value: 'light' as ThemeMode, label: 'Light' },
+    { value: 'dark' as ThemeMode, label: 'Dark' },
+    { value: 'system' as ThemeMode, label: 'System' },
+  ];
+
   return (
-    <ScrollView style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Title title="Claude API Key" />
-        <Card.Content>
-          <Text variant="bodyMedium" style={styles.hint}>
-            Enter your Anthropic API key to enable AI chat. Your key is stored securely on this
-            device.
-          </Text>
-          <TextInput
-            label="API Key"
-            value={apiKey}
-            onChangeText={setApiKey}
-            secureTextEntry={hasKey}
-            placeholder="sk-ant-..."
-            mode="outlined"
-            style={styles.input}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          <View style={styles.buttons}>
-            <Button
-              mode="contained"
-              onPress={handleSave}
-              loading={isValidating}
-              disabled={isValidating || !apiKey.trim()}
-              style={styles.button}
-            >
-              {hasKey ? 'Update Key' : 'Save Key'}
-            </Button>
-            {hasKey && (
-              <Button mode="outlined" onPress={handleRemove} style={styles.button}>
-                Remove Key
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      {currentUser?.role === 'admin' && (
+        <Card style={styles.card}>
+          <Card.Title title="Claude API Key" />
+          <Card.Content>
+            <Text variant="bodyMedium" style={[styles.hint, { color: theme.colors.textSecondary }]}>
+              Enter your Anthropic API key to enable AI chat. Your key is stored securely on this
+              device.
+            </Text>
+            <TextInput
+              label="API Key"
+              value={apiKey}
+              onChangeText={setApiKey}
+              secureTextEntry={hasKey}
+              placeholder="sk-ant-..."
+              mode="outlined"
+              style={styles.input}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <View style={styles.buttons}>
+              <Button
+                mode="contained"
+                onPress={handleSave}
+                loading={isValidating}
+                disabled={isValidating || !apiKey.trim()}
+                style={styles.button}
+              >
+                {hasKey ? 'Update Key' : 'Save Key'}
               </Button>
-            )}
-          </View>
+              {hasKey && (
+                <Button mode="outlined" onPress={handleRemove} style={styles.button}>
+                  Remove Key
+                </Button>
+              )}
+            </View>
+          </Card.Content>
+        </Card>
+      )}
+
+      <Card style={styles.card}>
+        <Card.Title title="Appearance" />
+        <Card.Content>
+          <Text variant="bodyMedium" style={[styles.hint, { color: theme.colors.textSecondary }]}>
+            Choose your preferred color theme.
+          </Text>
+          <SegmentedButtons
+            value={themeMode}
+            onValueChange={(value) => setThemeMode(value as ThemeMode)}
+            buttons={themeButtons}
+          />
         </Card.Content>
       </Card>
 
@@ -124,37 +162,40 @@ export default function SettingsScreen() {
 
       <NotificationSettings />
 
-      <Card style={styles.card}>
-        <Card.Title title="Custom AI Instructions" />
-        <Card.Content>
-          <Text variant="bodyMedium" style={styles.hint}>
-            Add custom instructions for the AI coach. These will be included in every conversation.
-          </Text>
-          <TextInput
-            label="System Instructions"
-            value={customPrompt}
-            onChangeText={setCustomPrompt}
-            placeholder="e.g., I prefer powerlifting-style programming with RPE-based intensity..."
-            mode="outlined"
-            multiline
-            numberOfLines={4}
-            style={styles.input}
-          />
-          <Button mode="contained" onPress={handleSavePrompt} style={styles.button}>
-            {promptSaved ? 'Saved!' : 'Save Instructions'}
-          </Button>
-        </Card.Content>
-      </Card>
+      {currentUser?.role === 'admin' && (
+        <Card style={styles.card}>
+          <Card.Title title="Custom AI Instructions" />
+          <Card.Content>
+            <Text variant="bodyMedium" style={[styles.hint, { color: theme.colors.textSecondary }]}>
+              Add custom instructions for the AI coach. These will be included in every
+              conversation.
+            </Text>
+            <TextInput
+              label="System Instructions"
+              value={customPrompt}
+              onChangeText={setCustomPrompt}
+              placeholder="e.g., I prefer powerlifting-style programming with RPE-based intensity..."
+              mode="outlined"
+              multiline
+              numberOfLines={4}
+              style={styles.input}
+            />
+            <Button mode="contained" onPress={handleSavePrompt} style={styles.button}>
+              {promptSaved ? 'Saved!' : 'Save Instructions'}
+            </Button>
+          </Card.Content>
+        </Card>
+      )}
 
-      <DataExport />
+      {currentUser?.role === 'admin' && <DataExport />}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#f5f5f5' },
+  container: { flex: 1, padding: 16 },
   card: { marginBottom: 16 },
-  hint: { marginBottom: 12, color: '#666' },
+  hint: { marginBottom: 12 },
   input: { marginBottom: 16 },
   buttons: { flexDirection: 'row', gap: 12 },
   button: { flex: 1 },

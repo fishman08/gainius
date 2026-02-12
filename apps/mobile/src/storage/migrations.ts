@@ -6,6 +6,7 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
       id TEXT PRIMARY KEY,
       email TEXT,
       name TEXT,
+      role TEXT NOT NULL DEFAULT 'user',
       created_at TEXT NOT NULL,
       preferences TEXT NOT NULL DEFAULT '{}'
     );

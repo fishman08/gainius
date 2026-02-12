@@ -11,6 +11,7 @@ import ProgressScreen from '../screens/ProgressScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import LoginScreen from '../screens/LoginScreen';
 import { useAuth } from '../providers/AuthProvider';
+import { useAppTheme } from '../providers/ThemeProvider';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -23,6 +24,8 @@ const tabIcons: Record<string, { focused: string; unfocused: string }> = {
 };
 
 function MainTabs() {
+  const { theme } = useAppTheme();
+
   return (
     <Tab.Navigator
       id="MainTabs"
@@ -32,10 +35,11 @@ function MainTabs() {
           const iconName = focused ? icons.focused : icons.unfocused;
           return <Ionicons name={iconName as never} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#4A90E2',
-        tabBarInactiveTintColor: '#999',
-        headerStyle: { backgroundColor: '#4A90E2' },
-        headerTintColor: '#fff',
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textHint,
+        headerStyle: { backgroundColor: theme.colors.primary },
+        headerTintColor: theme.colors.primaryText,
+        tabBarStyle: { backgroundColor: theme.colors.surface },
       })}
     >
       <Tab.Screen name="Chat" component={ChatScreen} options={{ title: 'AI Coach' }} />
@@ -48,11 +52,19 @@ function MainTabs() {
 
 export function RootNavigator() {
   const { user, isLoading } = useAuth();
+  const { theme } = useAppTheme();
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#4A90E2" />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: theme.colors.background,
+        }}
+      >
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }

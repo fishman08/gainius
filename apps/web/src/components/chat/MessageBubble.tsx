@@ -1,11 +1,13 @@
 import ReactMarkdown from 'react-markdown';
 import type { ChatMessage } from '@fitness-tracker/shared';
+import { useTheme } from '../../providers/ThemeProvider';
 
 interface Props {
   message: ChatMessage;
 }
 
 export default function MessageBubble({ message }: Props) {
+  const { theme } = useTheme();
   const isUser = message.role === 'user';
 
   return (
@@ -22,8 +24,8 @@ export default function MessageBubble({ message }: Props) {
           maxWidth: '80%',
           padding: '12px 16px',
           borderRadius: 16,
-          backgroundColor: isUser ? '#4A90E2' : '#E8E8E8',
-          color: isUser ? '#fff' : '#333',
+          backgroundColor: isUser ? theme.colors.messageBubbleUser : theme.colors.messageBubbleAI,
+          color: isUser ? theme.colors.messageBubbleUserText : theme.colors.messageBubbleAIText,
           fontSize: 15,
           lineHeight: 1.5,
         }}

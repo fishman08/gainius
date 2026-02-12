@@ -18,6 +18,7 @@ import { RecentPRsList } from '../components/progress/RecentPRsList';
 import { ExerciseListSection } from '../components/progress/ExerciseListSection';
 import { ExerciseDetailView } from '../components/progress/ExerciseDetailView';
 import { useUserId } from '../hooks/useUserId';
+import { useTheme } from '../providers/ThemeProvider';
 
 export default function ProgressPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -25,6 +26,7 @@ export default function ProgressPage() {
   const userId = useUserId();
   const history = useSelector((state: RootState) => state.workout.history);
 
+  const { theme } = useTheme();
   const [period, setPeriod] = useState<TimePeriod>('all');
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
 
@@ -75,7 +77,7 @@ export default function ProgressPage() {
       <ExerciseListSection exercises={exercises} onSelect={setSelectedExercise} />
 
       {history.length === 0 && (
-        <p style={{ color: '#999', textAlign: 'center', marginTop: 40 }}>
+        <p style={{ color: theme.colors.textHint, textAlign: 'center', marginTop: 40 }}>
           Complete some workouts to see your progress here.
         </p>
       )}

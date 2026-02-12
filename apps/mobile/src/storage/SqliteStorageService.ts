@@ -25,8 +25,8 @@ export class SqliteStorageService implements StorageService {
 
   async saveUser(user: User): Promise<void> {
     await this.db.runAsync(
-      'INSERT OR REPLACE INTO users (id, email, name, created_at, preferences) VALUES (?, ?, ?, ?, ?)',
-      [user.id, user.email, user.name, user.createdAt, JSON.stringify(user.preferences)],
+      'INSERT OR REPLACE INTO users (id, email, name, role, created_at, preferences) VALUES (?, ?, ?, ?, ?, ?)',
+      [user.id, user.email, user.name, user.role, user.createdAt, JSON.stringify(user.preferences)],
     );
   }
 
@@ -40,6 +40,7 @@ export class SqliteStorageService implements StorageService {
       id: row.id,
       email: row.email,
       name: row.name,
+      role: (row.role as 'user' | 'admin') ?? 'user',
       createdAt: row.created_at,
       preferences: JSON.parse(row.preferences),
     };

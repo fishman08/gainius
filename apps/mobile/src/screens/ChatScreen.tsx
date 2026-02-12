@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text, ActivityIndicator, Banner } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import type { ExtractedExercise, WorkoutPlan, PlannedExercise } from '@fitness-tracker/shared';
@@ -18,11 +18,14 @@ import { comparePlans } from '@fitness-tracker/shared';
 import MessageList from '../components/chat/MessageList';
 import ChatInput from '../components/chat/ChatInput';
 import ExtractedExercisesCard from '../components/chat/ExtractedExercisesCard';
+import { useAppTheme } from '../providers/ThemeProvider';
+import { Alert } from 'react-native';
 
 export default function ChatScreen() {
   const dispatch = useDispatch<AppDispatch>();
   const storage = useStorage();
   const { user } = useAuth();
+  const { theme } = useAppTheme();
   const userId = user?.id ?? 'local-user';
   const { conversations, activeConversationId, isLoading, error, lastExtractedExercises } =
     useSelector((state: RootState) => state.chat);
@@ -93,7 +96,7 @@ export default function ChatScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
@@ -103,16 +106,19 @@ export default function ChatScreen() {
         </Banner>
       )}
       {messages.length === 0 && !isLoading ? (
-        <View style={styles.empty}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 }}>
           <Text variant="headlineSmall">AI Fitness Coach</Text>
-          <Text variant="bodyMedium" style={styles.emptyHint}>
+          <Text
+            variant="bodyMedium"
+            style={{ marginTop: 8, color: theme.colors.textSecondary, textAlign: 'center' }}
+          >
             Ask me about workout planning, exercises, or your fitness goals.
           </Text>
         </View>
       ) : (
         <MessageList messages={messages} />
       )}
-      {isLoading && <ActivityIndicator style={styles.loader} />}
+      {isLoading && <ActivityIndicator style={{ padding: 8 }} />}
       {lastExtractedExercises.length > 0 && (
         <ExtractedExercisesCard
           exercises={lastExtractedExercises}
@@ -124,10 +130,3 @@ export default function ChatScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  empty: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
-  emptyHint: { marginTop: 8, color: '#666', textAlign: 'center' },
-  loader: { padding: 8 },
-});

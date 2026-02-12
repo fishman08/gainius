@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { WorkoutSession } from '@fitness-tracker/shared';
 import { computeExerciseAnalytics } from '@fitness-tracker/shared';
 import { ExerciseProgressChart } from './ExerciseProgressChart';
+import { useTheme } from '../../providers/ThemeProvider';
 
 interface ExerciseDetailViewProps {
   exerciseName: string;
@@ -10,10 +11,32 @@ interface ExerciseDetailViewProps {
 }
 
 export function ExerciseDetailView({ exerciseName, sessions, onBack }: ExerciseDetailViewProps) {
+  const { theme } = useTheme();
+
   const analytics = useMemo(
     () => computeExerciseAnalytics(sessions, exerciseName),
     [sessions, exerciseName],
   );
+
+  const statBoxStyle: React.CSSProperties = {
+    background: theme.colors.surface,
+    border: `1px solid ${theme.colors.surfaceBorder}`,
+    borderRadius: 10,
+    padding: '14px 8px',
+    textAlign: 'center',
+  };
+
+  const statValueStyle: React.CSSProperties = {
+    fontSize: 22,
+    fontWeight: 700,
+    color: theme.colors.text,
+  };
+
+  const statLabelStyle: React.CSSProperties = {
+    fontSize: 12,
+    color: theme.colors.textHint,
+    marginTop: 4,
+  };
 
   return (
     <div>
@@ -22,7 +45,7 @@ export function ExerciseDetailView({ exerciseName, sessions, onBack }: ExerciseD
         style={{
           background: 'none',
           border: 'none',
-          color: '#4A90E2',
+          color: theme.colors.primary,
           cursor: 'pointer',
           fontSize: 14,
           fontWeight: 600,
@@ -61,15 +84,15 @@ export function ExerciseDetailView({ exerciseName, sessions, onBack }: ExerciseD
 
       <div
         style={{
-          background: 'white',
-          border: '1px solid #e0e0e0',
+          background: theme.colors.surface,
+          border: `1px solid ${theme.colors.surfaceBorder}`,
           borderRadius: 12,
           padding: 20,
         }}
       >
         <h3 style={{ marginTop: 0, marginBottom: 12, fontSize: 16 }}>Recent Sets</h3>
         {analytics.dataPoints.length === 0 ? (
-          <p style={{ color: '#999' }}>No logged sets yet</p>
+          <p style={{ color: theme.colors.textHint }}>No logged sets yet</p>
         ) : (
           analytics.dataPoints
             .slice(-20)
@@ -81,11 +104,11 @@ export function ExerciseDetailView({ exerciseName, sessions, onBack }: ExerciseD
                   display: 'flex',
                   justifyContent: 'space-between',
                   padding: '6px 0',
-                  borderBottom: '1px solid #f5f5f5',
+                  borderBottom: `1px solid ${theme.colors.background}`,
                   fontSize: 14,
                 }}
               >
-                <span style={{ color: '#888' }}>{dp.date}</span>
+                <span style={{ color: theme.colors.textHint }}>{dp.date}</span>
                 <span>
                   {dp.weight} lbs x {dp.reps} reps
                 </span>
@@ -96,23 +119,3 @@ export function ExerciseDetailView({ exerciseName, sessions, onBack }: ExerciseD
     </div>
   );
 }
-
-const statBoxStyle: React.CSSProperties = {
-  background: 'white',
-  border: '1px solid #e0e0e0',
-  borderRadius: 10,
-  padding: '14px 8px',
-  textAlign: 'center',
-};
-
-const statValueStyle: React.CSSProperties = {
-  fontSize: 22,
-  fontWeight: 700,
-  color: '#333',
-};
-
-const statLabelStyle: React.CSSProperties = {
-  fontSize: 12,
-  color: '#888',
-  marginTop: 4,
-};

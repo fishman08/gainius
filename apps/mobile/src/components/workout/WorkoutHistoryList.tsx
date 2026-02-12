@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../store';
 import type { WorkoutSession } from '@fitness-tracker/shared';
+import { useAppTheme } from '../../providers/ThemeProvider';
 
 function computeVolume(session: WorkoutSession): number {
   return session.loggedExercises.reduce(
@@ -17,12 +18,21 @@ interface Props {
 }
 
 export default function WorkoutHistoryList({ onSessionSelect }: Props) {
+  const { theme } = useAppTheme();
   const history = useSelector((state: RootState) => state.workout.history);
+
+  const themedStyles = useMemo(
+    () => ({
+      emptyText: { color: theme.colors.textHint },
+      detail: { color: theme.colors.textSecondary },
+    }),
+    [theme],
+  );
 
   if (history.length === 0) {
     return (
       <View style={styles.empty}>
-        <Text variant="bodyMedium" style={styles.emptyText}>
+        <Text variant="bodyMedium" style={themedStyles.emptyText}>
           No workout history yet.
         </Text>
       </View>
@@ -41,10 +51,10 @@ export default function WorkoutHistoryList({ onSessionSelect }: Props) {
         >
           <Card.Content>
             <Text variant="titleSmall">{item.date}</Text>
-            <Text variant="bodySmall" style={styles.detail}>
+            <Text variant="bodySmall" style={[styles.detail, themedStyles.detail]}>
               {item.loggedExercises.length} exercises
             </Text>
-            <Text variant="bodySmall" style={styles.detail}>
+            <Text variant="bodySmall" style={[styles.detail, themedStyles.detail]}>
               Volume: {computeVolume(item).toLocaleString()} lbs
             </Text>
           </Card.Content>
@@ -59,14 +69,10 @@ const styles = StyleSheet.create({
     padding: 24,
     alignItems: 'center',
   },
-  emptyText: {
-    color: '#999',
-  },
   card: {
     marginBottom: 8,
   },
   detail: {
-    color: '#666',
     marginTop: 2,
   },
 });

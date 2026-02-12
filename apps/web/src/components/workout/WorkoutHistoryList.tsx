@@ -1,16 +1,18 @@
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../store';
+import { useTheme } from '../../providers/ThemeProvider';
 
 interface Props {
   onSessionSelect?: (sessionId: string) => void;
 }
 
 export function WorkoutHistoryList({ onSessionSelect }: Props) {
+  const { theme } = useTheme();
   const { history } = useSelector((state: RootState) => state.workout);
 
   if (history.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '40px 0', color: '#888' }}>
+      <div style={{ textAlign: 'center', padding: '40px 0', color: theme.colors.textHint }}>
         <p>No workout history yet.</p>
       </div>
     );
@@ -18,7 +20,7 @@ export function WorkoutHistoryList({ onSessionSelect }: Props) {
 
   return (
     <div>
-      <h3 style={{ marginBottom: 12 }}>Workout History</h3>
+      <h3 style={{ marginBottom: 12, color: theme.colors.text }}>Workout History</h3>
       {history.map((session) => {
         const exerciseCount = session.loggedExercises.length;
         const volume = session.loggedExercises.reduce(
@@ -38,8 +40,8 @@ export function WorkoutHistoryList({ onSessionSelect }: Props) {
             key={session.id}
             onClick={onSessionSelect ? () => onSessionSelect(session.id) : undefined}
             style={{
-              background: 'white',
-              border: '1px solid #ddd',
+              background: theme.colors.surface,
+              border: `1px solid ${theme.colors.surfaceBorder}`,
               borderRadius: 10,
               padding: '14px 18px',
               marginBottom: 10,
@@ -50,14 +52,18 @@ export function WorkoutHistoryList({ onSessionSelect }: Props) {
             }}
           >
             <div>
-              <div style={{ fontWeight: 600, fontSize: 14 }}>{dateStr}</div>
-              <div style={{ fontSize: 13, color: '#888', marginTop: 2 }}>
+              <div style={{ fontWeight: 600, fontSize: 14, color: theme.colors.text }}>
+                {dateStr}
+              </div>
+              <div style={{ fontSize: 13, color: theme.colors.textHint, marginTop: 2 }}>
                 {exerciseCount} exercise{exerciseCount !== 1 ? 's' : ''}
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontWeight: 600, fontSize: 14 }}>{volume.toLocaleString()} lbs</div>
-              <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>
+              <div style={{ fontWeight: 600, fontSize: 14, color: theme.colors.text }}>
+                {volume.toLocaleString()} lbs
+              </div>
+              <div style={{ fontSize: 12, color: theme.colors.textHint, marginTop: 2 }}>
                 {session.completed ? 'Completed' : 'In Progress'}
               </div>
             </div>

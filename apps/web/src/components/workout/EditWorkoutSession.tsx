@@ -1,15 +1,22 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../../store';
 import { useStorage } from '../../providers/StorageProvider';
+import { useTheme } from '../../providers/ThemeProvider';
 import {
   startEditSession,
   updateEditSet,
   cancelEdit,
   saveEditedSession,
   deleteWorkoutSession,
+  addExerciseToEditSession,
+  addSetToEditExercise,
+  deleteSetFromEditExercise,
+  deleteExerciseFromEditSession,
+  updateExerciseInEditSession,
 } from '../../store/slices/workoutSlice';
 import { ExerciseCard } from './ExerciseCard';
+import { AddExerciseModal } from './AddExerciseModal';
 
 interface Props {
   sessionId: string;
@@ -19,14 +26,17 @@ interface Props {
 export function EditWorkoutSession({ sessionId, onDone }: Props) {
   const dispatch = useDispatch<AppDispatch>();
   const storage = useStorage();
+  const { theme } = useTheme();
   const editingSession = useSelector((state: RootState) => state.workout.editingSession);
+
+  const [showAddExercise, setShowAddExercise] = useState(false);
 
   useEffect(() => {
     dispatch(startEditSession(sessionId));
   }, [dispatch, sessionId]);
 
   if (!editingSession) {
-    return <p style={{ textAlign: 'center', color: '#888' }}>Loading session...</p>;
+    return <p style={{ textAlign: 'center', color: theme.colors.textHint }}>Loading session...</p>;
   }
 
   const dateStr = new Date(editingSession.date).toLocaleDateString(undefined, {
@@ -50,6 +60,27 @@ export function EditWorkoutSession({ sessionId, onDone }: Props) {
         ...(field === 'completed' ? { completed: value as boolean } : {}),
       }),
     );
+  };
+
+  const handleAddSet = (exerciseIndex: number) => {
+    dispatch(addSetToEditExercise({ exerciseIndex }));
+  };
+
+  const handleAddExercise = (exerciseName: string, notes?: string) => {
+    dispatch(addExerciseToEditSession({ exerciseName, notes }));
+    setShowAddExercise(false);
+  };
+
+  const handleDeleteSet = (exerciseIndex: number, setIndex: number) => {
+    dispatch(deleteSetFromEditExercise({ exerciseIndex, setIndex }));
+  };
+
+  const handleDeleteExercise = (exerciseIndex: number) => {
+    dispatch(deleteExerciseFromEditSession({ exerciseIndex }));
+  };
+
+  const handleEditExercise = (exerciseIndex: number, name: string, notes?: string) => {
+    dispatch(updateExerciseInEditSession({ exerciseIndex, name, notes }));
   };
 
   const handleSave = async () => {
@@ -80,19 +111,20 @@ export function EditWorkoutSession({ sessionId, onDone }: Props) {
         }}
       >
         <div>
-          <h2 style={{ margin: 0 }}>Edit Workout</h2>
-          <p style={{ margin: '4px 0 0', color: '#888', fontSize: 14 }}>{dateStr}</p>
+          <h2 style={{ margin: 0, color: theme.colors.text }}>Edit Workout</h2>
+          <p style={{ margin: '4px 0 0', color: theme.colors.textHint, fontSize: 14 }}>{dateStr}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             onClick={handleCancel}
             style={{
               padding: '8px 16px',
-              background: '#f5f5f5',
-              border: '1px solid #ddd',
+              background: theme.colors.background,
+              border: `1px solid ${theme.colors.surfaceBorder}`,
               borderRadius: 6,
               cursor: 'pointer',
               fontSize: 14,
+              color: theme.colors.text,
             }}
           >
             Cancel
@@ -101,8 +133,8 @@ export function EditWorkoutSession({ sessionId, onDone }: Props) {
             onClick={handleSave}
             style={{
               padding: '8px 16px',
-              background: '#4A90E2',
-              color: 'white',
+              background: theme.colors.primary,
+              color: theme.colors.primaryText,
               border: 'none',
               borderRadius: 6,
               cursor: 'pointer',
@@ -121,8 +153,35 @@ export function EditWorkoutSession({ sessionId, onDone }: Props) {
           exercise={exercise}
           exerciseIndex={idx}
           onSetUpdate={handleSetUpdate}
+          onAddSet={handleAddSet}
+          onDeleteSet={handleDeleteSet}
+          onDeleteExercise={handleDeleteExercise}
+          onEditExercise={handleEditExercise}
         />
       ))}
+
+      <button
+        onClick={() => setShowAddExercise(true)}
+        style={{
+          width: '100%',
+          padding: 12,
+          background: 'transparent',
+          color: theme.colors.primary,
+          border: `2px dashed ${theme.colors.primary}`,
+          borderRadius: 8,
+          fontSize: 15,
+          fontWeight: 600,
+          cursor: 'pointer',
+          marginTop: 4,
+          marginBottom: 8,
+        }}
+      >
+        + Add Exercise
+      </button>
+
+      {showAddExercise && (
+        <AddExerciseModal onAdd={handleAddExercise} onCancel={() => setShowAddExercise(false)} />
+      )}
 
       <button
         onClick={handleDelete}
@@ -131,8 +190,8 @@ export function EditWorkoutSession({ sessionId, onDone }: Props) {
           marginTop: 16,
           padding: '10px 16px',
           background: 'transparent',
-          color: '#D32F2F',
-          border: '1px solid #D32F2F',
+          color: theme.colors.error,
+          border: `1px solid ${theme.colors.error}`,
           borderRadius: 6,
           cursor: 'pointer',
           fontSize: 14,

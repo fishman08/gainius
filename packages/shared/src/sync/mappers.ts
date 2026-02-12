@@ -6,6 +6,7 @@ export interface UserRow {
   id: string;
   email: string;
   name: string;
+  role: string;
   preferences: Record<string, unknown>;
   created_at: string;
   updated_at: string;
@@ -61,6 +62,7 @@ export function userToRow(user: User): Omit<UserRow, 'updated_at'> {
     id: user.id,
     email: user.email,
     name: user.name,
+    role: user.role,
     preferences: user.preferences as unknown as Record<string, unknown>,
     created_at: user.createdAt,
   };
@@ -121,6 +123,7 @@ export function rowToUser(row: UserRow): User {
   return {
     id: row.id,
     email: row.email,
+    role: (row.role as 'user' | 'admin') ?? 'user',
     name: row.name,
     createdAt: row.created_at,
     preferences: row.preferences as unknown as User['preferences'],

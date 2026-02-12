@@ -1,6 +1,7 @@
 export interface User {
   id: string;
   email: string;
+  role: 'user' | 'admin';
   name: string;
   createdAt: string;
   preferences: UserPreferences;

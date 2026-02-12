@@ -228,6 +228,112 @@ const workoutSlice = createSlice({
     cancelEdit(state) {
       state.editingSession = null;
     },
+    addExerciseToActiveSession(
+      state,
+      action: PayloadAction<{ exerciseName: string; notes?: string }>,
+    ) {
+      if (!state.activeSession) return;
+      const newExercise: LoggedExercise = {
+        id: generateId(),
+        sessionId: state.activeSession.id,
+        exerciseName: action.payload.exerciseName,
+        sets: [{ setNumber: 1, reps: 0, weight: 0, completed: false, timestamp: '' }],
+        notes: action.payload.notes,
+      };
+      state.activeSession.loggedExercises.push(newExercise);
+    },
+    addExerciseToEditSession(
+      state,
+      action: PayloadAction<{ exerciseName: string; notes?: string }>,
+    ) {
+      if (!state.editingSession) return;
+      const newExercise: LoggedExercise = {
+        id: generateId(),
+        sessionId: state.editingSession.id,
+        exerciseName: action.payload.exerciseName,
+        sets: [{ setNumber: 1, reps: 0, weight: 0, completed: false, timestamp: '' }],
+        notes: action.payload.notes,
+      };
+      state.editingSession.loggedExercises.push(newExercise);
+    },
+    addSetToExercise(state, action: PayloadAction<{ exerciseIndex: number }>) {
+      if (!state.activeSession) return;
+      const exercise = state.activeSession.loggedExercises[action.payload.exerciseIndex];
+      if (!exercise) return;
+      const lastSet = exercise.sets[exercise.sets.length - 1];
+      exercise.sets.push({
+        setNumber: exercise.sets.length + 1,
+        reps: 0,
+        weight: lastSet?.weight ?? 0,
+        completed: false,
+        timestamp: '',
+      });
+    },
+    addSetToEditExercise(state, action: PayloadAction<{ exerciseIndex: number }>) {
+      if (!state.editingSession) return;
+      const exercise = state.editingSession.loggedExercises[action.payload.exerciseIndex];
+      if (!exercise) return;
+      const lastSet = exercise.sets[exercise.sets.length - 1];
+      exercise.sets.push({
+        setNumber: exercise.sets.length + 1,
+        reps: 0,
+        weight: lastSet?.weight ?? 0,
+        completed: false,
+        timestamp: '',
+      });
+    },
+    deleteSetFromExercise(
+      state,
+      action: PayloadAction<{ exerciseIndex: number; setIndex: number }>,
+    ) {
+      if (!state.activeSession) return;
+      const exercise = state.activeSession.loggedExercises[action.payload.exerciseIndex];
+      if (!exercise || exercise.sets.length <= 1) return;
+      exercise.sets.splice(action.payload.setIndex, 1);
+      exercise.sets.forEach((s, i) => {
+        s.setNumber = i + 1;
+      });
+    },
+    deleteSetFromEditExercise(
+      state,
+      action: PayloadAction<{ exerciseIndex: number; setIndex: number }>,
+    ) {
+      if (!state.editingSession) return;
+      const exercise = state.editingSession.loggedExercises[action.payload.exerciseIndex];
+      if (!exercise || exercise.sets.length <= 1) return;
+      exercise.sets.splice(action.payload.setIndex, 1);
+      exercise.sets.forEach((s, i) => {
+        s.setNumber = i + 1;
+      });
+    },
+    deleteExerciseFromActiveSession(state, action: PayloadAction<{ exerciseIndex: number }>) {
+      if (!state.activeSession) return;
+      state.activeSession.loggedExercises.splice(action.payload.exerciseIndex, 1);
+    },
+    deleteExerciseFromEditSession(state, action: PayloadAction<{ exerciseIndex: number }>) {
+      if (!state.editingSession) return;
+      state.editingSession.loggedExercises.splice(action.payload.exerciseIndex, 1);
+    },
+    updateExerciseInActiveSession(
+      state,
+      action: PayloadAction<{ exerciseIndex: number; name: string; notes?: string }>,
+    ) {
+      if (!state.activeSession) return;
+      const exercise = state.activeSession.loggedExercises[action.payload.exerciseIndex];
+      if (!exercise) return;
+      exercise.exerciseName = action.payload.name;
+      exercise.notes = action.payload.notes;
+    },
+    updateExerciseInEditSession(
+      state,
+      action: PayloadAction<{ exerciseIndex: number; name: string; notes?: string }>,
+    ) {
+      if (!state.editingSession) return;
+      const exercise = state.editingSession.loggedExercises[action.payload.exerciseIndex];
+      if (!exercise) return;
+      exercise.exerciseName = action.payload.name;
+      exercise.notes = action.payload.notes;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -266,5 +372,15 @@ export const {
   startEditSession,
   updateEditSet,
   cancelEdit,
+  addExerciseToActiveSession,
+  addExerciseToEditSession,
+  addSetToExercise,
+  addSetToEditExercise,
+  deleteSetFromExercise,
+  deleteSetFromEditExercise,
+  deleteExerciseFromActiveSession,
+  deleteExerciseFromEditSession,
+  updateExerciseInActiveSession,
+  updateExerciseInEditSession,
 } = workoutSlice.actions;
 export default workoutSlice.reducer;

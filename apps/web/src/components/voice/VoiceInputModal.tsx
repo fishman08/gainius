@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useVoiceInput } from '../../hooks/useVoiceInput';
 import type { ParsedVoiceInput } from '@fitness-tracker/shared';
 import { parseVoiceInput } from '@fitness-tracker/shared';
+import { useTheme } from '../../providers/ThemeProvider';
 
 interface VoiceInputModalProps {
   onConfirm: (parsed: ParsedVoiceInput, transcript: string) => void;
@@ -16,6 +17,7 @@ export function VoiceInputModal({
   mode = 'workout',
   targetInfo,
 }: VoiceInputModalProps) {
+  const { theme } = useTheme();
   const { transcript, isListening, isSupported, error, start, stop } = useVoiceInput();
   const parsed = transcript ? parseVoiceInput(transcript) : null;
 
@@ -47,14 +49,92 @@ export function VoiceInputModal({
   const showNoNumbersMessage =
     mode === 'workout' && parsed && parsed.confidence === 0 && !!transcript;
 
+  const overlayStyle: React.CSSProperties = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+  };
+
+  const modalStyle: React.CSSProperties = {
+    background: theme.colors.surface,
+    borderRadius: 12,
+    padding: 24,
+    maxWidth: 420,
+    width: '90%',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+    color: theme.colors.text,
+  };
+
+  const buttonStyle: React.CSSProperties = {
+    padding: '8px 16px',
+    border: `1px solid ${theme.colors.surfaceBorder}`,
+    borderRadius: 6,
+    fontSize: 14,
+    fontWeight: 600,
+    cursor: 'pointer',
+    background: theme.colors.background,
+    color: theme.colors.text,
+  };
+
+  const labelStyle: React.CSSProperties = {
+    fontSize: 12,
+    fontWeight: 600,
+    color: theme.colors.textHint,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  };
+
+  const transcriptStyle: React.CSSProperties = {
+    fontSize: 16,
+    margin: '4px 0 0',
+    color: theme.colors.text,
+    fontStyle: 'italic',
+  };
+
+  const successBg = theme.mode === 'dark' ? '#1a3a1a' : '#f0fdf4';
+  const successChipBg = theme.mode === 'dark' ? '#1a4a1a' : '#dcfce7';
+  const successChipText = theme.mode === 'dark' ? '#4ade80' : '#166534';
+  const errorBg = theme.mode === 'dark' ? '#3a1a1a' : '#fef2f2';
+  const warningBg = theme.mode === 'dark' ? '#3a2a00' : '#fffbeb';
+  const warningText = theme.mode === 'dark' ? '#fbbf24' : '#92400e';
+
+  const chipStyle: React.CSSProperties = {
+    background: successChipBg,
+    padding: '4px 10px',
+    borderRadius: 12,
+    fontSize: 13,
+    fontWeight: 600,
+    color: successChipText,
+  };
+
+  const pulsingMicStyle: React.CSSProperties = {
+    width: 64,
+    height: 64,
+    borderRadius: '50%',
+    background: errorBg,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    animation: 'pulse 1.5s ease-in-out infinite',
+  };
+
   if (!isSupported) {
     return (
       <div style={overlayStyle}>
         <div style={modalStyle}>
-          <p style={{ color: '#d32f2f', fontWeight: 600 }}>
+          <p style={{ color: theme.colors.error, fontWeight: 600 }}>
             Speech recognition is not supported in this browser.
           </p>
-          <p style={{ color: '#666', fontSize: 14 }}>Try using Chrome for voice input.</p>
+          <p style={{ color: theme.colors.textSecondary, fontSize: 14 }}>
+            Try using Chrome for voice input.
+          </p>
           <button onClick={onCancel} style={buttonStyle}>
             Close
           </button>
@@ -71,7 +151,14 @@ export function VoiceInputModal({
           {mode === 'chat' ? 'Voice Message' : 'Voice Input'}
         </h3>
         {targetInfo && mode === 'workout' && (
-          <p style={{ margin: '0 0 12px', fontSize: 13, color: '#4A90E2', fontWeight: 600 }}>
+          <p
+            style={{
+              margin: '0 0 12px',
+              fontSize: 13,
+              color: theme.colors.primary,
+              fontWeight: 600,
+            }}
+          >
             Will update: {targetInfo}
           </p>
         )}
@@ -79,15 +166,20 @@ export function VoiceInputModal({
         {isListening && (
           <div style={{ textAlign: 'center', marginBottom: 16 }}>
             <div style={pulsingMicStyle}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="#d32f2f">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill={theme.colors.error}>
                 <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5z" />
                 <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
               </svg>
             </div>
-            <p style={{ color: '#d32f2f', fontWeight: 600, fontSize: 14 }}>Speak now...</p>
+            <p style={{ color: theme.colors.error, fontWeight: 600, fontSize: 14 }}>Speak now...</p>
             <button
               onClick={stop}
-              style={{ ...buttonStyle, background: '#f44336', color: 'white' }}
+              style={{
+                ...buttonStyle,
+                background: theme.colors.error,
+                color: theme.colors.primaryText,
+                border: 'none',
+              }}
             >
               Stop
             </button>
@@ -95,8 +187,8 @@ export function VoiceInputModal({
         )}
 
         {error && (
-          <div style={{ background: '#fef2f2', padding: 12, borderRadius: 8, marginBottom: 12 }}>
-            <p style={{ color: '#d32f2f', margin: 0, fontSize: 14 }}>{error}</p>
+          <div style={{ background: errorBg, padding: 12, borderRadius: 8, marginBottom: 12 }}>
+            <p style={{ color: theme.colors.error, margin: 0, fontSize: 14 }}>{error}</p>
           </div>
         )}
 
@@ -109,7 +201,7 @@ export function VoiceInputModal({
 
             {showParsedResult && parsed && (
               <div
-                style={{ background: '#f0fdf4', padding: 12, borderRadius: 8, marginBottom: 12 }}
+                style={{ background: successBg, padding: 12, borderRadius: 8, marginBottom: 12 }}
               >
                 <label style={labelStyle}>Parsed result:</label>
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 4 }}>
@@ -118,7 +210,7 @@ export function VoiceInputModal({
                   {parsed.reps != null && <span style={chipStyle}>Reps: {parsed.reps}</span>}
                   {parsed.weight != null && <span style={chipStyle}>Weight: {parsed.weight}</span>}
                 </div>
-                <p style={{ margin: '8px 0 0', fontSize: 12, color: '#666' }}>
+                <p style={{ margin: '8px 0 0', fontSize: 12, color: theme.colors.textSecondary }}>
                   Confidence: {Math.round(parsed.confidence * 100)}%
                 </p>
               </div>
@@ -126,9 +218,9 @@ export function VoiceInputModal({
 
             {showNoNumbersMessage && (
               <div
-                style={{ background: '#fffbeb', padding: 12, borderRadius: 8, marginBottom: 12 }}
+                style={{ background: warningBg, padding: 12, borderRadius: 8, marginBottom: 12 }}
               >
-                <p style={{ color: '#92400e', margin: 0, fontSize: 14 }}>
+                <p style={{ color: warningText, margin: 0, fontSize: 14 }}>
                   No numbers detected. Try saying something like "10 reps at 135".
                 </p>
               </div>
@@ -143,14 +235,24 @@ export function VoiceInputModal({
             </button>
             <button
               onClick={handleRetry}
-              style={{ ...buttonStyle, background: '#4A90E2', color: 'white' }}
+              style={{
+                ...buttonStyle,
+                background: theme.colors.primary,
+                color: theme.colors.primaryText,
+                border: 'none',
+              }}
             >
               {transcript ? 'Retry' : 'Listen Again'}
             </button>
             {showConfirmButton && (
               <button
                 onClick={handleConfirm}
-                style={{ ...buttonStyle, background: '#4CAF50', color: 'white' }}
+                style={{
+                  ...buttonStyle,
+                  background: theme.colors.success,
+                  color: theme.colors.primaryText,
+                  border: 'none',
+                }}
               >
                 Confirm
               </button>
@@ -158,7 +260,12 @@ export function VoiceInputModal({
             {showSendButton && (
               <button
                 onClick={handleSendRaw}
-                style={{ ...buttonStyle, background: '#4CAF50', color: 'white' }}
+                style={{
+                  ...buttonStyle,
+                  background: theme.colors.success,
+                  color: theme.colors.primaryText,
+                  border: 'none',
+                }}
               >
                 Send
               </button>
@@ -169,70 +276,3 @@ export function VoiceInputModal({
     </div>
   );
 }
-
-const overlayStyle: React.CSSProperties = {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  background: 'rgba(0,0,0,0.5)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  zIndex: 1000,
-};
-
-const modalStyle: React.CSSProperties = {
-  background: 'white',
-  borderRadius: 12,
-  padding: 24,
-  maxWidth: 420,
-  width: '90%',
-  boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-};
-
-const buttonStyle: React.CSSProperties = {
-  padding: '8px 16px',
-  border: '1px solid #ddd',
-  borderRadius: 6,
-  fontSize: 14,
-  fontWeight: 600,
-  cursor: 'pointer',
-  background: '#f5f5f5',
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: 12,
-  fontWeight: 600,
-  color: '#888',
-  textTransform: 'uppercase',
-  letterSpacing: 0.5,
-};
-
-const transcriptStyle: React.CSSProperties = {
-  fontSize: 16,
-  margin: '4px 0 0',
-  color: '#333',
-  fontStyle: 'italic',
-};
-
-const chipStyle: React.CSSProperties = {
-  background: '#dcfce7',
-  padding: '4px 10px',
-  borderRadius: 12,
-  fontSize: 13,
-  fontWeight: 600,
-  color: '#166534',
-};
-
-const pulsingMicStyle: React.CSSProperties = {
-  width: 64,
-  height: 64,
-  borderRadius: '50%',
-  background: '#fef2f2',
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  animation: 'pulse 1.5s ease-in-out infinite',
-};

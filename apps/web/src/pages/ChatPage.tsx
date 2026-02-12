@@ -16,11 +16,13 @@ import MessageList from '../components/chat/MessageList';
 import ChatInput from '../components/chat/ChatInput';
 import ExtractedExercisesCard from '../components/chat/ExtractedExercisesCard';
 import { useUserId } from '../hooks/useUserId';
+import { useTheme } from '../providers/ThemeProvider';
 
 export default function ChatPage() {
   const dispatch = useDispatch<AppDispatch>();
   const storage = useStorage();
   const userId = useUserId();
+  const { theme } = useTheme();
   const { conversations, activeConversationId, isLoading, error, lastExtractedExercises } =
     useSelector((state: RootState) => state.chat);
   const currentPlan = useSelector((state: RootState) => state.workout.currentPlan);
@@ -90,15 +92,15 @@ export default function ChatPage() {
         display: 'flex',
         flexDirection: 'column',
         height: 'calc(100vh - 48px)',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: theme.colors.background,
       }}
     >
       {error && (
         <div
           style={{
             padding: '8px 16px',
-            backgroundColor: '#f8d7da',
-            color: '#842029',
+            backgroundColor: theme.mode === 'dark' ? '#4a1c1c' : '#f8d7da',
+            color: theme.colors.error,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -124,8 +126,8 @@ export default function ChatPage() {
             justifyContent: 'center',
           }}
         >
-          <h2 style={{ color: '#4A90E2' }}>AI Fitness Coach</h2>
-          <p style={{ color: '#666' }}>
+          <h2 style={{ color: theme.colors.primary }}>AI Fitness Coach</h2>
+          <p style={{ color: theme.colors.textSecondary }}>
             Ask me about workout planning, exercises, or your fitness goals.
           </p>
         </div>
@@ -134,7 +136,9 @@ export default function ChatPage() {
       )}
 
       {isLoading && (
-        <div style={{ textAlign: 'center', padding: 8, color: '#666' }}>Thinking...</div>
+        <div style={{ textAlign: 'center', padding: 8, color: theme.colors.textSecondary }}>
+          Thinking...
+        </div>
       )}
 
       {lastExtractedExercises.length > 0 && (

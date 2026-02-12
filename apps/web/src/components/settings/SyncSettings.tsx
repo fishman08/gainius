@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../store';
+import { useTheme } from '../../providers/ThemeProvider';
 
 interface Props {
   onSyncNow: () => void;
@@ -7,6 +8,7 @@ interface Props {
 
 export function SyncSettings({ onSyncNow }: Props) {
   const { status, isAuthenticated } = useSelector((state: RootState) => state.sync);
+  const { theme } = useTheme();
 
   if (!isAuthenticated) return null;
 
@@ -18,25 +20,25 @@ export function SyncSettings({ onSyncNow }: Props) {
   return (
     <div
       style={{
-        background: '#fff',
+        background: theme.colors.surface,
         borderRadius: 12,
         padding: 24,
-        border: '1px solid #ddd',
+        border: `1px solid ${theme.colors.surfaceBorder}`,
         marginBottom: 16,
       }}
     >
-      <h2 style={{ marginTop: 0, marginBottom: 16 }}>Cloud Sync</h2>
+      <h2 style={{ marginTop: 0, marginBottom: 16, color: theme.colors.text }}>Cloud Sync</h2>
 
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           padding: '8px 0',
-          borderBottom: '1px solid #eee',
+          borderBottom: `1px solid ${theme.colors.surfaceBorder}`,
         }}
       >
-        <span>Status</span>
-        <span style={{ color: status.isSyncing ? '#4A90E2' : '#198754' }}>
+        <span style={{ color: theme.colors.text }}>Status</span>
+        <span style={{ color: status.isSyncing ? theme.colors.primary : theme.colors.success }}>
           {status.isSyncing ? 'Syncing...' : 'Ready'}
         </span>
       </div>
@@ -46,11 +48,11 @@ export function SyncSettings({ onSyncNow }: Props) {
           display: 'flex',
           justifyContent: 'space-between',
           padding: '8px 0',
-          borderBottom: '1px solid #eee',
+          borderBottom: `1px solid ${theme.colors.surfaceBorder}`,
         }}
       >
-        <span>Last sync</span>
-        <span style={{ color: '#666' }}>{formatDate(status.lastSyncAt)}</span>
+        <span style={{ color: theme.colors.text }}>Last sync</span>
+        <span style={{ color: theme.colors.textSecondary }}>{formatDate(status.lastSyncAt)}</span>
       </div>
 
       <div
@@ -58,15 +60,15 @@ export function SyncSettings({ onSyncNow }: Props) {
           display: 'flex',
           justifyContent: 'space-between',
           padding: '8px 0',
-          borderBottom: '1px solid #eee',
+          borderBottom: `1px solid ${theme.colors.surfaceBorder}`,
         }}
       >
-        <span>Pending changes</span>
-        <span style={{ color: '#666' }}>{status.pendingCount}</span>
+        <span style={{ color: theme.colors.text }}>Pending changes</span>
+        <span style={{ color: theme.colors.textSecondary }}>{status.pendingCount}</span>
       </div>
 
       {status.lastError && (
-        <p style={{ color: '#dc3545', fontSize: 14, marginTop: 8 }}>{status.lastError}</p>
+        <p style={{ color: theme.colors.error, fontSize: 14, marginTop: 8 }}>{status.lastError}</p>
       )}
 
       <button
@@ -76,8 +78,8 @@ export function SyncSettings({ onSyncNow }: Props) {
           width: '100%',
           marginTop: 16,
           padding: 12,
-          backgroundColor: '#4A90E2',
-          color: '#fff',
+          backgroundColor: theme.colors.primary,
+          color: theme.colors.primaryText,
           border: 'none',
           borderRadius: 8,
           fontWeight: 600,

@@ -1,10 +1,12 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, KeyboardAvoidingView, Platform } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { useAuth } from '../providers/AuthProvider';
+import { useAppTheme } from '../providers/ThemeProvider';
 
 export default function LoginScreen() {
   const { signIn, signUp } = useAuth();
+  const { theme } = useAppTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -40,14 +42,20 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={{ flex: 1, backgroundColor: theme.colors.surface }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.inner}>
-        <Text variant="headlineMedium" style={styles.title}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24 }}>
+        <Text
+          variant="headlineMedium"
+          style={{ textAlign: 'center', marginBottom: 8, color: theme.colors.primary }}
+        >
           Fitness Tracker
         </Text>
-        <Text variant="bodyMedium" style={styles.subtitle}>
+        <Text
+          variant="bodyMedium"
+          style={{ textAlign: 'center', marginBottom: 24, color: theme.colors.textSecondary }}
+        >
           Sign in or create an account to sync your data across devices.
         </Text>
 
@@ -58,7 +66,7 @@ export default function LoginScreen() {
           mode="outlined"
           keyboardType="email-address"
           autoCapitalize="none"
-          style={styles.input}
+          style={{ marginBottom: 12 }}
         />
         <TextInput
           label="Password"
@@ -66,18 +74,20 @@ export default function LoginScreen() {
           onChangeText={setPassword}
           secureTextEntry
           mode="outlined"
-          style={styles.input}
+          style={{ marginBottom: 12 }}
         />
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? (
+          <Text style={{ color: theme.colors.error, fontSize: 14, marginBottom: 12 }}>{error}</Text>
+        ) : null}
 
-        <View style={styles.buttons}>
+        <View style={{ flexDirection: 'row', gap: 12, marginTop: 4 }}>
           <Button
             mode="contained"
             onPress={handleSignIn}
             loading={isSubmitting}
             disabled={isDisabled}
-            style={styles.button}
+            style={{ flex: 1 }}
           >
             Sign In
           </Button>
@@ -86,7 +96,7 @@ export default function LoginScreen() {
             onPress={handleSignUp}
             loading={isSubmitting}
             disabled={isDisabled}
-            style={styles.button}
+            style={{ flex: 1 }}
           >
             Sign Up
           </Button>
@@ -95,14 +105,3 @@ export default function LoginScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  inner: { flex: 1, justifyContent: 'center', padding: 24 },
-  title: { textAlign: 'center', marginBottom: 8, color: '#4A90E2' },
-  subtitle: { textAlign: 'center', marginBottom: 24, color: '#666' },
-  input: { marginBottom: 12 },
-  error: { color: '#dc3545', fontSize: 14, marginBottom: 12 },
-  buttons: { flexDirection: 'row', gap: 12, marginTop: 4 },
-  button: { flex: 1 },
-});

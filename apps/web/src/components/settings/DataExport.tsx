@@ -3,10 +3,12 @@ import { exportAllData, importData } from '@fitness-tracker/shared';
 import type { ExportedData } from '@fitness-tracker/shared';
 import { useStorage } from '../../providers/StorageProvider';
 import { useUserId } from '../../hooks/useUserId';
+import { useTheme } from '../../providers/ThemeProvider';
 
 export function DataExport() {
   const storage = useStorage();
   const userId = useUserId();
+  const { theme } = useTheme();
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [message, setMessage] = useState('');
@@ -69,22 +71,22 @@ export function DataExport() {
   return (
     <div
       style={{
-        background: '#fff',
+        background: theme.colors.surface,
         borderRadius: 12,
         padding: 24,
-        border: '1px solid #ddd',
+        border: `1px solid ${theme.colors.surfaceBorder}`,
         marginBottom: 16,
       }}
     >
-      <h2 style={{ marginTop: 0, marginBottom: 8 }}>Data Management</h2>
-      <p style={{ color: '#666', fontSize: 14, marginBottom: 16 }}>
+      <h2 style={{ marginTop: 0, marginBottom: 8, color: theme.colors.text }}>Data Management</h2>
+      <p style={{ color: theme.colors.textSecondary, fontSize: 14, marginBottom: 16 }}>
         Export your data as JSON for backup or transfer to another device.
       </p>
       {message && (
         <p
           style={{
             fontSize: 14,
-            color: message.includes('failed') ? '#dc3545' : '#198754',
+            color: message.includes('failed') ? theme.colors.error : theme.colors.success,
             marginBottom: 12,
           }}
         >
@@ -98,8 +100,8 @@ export function DataExport() {
           style={{
             flex: 1,
             padding: 12,
-            backgroundColor: '#4A90E2',
-            color: '#fff',
+            backgroundColor: theme.colors.primary,
+            color: theme.colors.primaryText,
             border: 'none',
             borderRadius: 8,
             fontWeight: 600,
@@ -117,8 +119,8 @@ export function DataExport() {
             flex: 1,
             padding: 12,
             backgroundColor: 'transparent',
-            color: '#666',
-            border: '1px solid #ddd',
+            color: theme.colors.textSecondary,
+            border: `1px solid ${theme.colors.surfaceBorder}`,
             borderRadius: 8,
             fontWeight: 600,
             fontSize: 16,

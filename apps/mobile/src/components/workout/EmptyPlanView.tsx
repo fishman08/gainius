@@ -1,14 +1,26 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
+import { useAppTheme } from '../../providers/ThemeProvider';
 
 export default function EmptyPlanView() {
+  const { theme } = useAppTheme();
+
+  const themedStyles = useMemo(
+    () => ({
+      container: { backgroundColor: theme.colors.background },
+      title: { color: theme.colors.primary },
+      hint: { color: theme.colors.textSecondary },
+    }),
+    [theme],
+  );
+
   return (
-    <View style={styles.container}>
-      <Text variant="headlineSmall" style={styles.title}>
+    <View style={[styles.container, themedStyles.container]}>
+      <Text variant="headlineSmall" style={[styles.title, themedStyles.title]}>
         No workout plan yet
       </Text>
-      <Text variant="bodyMedium" style={styles.hint}>
+      <Text variant="bodyMedium" style={[styles.hint, themedStyles.hint]}>
         Chat with your AI coach to create one!
       </Text>
     </View>
@@ -21,14 +33,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
-    backgroundColor: '#f5f5f5',
   },
   title: {
-    color: '#4A90E2',
     marginBottom: 8,
   },
   hint: {
-    color: '#666',
     textAlign: 'center',
   },
 });

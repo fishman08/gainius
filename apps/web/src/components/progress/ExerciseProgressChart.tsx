@@ -1,13 +1,16 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import type { ExerciseAnalytics } from '@fitness-tracker/shared';
+import { useTheme } from '../../providers/ThemeProvider';
 
 interface ExerciseProgressChartProps {
   analytics: ExerciseAnalytics;
 }
 
 export function ExerciseProgressChart({ analytics }: ExerciseProgressChartProps) {
+  const { theme } = useTheme();
+
   if (analytics.dataPoints.length === 0) {
-    return <p style={{ color: '#999', textAlign: 'center' }}>No data yet</p>;
+    return <p style={{ color: theme.colors.textHint, textAlign: 'center' }}>No data yet</p>;
   }
 
   // Aggregate to best weight per date
@@ -27,8 +30,8 @@ export function ExerciseProgressChart({ analytics }: ExerciseProgressChartProps)
   return (
     <div
       style={{
-        background: 'white',
-        border: '1px solid #e0e0e0',
+        background: theme.colors.surface,
+        border: `1px solid ${theme.colors.surfaceBorder}`,
         borderRadius: 12,
         padding: 20,
         marginBottom: 24,
@@ -39,15 +42,24 @@ export function ExerciseProgressChart({ analytics }: ExerciseProgressChartProps)
       </h3>
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={chartData}>
-          <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-          <YAxis tick={{ fontSize: 12 }} />
-          <Tooltip formatter={(value: number | undefined) => [`${value ?? 0} lbs`, 'Weight']} />
+          <XAxis dataKey="date" tick={{ fontSize: 12, fill: theme.colors.textHint }} />
+          <YAxis tick={{ fontSize: 12, fill: theme.colors.textHint }} />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: theme.colors.surface,
+              border: `1px solid ${theme.colors.surfaceBorder}`,
+              color: theme.colors.text,
+            }}
+            labelStyle={{ color: theme.colors.textSecondary }}
+            itemStyle={{ color: theme.colors.text }}
+            formatter={(value: number | undefined) => [`${value ?? 0} lbs`, 'Weight']}
+          />
           <Line
             type="monotone"
             dataKey="weight"
-            stroke="#4A90E2"
+            stroke={theme.colors.primary}
             strokeWidth={2}
-            dot={{ fill: '#4A90E2', r: 4 }}
+            dot={{ fill: theme.colors.primary, r: 4 }}
           />
         </LineChart>
       </ResponsiveContainer>

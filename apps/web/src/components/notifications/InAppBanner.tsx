@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTheme } from '../../providers/ThemeProvider';
 
 export type BannerType = 'info' | 'success' | 'warning';
 
@@ -9,15 +10,22 @@ interface InAppBannerProps {
   onDismiss: () => void;
 }
 
-const COLORS: Record<BannerType, { bg: string; border: string; text: string }> = {
+const LIGHT_COLORS: Record<BannerType, { bg: string; border: string; text: string }> = {
   info: { bg: '#E3F2FD', border: '#90CAF9', text: '#1565C0' },
   success: { bg: '#E8F5E9', border: '#A5D6A7', text: '#2E7D32' },
   warning: { bg: '#FFF3E0', border: '#FFCC80', text: '#E65100' },
 };
 
+const DARK_COLORS: Record<BannerType, { bg: string; border: string; text: string }> = {
+  info: { bg: '#0d1f3c', border: '#1e3a5f', text: '#64B5F6' },
+  success: { bg: '#0d2818', border: '#1a4a2e', text: '#81C784' },
+  warning: { bg: '#2a1a00', border: '#4a3000', text: '#FFB74D' },
+};
+
 export function InAppBanner({ title, body, type, onDismiss }: InAppBannerProps) {
+  const { theme } = useTheme();
   const [visible, setVisible] = useState(true);
-  const colors = COLORS[type];
+  const colors = theme.mode === 'dark' ? DARK_COLORS[type] : LIGHT_COLORS[type];
 
   useEffect(() => {
     const timer = setTimeout(() => {

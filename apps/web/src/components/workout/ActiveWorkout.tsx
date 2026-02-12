@@ -2,12 +2,23 @@ import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../../store';
 import { useStorage } from '../../providers/StorageProvider';
+import { useTheme } from '../../providers/ThemeProvider';
 import { useRestTimer } from '@fitness-tracker/shared';
 import type { ParsedVoiceInput } from '@fitness-tracker/shared';
-import { updateSet, endSession, saveSession } from '../../store/slices/workoutSlice';
+import {
+  updateSet,
+  endSession,
+  saveSession,
+  addExerciseToActiveSession,
+  addSetToExercise,
+  deleteSetFromExercise,
+  deleteExerciseFromActiveSession,
+  updateExerciseInActiveSession,
+} from '../../store/slices/workoutSlice';
 import { ExerciseCard } from './ExerciseCard';
 import { RestTimer } from './RestTimer';
 import { VoiceInputModal } from '../voice/VoiceInputModal';
+import { AddExerciseModal } from './AddExerciseModal';
 
 interface VoiceTarget {
   exerciseIndex: number;
@@ -21,9 +32,11 @@ interface ActiveWorkoutProps {
 export function ActiveWorkout({ onComplete }: ActiveWorkoutProps) {
   const dispatch = useDispatch<AppDispatch>();
   const storage = useStorage();
+  const { theme } = useTheme();
   const { activeSession, currentPlan } = useSelector((state: RootState) => state.workout);
   const timer = useRestTimer(90);
   const [voiceTarget, setVoiceTarget] = useState<VoiceTarget | null>(null);
+  const [showAddExercise, setShowAddExercise] = useState(false);
 
   if (!activeSession) return null;
 
@@ -81,6 +94,27 @@ export function ActiveWorkout({ onComplete }: ActiveWorkoutProps) {
     setVoiceTarget(null);
   };
 
+  const handleAddSet = (exerciseIndex: number) => {
+    dispatch(addSetToExercise({ exerciseIndex }));
+  };
+
+  const handleAddExercise = (exerciseName: string, notes?: string) => {
+    dispatch(addExerciseToActiveSession({ exerciseName, notes }));
+    setShowAddExercise(false);
+  };
+
+  const handleDeleteSet = (exerciseIndex: number, setIndex: number) => {
+    dispatch(deleteSetFromExercise({ exerciseIndex, setIndex }));
+  };
+
+  const handleDeleteExercise = (exerciseIndex: number) => {
+    dispatch(deleteExerciseFromActiveSession({ exerciseIndex }));
+  };
+
+  const handleEditExercise = (exerciseIndex: number, name: string, notes?: string) => {
+    dispatch(updateExerciseInActiveSession({ exerciseIndex, name, notes }));
+  };
+
   const handleFinish = async () => {
     dispatch(endSession());
     await dispatch(saveSession({ storage }));
@@ -99,7 +133,7 @@ export function ActiveWorkout({ onComplete }: ActiveWorkoutProps) {
           marginBottom: 16,
         }}
       >
-        <h2 style={{ margin: 0 }}>Active Workout</h2>
+        <h2 style={{ margin: 0, color: theme.colors.text }}>Active Workout</h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button
             onClick={handleHeaderMic}
@@ -109,8 +143,8 @@ export function ActiveWorkout({ onComplete }: ActiveWorkoutProps) {
               width: 36,
               height: 36,
               borderRadius: '50%',
-              border: '1px solid #ddd',
-              background: 'white',
+              border: `1px solid ${theme.colors.surfaceBorder}`,
+              background: theme.colors.surface,
               cursor: allSetsComplete ? 'default' : 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -118,12 +152,12 @@ export function ActiveWorkout({ onComplete }: ActiveWorkoutProps) {
               opacity: allSetsComplete ? 0.4 : 1,
             }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#666">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill={theme.colors.textSecondary}>
               <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5z" />
               <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
             </svg>
           </button>
-          <span style={{ fontSize: 13, color: '#888' }}>
+          <span style={{ fontSize: 13, color: theme.colors.textHint }}>
             Started {new Date(activeSession.startTime).toLocaleTimeString()}
           </span>
         </div>
@@ -151,17 +185,40 @@ export function ActiveWorkout({ onComplete }: ActiveWorkoutProps) {
             plannedExercise={planned}
             onSetUpdate={handleSetUpdate}
             onVoiceSet={handleVoiceSet}
+            onAddSet={handleAddSet}
+            onDeleteSet={handleDeleteSet}
+            onDeleteExercise={handleDeleteExercise}
+            onEditExercise={handleEditExercise}
           />
         );
       })}
+
+      <button
+        onClick={() => setShowAddExercise(true)}
+        style={{
+          width: '100%',
+          padding: 12,
+          background: 'transparent',
+          color: theme.colors.primary,
+          border: `2px dashed ${theme.colors.primary}`,
+          borderRadius: 8,
+          fontSize: 15,
+          fontWeight: 600,
+          cursor: 'pointer',
+          marginTop: 4,
+          marginBottom: 8,
+        }}
+      >
+        + Add Exercise
+      </button>
 
       <button
         onClick={handleFinish}
         style={{
           width: '100%',
           padding: '14px 0',
-          background: '#4CAF50',
-          color: 'white',
+          background: theme.colors.success,
+          color: theme.colors.primaryText,
           border: 'none',
           borderRadius: 8,
           fontSize: 16,
@@ -172,6 +229,10 @@ export function ActiveWorkout({ onComplete }: ActiveWorkoutProps) {
       >
         Finish Workout
       </button>
+
+      {showAddExercise && (
+        <AddExerciseModal onAdd={handleAddExercise} onCancel={() => setShowAddExercise(false)} />
+      )}
 
       {voiceTarget && (
         <VoiceInputModal

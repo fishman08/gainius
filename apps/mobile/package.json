@@ -12,6 +12,9 @@
     "build:dev": "eas build --profile development --platform ios",
     "build:dev-sim": "eas build --profile development-simulator --platform ios",
     "build:preview": "eas build --profile preview --platform ios",
+    "build:production": "eas build --profile production --platform all",
+    "build:production:ios": "eas build --profile production --platform ios",
+    "build:production:android": "eas build --profile production --platform android",
     "prebuild": "expo prebuild --clean",
     "dev-client": "expo start --dev-client"
   },

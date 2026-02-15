@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildSystemPrompt } from '../contextBuilder';
-import type { WorkoutSession } from '../../types';
+import type { WorkoutSession, ChatMessage } from '../../types';
 
 describe('buildSystemPrompt', () => {
   it('includes coach instruction in default prompt', () => {
@@ -89,5 +89,59 @@ describe('buildSystemPrompt', () => {
   it('includes user goals', () => {
     const prompt = buildSystemPrompt({ goals: 'Build muscle mass' });
     expect(prompt).toContain('Build muscle mass');
+  });
+
+  it('includes previous messages for conversation continuity', () => {
+    const messages: ChatMessage[] = [
+      {
+        id: 'm1',
+        conversationId: 'c1',
+        role: 'user',
+        content: 'What should I do for chest day?',
+        timestamp: '',
+      },
+      {
+        id: 'm2',
+        conversationId: 'c1',
+        role: 'assistant',
+        content: 'I recommend starting with bench press.',
+        timestamp: '',
+      },
+    ];
+    const prompt = buildSystemPrompt({ previousMessages: messages });
+    expect(prompt).toContain('Recent conversation context');
+    expect(prompt).toContain('chest day');
+    expect(prompt).toContain('bench press');
+  });
+
+  it('truncates long previous messages to 200 chars', () => {
+    const longContent = 'A'.repeat(300);
+    const messages: ChatMessage[] = [
+      { id: 'm1', conversationId: 'c1', role: 'user', content: longContent, timestamp: '' },
+    ];
+    const prompt = buildSystemPrompt({ previousMessages: messages });
+    expect(prompt).toContain('...');
+    // Should not contain the full 300-char string
+    expect(prompt).not.toContain(longContent);
+  });
+
+  it('only includes last 6 previous messages', () => {
+    const messages: ChatMessage[] = Array.from({ length: 10 }, (_, i) => ({
+      id: `m${i}`,
+      conversationId: 'c1',
+      role: i % 2 === 0 ? ('user' as const) : ('assistant' as const),
+      content: `Message ${i}`,
+      timestamp: '',
+    }));
+    const prompt = buildSystemPrompt({ previousMessages: messages });
+    expect(prompt).not.toContain('Message 0');
+    expect(prompt).not.toContain('Message 3');
+    expect(prompt).toContain('Message 4');
+    expect(prompt).toContain('Message 9');
+  });
+
+  it('skips previous messages section when empty array', () => {
+    const prompt = buildSystemPrompt({ previousMessages: [] });
+    expect(prompt).not.toContain('Recent conversation context');
   });
 });

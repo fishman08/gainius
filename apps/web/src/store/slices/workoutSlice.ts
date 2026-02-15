@@ -9,7 +9,7 @@ import type {
   StorageService,
   PlanComparison,
 } from '@fitness-tracker/shared';
-import { generateId } from '@fitness-tracker/shared';
+import { generateId, normalizeExerciseName } from '@fitness-tracker/shared';
 
 export interface WorkoutState {
   currentPlan: WorkoutPlan | null;
@@ -228,6 +228,10 @@ const workoutSlice = createSlice({
     cancelEdit(state) {
       state.editingSession = null;
     },
+    updateEditSessionDate(state, action: PayloadAction<string>) {
+      if (!state.editingSession) return;
+      state.editingSession.date = action.payload;
+    },
     addExerciseToActiveSession(
       state,
       action: PayloadAction<{ exerciseName: string; notes?: string }>,
@@ -236,7 +240,7 @@ const workoutSlice = createSlice({
       const newExercise: LoggedExercise = {
         id: generateId(),
         sessionId: state.activeSession.id,
-        exerciseName: action.payload.exerciseName,
+        exerciseName: normalizeExerciseName(action.payload.exerciseName),
         sets: [{ setNumber: 1, reps: 0, weight: 0, completed: false, timestamp: '' }],
         notes: action.payload.notes,
       };
@@ -250,7 +254,7 @@ const workoutSlice = createSlice({
       const newExercise: LoggedExercise = {
         id: generateId(),
         sessionId: state.editingSession.id,
-        exerciseName: action.payload.exerciseName,
+        exerciseName: normalizeExerciseName(action.payload.exerciseName),
         sets: [{ setNumber: 1, reps: 0, weight: 0, completed: false, timestamp: '' }],
         notes: action.payload.notes,
       };
@@ -321,7 +325,7 @@ const workoutSlice = createSlice({
       if (!state.activeSession) return;
       const exercise = state.activeSession.loggedExercises[action.payload.exerciseIndex];
       if (!exercise) return;
-      exercise.exerciseName = action.payload.name;
+      exercise.exerciseName = normalizeExerciseName(action.payload.name);
       exercise.notes = action.payload.notes;
     },
     updateExerciseInEditSession(
@@ -331,7 +335,7 @@ const workoutSlice = createSlice({
       if (!state.editingSession) return;
       const exercise = state.editingSession.loggedExercises[action.payload.exerciseIndex];
       if (!exercise) return;
-      exercise.exerciseName = action.payload.name;
+      exercise.exerciseName = normalizeExerciseName(action.payload.name);
       exercise.notes = action.payload.notes;
     },
   },
@@ -372,6 +376,7 @@ export const {
   startEditSession,
   updateEditSet,
   cancelEdit,
+  updateEditSessionDate,
   addExerciseToActiveSession,
   addExerciseToEditSession,
   addSetToExercise,

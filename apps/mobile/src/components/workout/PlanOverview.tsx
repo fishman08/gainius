@@ -45,6 +45,7 @@ export default function PlanOverview() {
     return (
       <EditWorkoutSession
         sessionId={editingSessionId}
+        userId={userId}
         onDone={() => {
           setEditingSessionId(null);
           dispatch(loadHistory({ storage, userId }));

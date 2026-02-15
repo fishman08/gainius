@@ -9,21 +9,24 @@ import {
   cancelEdit,
   saveEditedSession,
   deleteWorkoutSession,
+  loadHistory,
   addExerciseToEditSession,
   addSetToEditExercise,
   deleteSetFromEditExercise,
   deleteExerciseFromEditSession,
   updateExerciseInEditSession,
+  updateEditSessionDate,
 } from '../../store/slices/workoutSlice';
 import { ExerciseCard } from './ExerciseCard';
 import { AddExerciseModal } from './AddExerciseModal';
 
 interface Props {
   sessionId: string;
+  userId: string;
   onDone: () => void;
 }
 
-export function EditWorkoutSession({ sessionId, onDone }: Props) {
+export function EditWorkoutSession({ sessionId, userId, onDone }: Props) {
   const dispatch = useDispatch<AppDispatch>();
   const storage = useStorage();
   const { theme } = useTheme();
@@ -38,12 +41,6 @@ export function EditWorkoutSession({ sessionId, onDone }: Props) {
   if (!editingSession) {
     return <p style={{ textAlign: 'center', color: theme.colors.textHint }}>Loading session...</p>;
   }
-
-  const dateStr = new Date(editingSession.date).toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  });
 
   const handleSetUpdate = (
     exerciseIndex: number,
@@ -85,6 +82,7 @@ export function EditWorkoutSession({ sessionId, onDone }: Props) {
 
   const handleSave = async () => {
     await dispatch(saveEditedSession({ storage }));
+    dispatch(loadHistory({ storage, userId }));
     onDone();
   };
 
@@ -112,7 +110,21 @@ export function EditWorkoutSession({ sessionId, onDone }: Props) {
       >
         <div>
           <h2 style={{ margin: 0, color: theme.colors.text }}>Edit Workout</h2>
-          <p style={{ margin: '4px 0 0', color: theme.colors.textHint, fontSize: 14 }}>{dateStr}</p>
+          <input
+            type="date"
+            value={editingSession.date}
+            onChange={(e) => dispatch(updateEditSessionDate(e.target.value))}
+            style={{
+              margin: '4px 0 0',
+              padding: '2px 6px',
+              fontSize: 14,
+              color: theme.colors.textHint,
+              background: theme.colors.inputBackground,
+              border: `1px solid ${theme.colors.surfaceBorder}`,
+              borderRadius: 4,
+              cursor: 'pointer',
+            }}
+          />
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button

@@ -6,7 +6,7 @@ const API_KEY_STORAGE_KEY = 'claude_api_key';
 const CUSTOM_PROMPT_KEY = 'custom_system_prompt';
 const NOTIFICATION_PREFS_KEY = 'notification_preferences';
 
-export async function getApiKey(user?: User | null): Promise<string | null> {
+export async function getApiKey(user: User | null): Promise<string | null> {
   if (user && user.role !== 'admin') return null;
   return SecureStore.getItemAsync(API_KEY_STORAGE_KEY);
 }

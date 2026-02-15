@@ -5,6 +5,7 @@ import {
   SyncedStorageService,
   SyncEngine,
   DEFAULT_SYNC_PREFERENCES,
+  normalizeHistoricalExercises,
 } from '@fitness-tracker/shared';
 import type { SyncEngine as SyncEngineType } from '@fitness-tracker/shared';
 import { DexieStorageService } from '../storage';
@@ -37,6 +38,14 @@ export function StorageProvider({ children }: { children: ReactNode }) {
     const init = async () => {
       const service = new DexieStorageService();
       await service.initialize();
+
+      // Run one-time exercise name normalization
+      const migrationKey = 'exercise_normalization_v1';
+      if (!localStorage.getItem(migrationKey)) {
+        const userId = user?.id ?? 'local-user';
+        await normalizeHistoricalExercises(service, userId);
+        localStorage.setItem(migrationKey, 'done');
+      }
 
       // Clear data on sign-out transition
       if (prevUserRef.current && !user) {

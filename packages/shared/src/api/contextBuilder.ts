@@ -1,4 +1,4 @@
-import type { WorkoutSession, UserPreferences } from '../types';
+import type { WorkoutSession, UserPreferences, ChatMessage } from '../types';
 import type { WeightSuggestion } from '../analytics/types';
 
 const MAX_HISTORY_SESSIONS = 5;
@@ -10,6 +10,7 @@ interface ContextOptions {
   customSystemPrompt?: string;
   weightSuggestions?: WeightSuggestion[];
   previousPlanContext?: string;
+  previousMessages?: ChatMessage[];
 }
 
 function formatSession(session: WorkoutSession): string {
@@ -68,6 +69,16 @@ export function buildSystemPrompt(options: ContextOptions): string {
       '',
       'Use these suggestions to inform your advice. Mention them when relevant to the conversation.',
     );
+  }
+
+  if (options.previousMessages && options.previousMessages.length > 0) {
+    const messagePairs = options.previousMessages.slice(-6);
+    parts.push('', 'Recent conversation context (from previous session):');
+    for (const msg of messagePairs) {
+      const truncated = msg.content.length > 200 ? msg.content.slice(0, 200) + '...' : msg.content;
+      parts.push(`  ${msg.role}: ${truncated}`);
+    }
+    parts.push('', 'Use the above context to maintain continuity with the previous conversation.');
   }
 
   if (options.previousPlanContext) {

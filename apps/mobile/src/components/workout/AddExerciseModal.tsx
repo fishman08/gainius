@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Modal, Portal, TextInput, Button, Text } from 'react-native-paper';
 import { useAppTheme } from '../../providers/ThemeProvider';
+import ExercisePicker from './ExercisePicker';
 
 interface Props {
   visible: boolean;
@@ -51,14 +52,9 @@ export default function AddExerciseModal({ visible, onAdd, onDismiss }: Props) {
           Add Exercise
         </Text>
 
-        <TextInput
-          label="Exercise name"
-          value={name}
-          onChangeText={setName}
-          mode="outlined"
-          style={styles.input}
-          autoFocus
-        />
+        <View style={styles.input}>
+          <ExercisePicker value={name} onChangeText={setName} onSelect={setName} autoFocus />
+        </View>
 
         <TextInput
           label="Notes (optional)"

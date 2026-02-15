@@ -1,25 +1,34 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text, ActivityIndicator, Banner } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
-import type { ExtractedExercise, WorkoutPlan, PlannedExercise } from '@fitness-tracker/shared';
+import type {
+  ExtractedExercise,
+  WorkoutPlan,
+  PlannedExercise,
+  User,
+} from '@fitness-tracker/shared';
 import { generateId } from '@fitness-tracker/shared';
 import { useStorage } from '../providers/StorageProvider';
 import { useAuth } from '../providers/AuthProvider';
 import type { RootState, AppDispatch } from '../store';
 import {
   sendChatMessage,
+  loadConversationHistory,
   setConversations,
   clearError,
   dismissExercises,
+  startNewConversation,
 } from '../store/slices/chatSlice';
 import { setCurrentPlan, setPreviousPlan, setPlanComparison } from '../store/slices/workoutSlice';
 import { comparePlans } from '@fitness-tracker/shared';
 import MessageList from '../components/chat/MessageList';
 import ChatInput from '../components/chat/ChatInput';
 import ExtractedExercisesCard from '../components/chat/ExtractedExercisesCard';
+import ConversationList from '../components/chat/ConversationList';
 import { useAppTheme } from '../providers/ThemeProvider';
 import { Alert } from 'react-native';
+import { IconButton } from 'react-native-paper';
 
 export default function ChatScreen() {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,24 +36,40 @@ export default function ChatScreen() {
   const { user } = useAuth();
   const { theme } = useAppTheme();
   const userId = user?.id ?? 'local-user';
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [showConversations, setShowConversations] = useState(false);
   const { conversations, activeConversationId, isLoading, error, lastExtractedExercises } =
     useSelector((state: RootState) => state.chat);
   const currentPlan = useSelector((state: RootState) => state.workout.currentPlan);
 
+  const storageRef = useRef(storage);
+  storageRef.current = storage;
+
   useEffect(() => {
-    storage.getConversations(userId).then((convos) => {
+    const s = storageRef.current;
+    s.getConversations(userId).then((convos) => {
       dispatch(setConversations(convos));
+      const targetId = activeConversationId ?? (convos.length > 0 ? convos[0].id : null);
+      if (targetId) {
+        dispatch(loadConversationHistory({ conversationId: targetId, storage: s }));
+      }
     });
-  }, [dispatch, storage, userId]);
+  }, [dispatch, userId]);
+
+  useEffect(() => {
+    if (user) {
+      storageRef.current.getUser(user.id).then(setCurrentUser);
+    }
+  }, [user]);
 
   const activeConversation = conversations.find((c) => c.id === activeConversationId);
   const messages = activeConversation?.messages ?? [];
 
   const handleSend = useCallback(
     (text: string) => {
-      dispatch(sendChatMessage({ text, storage, userId }));
+      dispatch(sendChatMessage({ text, storage, userId, user: currentUser }));
     },
-    [dispatch, storage, userId],
+    [dispatch, storage, userId, currentUser],
   );
 
   const handleConfirmExercises = useCallback(
@@ -94,6 +119,38 @@ export default function ChatScreen() {
     dispatch(dismissExercises());
   }, [dispatch]);
 
+  const handleSelectConversation = useCallback(
+    (conversationId: string) => {
+      dispatch(loadConversationHistory({ conversationId, storage }));
+      setShowConversations(false);
+    },
+    [dispatch, storage],
+  );
+
+  const handleNewConversation = useCallback(() => {
+    dispatch(startNewConversation());
+    setShowConversations(false);
+  }, [dispatch]);
+
+  if (showConversations) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8 }}>
+          <IconButton icon="arrow-left" onPress={() => setShowConversations(false)} />
+          <Text variant="titleMedium" style={{ flex: 1 }}>
+            Conversations
+          </Text>
+        </View>
+        <ConversationList
+          conversations={conversations}
+          activeConversationId={activeConversationId}
+          onSelect={handleSelectConversation}
+          onNewConversation={handleNewConversation}
+        />
+      </View>
+    );
+  }
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: theme.colors.background }}
@@ -105,6 +162,13 @@ export default function ChatScreen() {
           {error}
         </Banner>
       )}
+      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingRight: 4 }}>
+        <IconButton
+          icon="message-text-outline"
+          size={22}
+          onPress={() => setShowConversations(true)}
+        />
+      </View>
       {messages.length === 0 && !isLoading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 }}>
           <Text variant="headlineSmall">AI Fitness Coach</Text>

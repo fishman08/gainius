@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import * as SQLite from 'expo-sqlite';
+import * as SecureStore from 'expo-secure-store';
 import type { StorageService } from '@fitness-tracker/shared';
 import {
   SyncedStorageService,
   SyncEngine,
   DEFAULT_SYNC_PREFERENCES,
+  normalizeHistoricalExercises,
 } from '@fitness-tracker/shared';
 import type { SyncEngine as SyncEngineType } from '@fitness-tracker/shared';
 import { SqliteStorageService } from '../storage';
@@ -45,6 +47,15 @@ export function StorageProvider({ children }: { children: React.ReactNode }) {
           setTimeout(() => reject(new Error('Storage initialization timed out after 5s')), 5000),
         );
         await Promise.race([service.initialize(), timeout]);
+
+        // Run one-time exercise name normalization
+        const migrationKey = 'exercise_normalization_v1';
+        const migrated = await SecureStore.getItemAsync(migrationKey);
+        if (!migrated) {
+          const userId = user?.id ?? 'local-user';
+          await normalizeHistoricalExercises(service, userId);
+          await SecureStore.setItemAsync(migrationKey, 'done');
+        }
 
         // Clear data on sign-out transition
         if (prevUserRef.current && !user) {

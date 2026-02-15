@@ -6,6 +6,7 @@ import type {
   StorageService,
   ExtractedExercise,
   ClaudeMessage,
+  User,
 } from '@fitness-tracker/shared';
 import {
   generateId,
@@ -36,14 +37,29 @@ interface SendChatMessageArgs {
   text: string;
   storage: StorageService;
   userId: string;
+  user: User | null;
 }
 
 const MAX_CONTEXT_MESSAGES = 10;
 
+interface LoadConversationHistoryArgs {
+  conversationId: string;
+  storage: StorageService;
+}
+
+export const loadConversationHistory = createAsyncThunk(
+  'chat/loadConversationHistory',
+  async ({ conversationId, storage }: LoadConversationHistoryArgs) => {
+    const conversation = await storage.getConversation(conversationId);
+    if (!conversation) throw new Error('Conversation not found');
+    return conversation;
+  },
+);
+
 export const sendChatMessage = createAsyncThunk(
   'chat/sendMessage',
-  async ({ text, storage, userId }: SendChatMessageArgs, { getState }) => {
-    const apiKey = await getApiKey();
+  async ({ text, storage, userId, user }: SendChatMessageArgs, { getState }) => {
+    const apiKey = await getApiKey(user);
     if (!apiKey) throw new Error('No API key configured. Go to Settings to add one.');
 
     const state = (getState() as { chat: ChatState }).chat;
@@ -87,10 +103,14 @@ export const sendChatMessage = createAsyncThunk(
       ? suggestWeightsForPlan(allSessions, currentPlan.exercises)
       : undefined;
 
+    const previousMessages =
+      conversation.messages.length > 0 ? conversation.messages.slice(-6) : undefined;
+
     const systemPrompt = buildSystemPrompt({
       recentSessions,
       customSystemPrompt,
       weightSuggestions,
+      previousMessages,
     });
 
     // Build messages for API (last N messages + new one)
@@ -146,13 +166,23 @@ const chatSlice = createSlice({
       state.error = null;
     },
     setConversations(state, action: PayloadAction<Conversation[]>) {
-      state.conversations = action.payload;
+      state.conversations = action.payload.map((newConv) => {
+        const existing = state.conversations.find((c) => c.id === newConv.id);
+        return existing && existing.messages.length > 0
+          ? { ...newConv, messages: existing.messages }
+          : newConv;
+      });
     },
     clearError(state) {
       state.error = null;
     },
     dismissExercises(state) {
       state.lastExtractedExercises = [];
+    },
+    startNewConversation(state) {
+      state.activeConversationId = null;
+      state.lastExtractedExercises = [];
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -176,10 +206,24 @@ const chatSlice = createSlice({
       .addCase(sendChatMessage.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message ?? 'Failed to send message';
+      })
+      .addCase(loadConversationHistory.fulfilled, (state, action) => {
+        state.activeConversationId = action.payload.id;
+        const idx = state.conversations.findIndex((c) => c.id === action.payload.id);
+        if (idx >= 0) {
+          state.conversations[idx] = action.payload;
+        } else {
+          state.conversations.unshift(action.payload);
+        }
       });
   },
 });
 
-export const { setActiveConversation, setConversations, clearError, dismissExercises } =
-  chatSlice.actions;
+export const {
+  setActiveConversation,
+  setConversations,
+  clearError,
+  dismissExercises,
+  startNewConversation,
+} = chatSlice.actions;
 export default chatSlice.reducer;

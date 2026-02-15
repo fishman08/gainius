@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { ScrollView, View, StyleSheet, Alert } from 'react-native';
-import { Text, Button } from 'react-native-paper';
+import { Text, Button, TextInput } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../../store';
 import { useStorage } from '../../providers/StorageProvider';
@@ -11,21 +11,24 @@ import {
   cancelEdit,
   saveEditedSession,
   deleteWorkoutSession,
+  loadHistory,
   addExerciseToEditSession,
   addSetToEditExercise,
   deleteSetFromEditExercise,
   deleteExerciseFromEditSession,
   updateExerciseInEditSession,
+  updateEditSessionDate,
 } from '../../store/slices/workoutSlice';
 import ExerciseCard from './ExerciseCard';
 import AddExerciseModal from './AddExerciseModal';
 
 interface Props {
   sessionId: string;
+  userId: string;
   onDone: () => void;
 }
 
-export default function EditWorkoutSession({ sessionId, onDone }: Props) {
+export default function EditWorkoutSession({ sessionId, userId, onDone }: Props) {
   const dispatch = useDispatch<AppDispatch>();
   const storage = useStorage();
   const { theme } = useAppTheme();
@@ -38,10 +41,6 @@ export default function EditWorkoutSession({ sessionId, onDone }: Props) {
       container: {
         flex: 1 as const,
         backgroundColor: theme.colors.background,
-      },
-      date: {
-        color: theme.colors.textHint,
-        marginBottom: 16,
       },
       deleteButton: {
         marginTop: 16,
@@ -64,12 +63,6 @@ export default function EditWorkoutSession({ sessionId, onDone }: Props) {
       </View>
     );
   }
-
-  const dateStr = new Date(editingSession.date).toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  });
 
   const handleSetUpdate = (
     exerciseIndex: number,
@@ -111,6 +104,7 @@ export default function EditWorkoutSession({ sessionId, onDone }: Props) {
 
   const handleSave = async () => {
     await dispatch(saveEditedSession({ storage }));
+    dispatch(loadHistory({ storage, userId }));
     onDone();
   };
 
@@ -139,9 +133,14 @@ export default function EditWorkoutSession({ sessionId, onDone }: Props) {
       <Text variant="headlineSmall" style={styles.title}>
         Edit Workout
       </Text>
-      <Text variant="bodyMedium" style={themedStyles.date}>
-        {dateStr}
-      </Text>
+      <TextInput
+        mode="outlined"
+        dense
+        label="Date (YYYY-MM-DD)"
+        value={editingSession.date}
+        onChangeText={(text) => dispatch(updateEditSessionDate(text))}
+        style={styles.dateInput}
+      />
 
       {editingSession.loggedExercises.map((exercise, idx) => (
         <ExerciseCard
@@ -201,6 +200,7 @@ const styles = StyleSheet.create({
   content: { padding: 16, paddingBottom: 32 },
   loading: { padding: 24, alignItems: 'center' },
   title: { fontWeight: '700', marginBottom: 4 },
+  dateInput: { marginBottom: 12 },
   addExerciseButton: {
     marginTop: 8,
     marginBottom: 8,

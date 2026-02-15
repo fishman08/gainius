@@ -32,6 +32,7 @@ export function PlanOverview() {
       <div style={{ maxWidth: 600, margin: '20px auto', padding: 16 }}>
         <EditWorkoutSession
           sessionId={editingSessionId}
+          userId={userId}
           onDone={() => {
             setEditingSessionId(null);
             dispatch(loadHistory({ storage, userId }));

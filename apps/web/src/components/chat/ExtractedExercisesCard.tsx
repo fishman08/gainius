@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import type { ExtractedExercise } from '@fitness-tracker/shared';
 import { useTheme } from '../../providers/ThemeProvider';
+import { ExercisePicker } from '../workout/ExercisePicker';
 
 interface Props {
   exercises: ExtractedExercise[];
@@ -13,12 +15,17 @@ function formatReps(reps: number | string): string {
 
 export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss }: Props) {
   const { theme } = useTheme();
+  const [editableExercises, setEditableExercises] = useState<ExtractedExercise[]>(exercises);
 
   if (exercises.length === 0) return null;
 
   const warningBg = theme.mode === 'dark' ? '#3d2e00' : '#FFF3CD';
   const warningBorder = theme.mode === 'dark' ? '#665200' : '#FFE69C';
   const warningText = theme.mode === 'dark' ? '#FFD54F' : '#856404';
+
+  const updateName = (index: number, name: string) => {
+    setEditableExercises((prev) => prev.map((ex, i) => (i === index ? { ...ex, name } : ex)));
+  };
 
   return (
     <div
@@ -31,9 +38,9 @@ export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss
       }}
     >
       <h4 style={{ margin: '0 0 8px', fontSize: 14, color: warningText }}>
-        Extracted {exercises.length} exercise{exercises.length > 1 ? 's' : ''}
+        Extracted {editableExercises.length} exercise{editableExercises.length > 1 ? 's' : ''}
       </h4>
-      {exercises.map((ex, i) => (
+      {editableExercises.map((ex, i) => (
         <div
           key={i}
           style={{
@@ -42,16 +49,28 @@ export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss
             backgroundColor: theme.colors.surface,
             borderRadius: 4,
             fontSize: 13,
-            color: theme.colors.text,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
           }}
         >
-          {ex.name} - {ex.sets}x{formatReps(ex.reps)}
-          {ex.weight ? ` @ ${ex.weight}` : ''}
+          <div style={{ flex: 1 }}>
+            <ExercisePicker
+              value={ex.name}
+              onChange={(text) => updateName(i, text)}
+              onSelect={(name) => updateName(i, name)}
+              placeholder="Exercise name"
+            />
+          </div>
+          <span style={{ color: theme.colors.textSecondary, whiteSpace: 'nowrap', fontSize: 12 }}>
+            {ex.sets}x{formatReps(ex.reps)}
+            {ex.weight ? ` @ ${ex.weight}` : ''}
+          </span>
         </div>
       ))}
       <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
         <button
-          onClick={() => onConfirm(exercises)}
+          onClick={() => onConfirm(editableExercises)}
           style={{
             padding: '8px 16px',
             backgroundColor: theme.colors.primary,

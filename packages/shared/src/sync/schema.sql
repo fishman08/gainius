@@ -95,7 +95,8 @@ CREATE TRIGGER set_updated_at BEFORE UPDATE ON chat_messages
 CREATE OR REPLACE FUNCTION prevent_role_change()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF NEW.role IS DISTINCT FROM OLD.role THEN
+  IF NEW.role IS DISTINCT FROM OLD.role
+     AND current_setting('role') NOT IN ('postgres', 'service_role') THEN
     RAISE EXCEPTION 'Role changes are not allowed through the API';
   END IF;
   RETURN NEW;

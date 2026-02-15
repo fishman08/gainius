@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { LoggedExercise, PlannedExercise } from '@fitness-tracker/shared';
 import { SetRow } from './SetRow';
+import { ExercisePicker } from './ExercisePicker';
 import { useTheme } from '../../providers/ThemeProvider';
 
 interface ExerciseCardProps {
@@ -87,18 +88,10 @@ export function ExerciseCard({
       >
         {isEditing ? (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <input
+            <ExercisePicker
               value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              style={{
-                fontSize: 16,
-                fontWeight: 600,
-                padding: '4px 8px',
-                border: `1px solid ${theme.colors.surfaceBorder}`,
-                borderRadius: 4,
-                background: theme.colors.inputBackground,
-                color: theme.colors.text,
-              }}
+              onChange={setEditName}
+              onSelect={setEditName}
               autoFocus
             />
             <input

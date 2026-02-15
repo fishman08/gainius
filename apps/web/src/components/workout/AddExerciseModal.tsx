@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTheme } from '../../providers/ThemeProvider';
+import { ExercisePicker } from './ExercisePicker';
 
 interface AddExerciseModalProps {
   onAdd: (exerciseName: string, notes?: string) => void;
@@ -55,24 +56,9 @@ export function AddExerciseModal({ onAdd, onCancel }: AddExerciseModalProps) {
       <div style={modalStyle}>
         <h3 style={{ margin: '0 0 16px', fontSize: 18, color: theme.colors.text }}>Add Exercise</h3>
 
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Exercise name"
-          autoFocus
-          style={{
-            width: '100%',
-            padding: 12,
-            border: `1px solid ${theme.colors.surfaceBorder}`,
-            borderRadius: 8,
-            fontSize: 16,
-            marginBottom: 12,
-            boxSizing: 'border-box' as const,
-            background: theme.colors.inputBackground,
-            color: theme.colors.text,
-          }}
-        />
+        <div style={{ marginBottom: 12 }}>
+          <ExercisePicker value={name} onChange={setName} onSelect={setName} autoFocus />
+        </div>
 
         <textarea
           value={notes}

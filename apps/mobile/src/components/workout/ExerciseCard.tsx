@@ -4,6 +4,7 @@ import { Card, Text, Button, IconButton, TextInput } from 'react-native-paper';
 import type { LoggedExercise, PlannedExercise } from '@fitness-tracker/shared';
 import { useAppTheme } from '../../providers/ThemeProvider';
 import SetRow from './SetRow';
+import ExercisePicker from './ExercisePicker';
 
 interface Props {
   exercise: LoggedExercise;
@@ -94,15 +95,14 @@ export default function ExerciseCard({
       <Card.Content>
         {isEditing ? (
           <View style={styles.editContainer}>
-            <TextInput
-              mode="outlined"
-              dense
-              label="Exercise name"
-              value={editName}
-              onChangeText={setEditName}
-              style={styles.editInput}
-              autoFocus
-            />
+            <View style={styles.editInput}>
+              <ExercisePicker
+                value={editName}
+                onChangeText={setEditName}
+                onSelect={setEditName}
+                autoFocus
+              />
+            </View>
             <TextInput
               mode="outlined"
               dense

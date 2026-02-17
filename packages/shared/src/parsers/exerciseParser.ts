@@ -1,4 +1,4 @@
-import type { ExtractedExercise, ExerciseType } from './types';
+import type { ExtractedExercise } from './types';
 
 /**
  * Patterns matched (examples):
@@ -28,41 +28,6 @@ const PATTERN_TO_FAILURE =
 
 // Pattern 5: "Exercise Name: X sets x max reps"
 const PATTERN_MAX_REPS = /^(?:[•\-*]|\d+[.)])\s*(.+?):\s*(\d+)\s*sets?\s*[x×]\s*max\s*(?:reps?)?/im;
-
-const DAY_NAME_MAP: Record<string, number> = {
-  sunday: 0,
-  monday: 1,
-  tuesday: 2,
-  wednesday: 3,
-  thursday: 4,
-  friday: 5,
-  saturday: 6,
-};
-
-// Matches **Monday**, **Tuesday — Push**, **Wednesday - Pull Day**, etc.
-const DAY_HEADER_PATTERN = /^\*\*\s*(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/i;
-
-// Section headers for warmup/cooldown
-const WARMUP_HEADER = /^(?:\*\*|#{1,3})\s*warm[-\s]?up/i;
-const COOLDOWN_HEADER = /^(?:\*\*|#{1,3})\s*cool[-\s]?down/i;
-const WORKING_HEADER =
-  /^(?:\*\*|#{1,3})\s*(?:working\s*sets?|main\s*(?:workout|sets?)|exercises?)/i;
-
-// Superset notation: "A1." or "A2)" prefix
-const SUPERSET_PREFIX = /^([A-Z])(\d+)[.)]\s*/i;
-
-function parseDayHeader(line: string): number | null {
-  const match = line.match(DAY_HEADER_PATTERN);
-  if (!match) return null;
-  return DAY_NAME_MAP[match[1].toLowerCase()] ?? null;
-}
-
-function parseSectionHeader(line: string): ExerciseType | null {
-  if (WARMUP_HEADER.test(line)) return 'warmup';
-  if (COOLDOWN_HEADER.test(line)) return 'cooldown';
-  if (WORKING_HEADER.test(line)) return 'working';
-  return null;
-}
 
 function cleanName(raw: string): string {
   return raw
@@ -140,46 +105,13 @@ function parseLine(line: string): ExtractedExercise | null {
 export function extractExercises(text: string): ExtractedExercise[] {
   const lines = text.split('\n');
   const results: ExtractedExercise[] = [];
-  let currentDay: number | undefined;
-  let currentSection: ExerciseType | undefined;
 
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
 
-    const dayMatch = parseDayHeader(trimmed);
-    if (dayMatch !== null) {
-      currentDay = dayMatch;
-      continue;
-    }
-
-    const sectionMatch = parseSectionHeader(trimmed);
-    if (sectionMatch !== null) {
-      currentSection = sectionMatch;
-      continue;
-    }
-
-    // Check for superset prefix (e.g., "A1. Bench Press: 3x8")
-    const supersetMatch = trimmed.match(SUPERSET_PREFIX);
-    let supersetGroup: string | undefined;
-    let lineForParsing = trimmed;
-    if (supersetMatch) {
-      supersetGroup = supersetMatch[1].toUpperCase();
-      // Strip the prefix and add a dash so parseLine can match it
-      lineForParsing = '- ' + trimmed.slice(supersetMatch[0].length);
-    }
-
-    const exercise = parseLine(lineForParsing);
+    const exercise = parseLine(trimmed);
     if (exercise) {
-      if (currentDay !== undefined) {
-        exercise.dayOfWeek = currentDay;
-      }
-      if (supersetGroup) {
-        exercise.exerciseType = 'superset';
-        exercise.supersetGroup = supersetGroup;
-      } else if (currentSection) {
-        exercise.exerciseType = currentSection;
-      }
       results.push(exercise);
     }
   }

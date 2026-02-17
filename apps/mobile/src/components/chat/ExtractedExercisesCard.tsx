@@ -15,13 +15,6 @@ function formatReps(reps: number | string): string {
   return typeof reps === 'number' ? `${reps}` : reps;
 }
 
-function getTypeLabel(ex: ExtractedExercise): string | null {
-  if (ex.exerciseType === 'warmup') return 'Warm-up';
-  if (ex.exerciseType === 'cooldown') return 'Cool-down';
-  if (ex.exerciseType === 'superset' && ex.supersetGroup) return `Superset ${ex.supersetGroup}`;
-  return null;
-}
-
 export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss }: Props) {
   const { theme } = useAppTheme();
   const [editableExercises, setEditableExercises] = useState<ExtractedExercise[]>(exercises);
@@ -52,17 +45,10 @@ export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss
                   label="Exercise name"
                 />
               </View>
-              <View style={styles.metaContainer}>
-                {getTypeLabel(ex) && (
-                  <Text variant="labelSmall" style={[styles.typeBadge, { color: titleColor }]}>
-                    {getTypeLabel(ex)}
-                  </Text>
-                )}
-                <Text variant="bodySmall" style={{ color: theme.colors.textSecondary }}>
-                  {ex.sets}x{formatReps(ex.reps)}
-                  {ex.weight ? ` @ ${ex.weight}` : ''}
-                </Text>
-              </View>
+              <Text variant="bodySmall" style={{ color: theme.colors.textSecondary }}>
+                {ex.sets}x{formatReps(ex.reps)}
+                {ex.weight ? ` @ ${ex.weight}` : ''}
+              </Text>
             </View>
           ))}
         </ScrollView>
@@ -91,7 +77,5 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   pickerContainer: { flex: 1 },
-  metaContainer: { alignItems: 'flex-end' },
-  typeBadge: { fontSize: 10, fontWeight: '600', marginBottom: 2 },
   actions: { flexDirection: 'row', gap: 8, marginTop: 12 },
 });

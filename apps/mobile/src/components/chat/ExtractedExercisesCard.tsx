@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import { Card, Text, Button } from 'react-native-paper';
 import type { ExtractedExercise } from '@fitness-tracker/shared';
 import { useAppTheme } from '../../providers/ThemeProvider';
@@ -13,6 +13,13 @@ interface Props {
 
 function formatReps(reps: number | string): string {
   return typeof reps === 'number' ? `${reps}` : reps;
+}
+
+function getTypeLabel(ex: ExtractedExercise): string | null {
+  if (ex.exerciseType === 'warmup') return 'Warm-up';
+  if (ex.exerciseType === 'cooldown') return 'Cool-down';
+  if (ex.exerciseType === 'superset' && ex.supersetGroup) return `Superset ${ex.supersetGroup}`;
+  return null;
 }
 
 export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss }: Props) {
@@ -34,22 +41,31 @@ export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss
         <Text variant="titleSmall" style={[styles.title, { color: titleColor }]}>
           Extracted {editableExercises.length} exercise{editableExercises.length > 1 ? 's' : ''}
         </Text>
-        {editableExercises.map((ex, i) => (
-          <View key={i} style={styles.exerciseRow}>
-            <View style={styles.pickerContainer}>
-              <ExercisePicker
-                value={ex.name}
-                onChangeText={(text) => updateName(i, text)}
-                onSelect={(name) => updateName(i, name)}
-                label="Exercise name"
-              />
+        <ScrollView style={styles.scrollArea} contentContainerStyle={styles.scrollContent}>
+          {editableExercises.map((ex, i) => (
+            <View key={i} style={styles.exerciseRow}>
+              <View style={styles.pickerContainer}>
+                <ExercisePicker
+                  value={ex.name}
+                  onChangeText={(text) => updateName(i, text)}
+                  onSelect={(name) => updateName(i, name)}
+                  label="Exercise name"
+                />
+              </View>
+              <View style={styles.metaContainer}>
+                {getTypeLabel(ex) && (
+                  <Text variant="labelSmall" style={[styles.typeBadge, { color: titleColor }]}>
+                    {getTypeLabel(ex)}
+                  </Text>
+                )}
+                <Text variant="bodySmall" style={{ color: theme.colors.textSecondary }}>
+                  {ex.sets}x{formatReps(ex.reps)}
+                  {ex.weight ? ` @ ${ex.weight}` : ''}
+                </Text>
+              </View>
             </View>
-            <Text variant="bodySmall" style={{ color: theme.colors.textSecondary }}>
-              {ex.sets}x{formatReps(ex.reps)}
-              {ex.weight ? ` @ ${ex.weight}` : ''}
-            </Text>
-          </View>
-        ))}
+          ))}
+        </ScrollView>
         <View style={styles.actions}>
           <Button mode="contained" onPress={() => onConfirm(editableExercises)} compact>
             Add to Plan
@@ -66,6 +82,8 @@ export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss
 const styles = StyleSheet.create({
   card: { marginHorizontal: 12, marginBottom: 12 },
   title: { marginBottom: 8 },
+  scrollArea: { maxHeight: 400 },
+  scrollContent: { paddingBottom: 8 },
   exerciseRow: {
     marginBottom: 8,
     flexDirection: 'row',
@@ -73,5 +91,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   pickerContainer: { flex: 1 },
+  metaContainer: { alignItems: 'flex-end' },
+  typeBadge: { fontSize: 10, fontWeight: '600', marginBottom: 2 },
   actions: { flexDirection: 'row', gap: 8, marginTop: 12 },
 });

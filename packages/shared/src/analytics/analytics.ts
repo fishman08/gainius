@@ -158,12 +158,14 @@ export function computeWeeklyVolume(sessions: WorkoutSession[]): WeeklyVolume[] 
   const weekMap = new Map<string, { volume: number; sessionCount: number }>();
 
   for (const session of sessions) {
-    const date = new Date(session.date);
+    // Parse as local date to avoid timezone offset issues
+    const [year, month, dayNum] = session.date.split('-').map(Number);
+    const date = new Date(year, month - 1, dayNum);
     // Get Monday of the week
     const day = date.getDay();
     const monday = new Date(date);
     monday.setDate(date.getDate() - ((day + 6) % 7));
-    const weekKey = monday.toISOString().split('T')[0];
+    const weekKey = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, '0')}-${String(monday.getDate()).padStart(2, '0')}`;
 
     const existing = weekMap.get(weekKey) ?? { volume: 0, sessionCount: 0 };
     existing.sessionCount++;
@@ -182,7 +184,8 @@ export function computeWeeklyVolume(sessions: WorkoutSession[]): WeeklyVolume[] 
   return Array.from(weekMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([weekKey, data]) => {
-      const date = new Date(weekKey);
+      const [y, m, d] = weekKey.split('-').map(Number);
+      const date = new Date(y, m - 1, d);
       const month = date.toLocaleString('default', { month: 'short' });
       const day = date.getDate();
       return {

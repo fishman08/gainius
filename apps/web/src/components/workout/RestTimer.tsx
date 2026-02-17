@@ -65,6 +65,35 @@ export function RestTimer({
       <span style={{ fontWeight: 600, fontSize: 14, color: theme.colors.textSecondary }}>
         Rest Timer
       </span>
+      <div style={{ display: 'flex', gap: 4 }}>
+        {[
+          { label: '30s', value: 30 },
+          { label: '60s', value: 60 },
+          { label: '90s', value: 90 },
+          { label: '2m', value: 120 },
+        ].map((preset) => (
+          <button
+            key={preset.value}
+            disabled={isRunning}
+            onClick={() => {
+              setDraftDuration(String(preset.value));
+              onSetDuration(preset.value);
+            }}
+            style={{
+              padding: '4px 8px',
+              fontSize: 12,
+              borderRadius: 4,
+              cursor: isRunning ? 'default' : 'pointer',
+              border: `1px solid ${theme.colors.surfaceBorder}`,
+              background: duration === preset.value ? theme.colors.primary : theme.colors.surface,
+              color: duration === preset.value ? theme.colors.primaryText : theme.colors.text,
+              opacity: isRunning ? 0.5 : 1,
+            }}
+          >
+            {preset.label}
+          </button>
+        ))}
+      </div>
       <input
         type="number"
         value={draftDuration}

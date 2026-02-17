@@ -175,4 +175,42 @@ describe('computeWeeklyVolume', () => {
   it('returns empty for no sessions', () => {
     expect(computeWeeklyVolume([])).toEqual([]);
   });
+
+  it('groups sessions from the same week correctly regardless of timezone', () => {
+    // 2026-02-09 is Monday, 2026-02-13 is Friday — same week
+    const sameWeekSessions = [
+      makeSession({
+        date: '2026-02-09',
+        loggedExercises: [makeExercise('Bench Press', [{ weight: 135, reps: 10 }])],
+      }),
+      makeSession({
+        date: '2026-02-13',
+        id: 'session-fri',
+        loggedExercises: [makeExercise('Squat', [{ weight: 225, reps: 5 }])],
+      }),
+    ];
+    const weekly = computeWeeklyVolume(sameWeekSessions);
+    expect(weekly).toHaveLength(1);
+    expect(weekly[0].sessionCount).toBe(2);
+    expect(weekly[0].volume).toBe(135 * 10 + 225 * 5);
+  });
+
+  it('separates sessions from different weeks', () => {
+    // 2026-02-09 is Monday (week 1), 2026-02-16 is Monday (week 2)
+    const diffWeekSessions = [
+      makeSession({
+        date: '2026-02-09',
+        loggedExercises: [makeExercise('Bench Press', [{ weight: 135, reps: 10 }])],
+      }),
+      makeSession({
+        date: '2026-02-16',
+        id: 'session-next-week',
+        loggedExercises: [makeExercise('Squat', [{ weight: 225, reps: 5 }])],
+      }),
+    ];
+    const weekly = computeWeeklyVolume(diffWeekSessions);
+    expect(weekly).toHaveLength(2);
+    expect(weekly[0].sessionCount).toBe(1);
+    expect(weekly[1].sessionCount).toBe(1);
+  });
 });

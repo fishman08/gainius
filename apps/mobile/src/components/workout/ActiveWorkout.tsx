@@ -38,11 +38,14 @@ export default function ActiveWorkout({ onComplete }: Props) {
   const { activeSession, currentPlan } = useSelector((state: RootState) => state.workout);
 
   const onTimerWarning = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
   }, []);
 
   const onTimerComplete = useCallback(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy), 200);
+    setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy), 400);
     cancelTimerNotifications();
   }, []);
 

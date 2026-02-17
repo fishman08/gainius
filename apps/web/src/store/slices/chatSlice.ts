@@ -91,10 +91,9 @@ export const sendChatMessage = createAsyncThunk(
     };
     await storage.saveChatMessage(userMessage);
 
-    const recentSessions = await storage.getWorkoutHistory(userId, 5);
     const customSystemPrompt = getCustomPrompt() ?? undefined;
 
-    // Compute weight suggestions from workout history
+    // Load sessions for both history context (14-day filter in contextBuilder) and weight suggestions
     const allSessions = await storage.getWorkoutHistory(userId, 50);
     const currentPlan = await storage.getCurrentPlan(userId);
     const weightSuggestions = currentPlan
@@ -105,7 +104,8 @@ export const sendChatMessage = createAsyncThunk(
       conversation.messages.length > 0 ? conversation.messages.slice(-6) : undefined;
 
     const systemPrompt = buildSystemPrompt({
-      recentSessions,
+      recentSessions: allSessions,
+      preferences: user?.preferences,
       customSystemPrompt,
       weightSuggestions,
       previousMessages,

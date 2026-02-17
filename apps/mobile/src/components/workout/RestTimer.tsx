@@ -61,6 +61,28 @@ export default function RestTimer({
       <Text variant="titleMedium" style={styles.label}>
         Rest Timer
       </Text>
+      <View style={styles.presetRow}>
+        {[
+          { label: '30s', value: 30 },
+          { label: '60s', value: 60 },
+          { label: '90s', value: 90 },
+          { label: '2m', value: 120 },
+        ].map((preset) => (
+          <Button
+            key={preset.value}
+            mode="outlined"
+            compact
+            disabled={isRunning}
+            onPress={() => {
+              setDraftDuration(String(preset.value));
+              onSetDuration(preset.value);
+            }}
+            style={duration === preset.value ? styles.presetActive : undefined}
+          >
+            {preset.label}
+          </Button>
+        ))}
+      </View>
       <View style={styles.durationRow}>
         <TextInput
           mode="outlined"
@@ -101,6 +123,14 @@ export default function RestTimer({
 const styles = StyleSheet.create({
   label: {
     marginBottom: 4,
+  },
+  presetRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 8,
+  },
+  presetActive: {
+    borderWidth: 2,
   },
   durationRow: {
     flexDirection: 'row',

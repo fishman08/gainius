@@ -80,7 +80,7 @@ export default function ChatPage() {
         targetSets: ex.sets,
         targetReps: ex.reps,
         suggestedWeight: ex.weight,
-        dayOfWeek: 0,
+        dayOfWeek: ex.dayOfWeek ?? 0,
         order: i,
       }));
 

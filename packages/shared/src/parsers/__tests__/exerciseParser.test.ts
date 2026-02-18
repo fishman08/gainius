@@ -114,6 +114,144 @@ describe('extractExercises', () => {
     });
   });
 
+  describe('parser guards', () => {
+    it('skips letter-prefixed section headers', () => {
+      const result = extractExercises('A. Bench Press');
+      expect(result).toHaveLength(0);
+    });
+
+    it('skips weight-first lines', () => {
+      const result = extractExercises('- 210 lbs: 4 sets x 3 reps');
+      expect(result).toHaveLength(0);
+    });
+
+    it('skips rest-period lines', () => {
+      const result = extractExercises('- Rest: 60 seconds');
+      expect(result).toHaveLength(0);
+    });
+
+    it('still parses valid exercises after skipping guards', () => {
+      const text = [
+        'A. Upper Body',
+        '- 210 lbs: 4 sets x 3 reps',
+        '- Rest: 90 seconds',
+        '- Bench Press: 4 sets x 8 reps at 135 lbs',
+      ].join('\n');
+      const result = extractExercises(text);
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe('Bench Press');
+    });
+
+    it('parses superset prefix A1. but skips plain A.', () => {
+      const text = ['A. Upper Body', 'A1. Bench Press: 3 sets x 8 reps'].join('\n');
+      const result = extractExercises(text);
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe('Bench Press');
+      expect(result[0].supersetGroup).toBe('A');
+    });
+  });
+
+  describe('day-of-week parsing', () => {
+    it('assigns dayOfWeek from **Monday** header', () => {
+      const text = ['**Monday**', '- Bench Press: 4 sets x 8 reps'].join('\n');
+      const result = extractExercises(text);
+      expect(result).toHaveLength(1);
+      expect(result[0].dayOfWeek).toBe(1);
+    });
+
+    it('assigns dayOfWeek from **Wednesday** header', () => {
+      const text = ['**Wednesday**', '- Squats: 3 sets x 10 reps'].join('\n');
+      const result = extractExercises(text);
+      expect(result[0].dayOfWeek).toBe(3);
+    });
+
+    it('handles day headers with labels like **Monday — Push**', () => {
+      const text = ['**Monday — Push**', '- Overhead Press: 3 sets x 8 reps'].join('\n');
+      const result = extractExercises(text);
+      expect(result[0].dayOfWeek).toBe(1);
+    });
+
+    it('leaves dayOfWeek undefined when no header', () => {
+      const result = extractExercises('- Bench Press: 4 sets x 8 reps');
+      expect(result[0].dayOfWeek).toBeUndefined();
+    });
+
+    it('is case-insensitive', () => {
+      const text = ['**FRIDAY**', '- Deadlift: 5 sets x 5 reps'].join('\n');
+      const result = extractExercises(text);
+      expect(result[0].dayOfWeek).toBe(5);
+    });
+  });
+
+  describe('section type parsing', () => {
+    it('assigns warmup from ## Warm-up header', () => {
+      const text = ['## Warm-up', '- Jumping Jacks: 3 sets x 20 reps'].join('\n');
+      const result = extractExercises(text);
+      expect(result[0].exerciseType).toBe('warmup');
+    });
+
+    it('assigns cooldown from **Cool-down** header', () => {
+      const text = ['**Cool-down**', '- Stretching: 2 sets x 10 reps'].join('\n');
+      const result = extractExercises(text);
+      expect(result[0].exerciseType).toBe('cooldown');
+    });
+
+    it('handles warmup header variants (### Warmup)', () => {
+      const text = ['### Warmup', '- Arm Circles: 2 sets x 15 reps'].join('\n');
+      const result = extractExercises(text);
+      expect(result[0].exerciseType).toBe('warmup');
+    });
+
+    it('parses superset notation A1/A2, B1/B2', () => {
+      const text = [
+        'A1. Bench Press: 3 sets x 8 reps',
+        'A2. Bent Over Row: 3 sets x 8 reps',
+        'B1. Overhead Press: 3 sets x 10 reps',
+        'B2. Lat Pulldown: 3 sets x 10 reps',
+      ].join('\n');
+      const result = extractExercises(text);
+      expect(result).toHaveLength(4);
+      expect(result[0]).toMatchObject({ exerciseType: 'superset', supersetGroup: 'A' });
+      expect(result[1]).toMatchObject({ exerciseType: 'superset', supersetGroup: 'A' });
+      expect(result[2]).toMatchObject({ exerciseType: 'superset', supersetGroup: 'B' });
+      expect(result[3]).toMatchObject({ exerciseType: 'superset', supersetGroup: 'B' });
+    });
+
+    it('combines day + section headers', () => {
+      const text = [
+        '**Monday**',
+        '## Warm-up',
+        '- Jumping Jacks: 3 sets x 20 reps',
+        '## Main',
+        '- Bench Press: 4 sets x 8 reps',
+      ].join('\n');
+      const result = extractExercises(text);
+      expect(result).toHaveLength(2);
+      expect(result[0]).toMatchObject({ dayOfWeek: 1, exerciseType: 'warmup' });
+      expect(result[1]).toMatchObject({ dayOfWeek: 1, exerciseType: 'working' });
+    });
+
+    it('resets section on new day header', () => {
+      const text = [
+        '**Monday**',
+        '## Warm-up',
+        '- Jumping Jacks: 3 sets x 20 reps',
+        '**Tuesday**',
+        '- Squats: 3 sets x 10 reps',
+      ].join('\n');
+      const result = extractExercises(text);
+      expect(result).toHaveLength(2);
+      expect(result[0]).toMatchObject({ dayOfWeek: 1, exerciseType: 'warmup' });
+      expect(result[1].dayOfWeek).toBe(2);
+      expect(result[1].exerciseType).toBeUndefined();
+    });
+
+    it('leaves exerciseType undefined without section header', () => {
+      const result = extractExercises('- Bench Press: 4 sets x 8 reps');
+      expect(result[0].exerciseType).toBeUndefined();
+    });
+  });
+
   describe('edge cases', () => {
     it('returns empty array for empty input', () => {
       expect(extractExercises('')).toEqual([]);

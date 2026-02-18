@@ -83,7 +83,7 @@ export default function ChatScreen() {
         targetSets: ex.sets,
         targetReps: ex.reps,
         suggestedWeight: ex.weight,
-        dayOfWeek: 0,
+        dayOfWeek: ex.dayOfWeek ?? 0,
         order: i,
       }));
 

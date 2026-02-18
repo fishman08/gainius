@@ -14,26 +14,26 @@ describe('buildSystemPrompt', () => {
     vi.useRealTimers();
   });
 
-  it('includes full base instruction with all 4 formats', () => {
+  it('includes expanded base instruction with all format examples and prohibitions', () => {
     const prompt = buildSystemPrompt({});
     expect(prompt).toContain('personal fitness coach');
+    // All 4 format examples
     expect(prompt).toContain('X sets x Y reps at Z lbs');
     expect(prompt).toContain('XxY at Z lbs');
     expect(prompt).toContain('X sets to failure');
     expect(prompt).toContain('X sets x max reps');
-  });
-
-  it('includes day header format instructions', () => {
-    const prompt = buildSystemPrompt({});
+    // WRONG/RIGHT examples
+    expect(prompt).toContain('WRONG');
+    expect(prompt).toContain('RIGHT');
+    expect(prompt).toContain('A. Back Squats');
+    expect(prompt).toContain('165 lbs: 4 sets x 5 reps');
+    // Prohibition on bad formats
+    expect(prompt).toContain('letter-prefixed headers break parsing');
+    // Day header format
     expect(prompt).toContain('**Monday**');
     expect(prompt).toContain('**Wednesday**');
-    expect(prompt).toContain('assign exercises to specific days');
-  });
-
-  it('includes no-tables rule and conversational tone', () => {
-    const prompt = buildSystemPrompt({});
-    expect(prompt).toContain('Do not use tables, numbered lists, or other formats');
-    expect(prompt).toContain('Keep responses conversational');
+    // End-of-prompt reinforcement
+    expect(prompt).toContain('Reminder: Every exercise must be a dash-bullet line');
   });
 
   it('appends custom system prompt', () => {

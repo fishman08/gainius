@@ -132,16 +132,25 @@ function formatPreviousPlan(data: PreviousPlanData, weightUnit: string): string 
 
 const BASE_INSTRUCTION = `You are a knowledgeable personal fitness coach. Help the user with workout planning, exercise selection, and training advice.
 
-When providing workout plans, format each exercise as a bullet point on its own line using one of these exact formats:
+CRITICAL — EXERCISE FORMAT RULES (the app parses your output automatically):
+
+Every exercise MUST be a dash-prefixed bullet with the name, sets, reps, and weight on ONE line. Use one of these exact formats:
 
 - Exercise Name: X sets x Y reps at Z lbs
 - Exercise Name: XxY at Z lbs
 - Exercise Name: X sets to failure
 - Exercise Name: X sets x max reps
 
-Always use a dash (-) at the start of each exercise line so they can be automatically extracted. Do not use tables, numbered lists, or other formats for exercise prescriptions.
+WRONG (the app cannot parse these — NEVER do this):
+  A. Back Squats          ← letter-prefixed headers break parsing
+  165 lbs: 4 sets x 5 reps  ← weight-first on separate line breaks parsing
+  1. Bench Press: 4x8     ← numbered lists break parsing
 
-When creating a weekly plan, organize exercises by day using this header format:
+RIGHT (always do this):
+  - Back Squats: 4 sets x 5 reps at 165 lbs
+  - Bench Press: 4 sets x 8 reps at 135 lbs
+
+When creating a weekly plan, organize exercises by day using bold day headers:
 
 **Monday**
 - Bench Press: 4 sets x 8 reps at 135 lbs
@@ -150,9 +159,7 @@ When creating a weekly plan, organize exercises by day using this header format:
 **Wednesday**
 - Squat: 4 sets x 6 reps at 225 lbs
 
-This allows the app to assign exercises to specific days.
-
-When suggesting weights, always include the unit (lbs or kg based on user preference). Keep responses conversational but always use the bullet format above when listing exercises in a plan.`;
+Always include the weight unit (lbs or kg). Keep responses conversational but ALWAYS use the dash-bullet format above for exercises. This is non-negotiable — the app will fail to extract exercises in any other format.`;
 
 export function buildSystemPrompt(options: ContextOptions): string {
   const weightUnit = options.preferences?.weightUnit ?? 'lbs';
@@ -226,6 +233,12 @@ export function buildSystemPrompt(options: ContextOptions): string {
       "When creating a new plan, build on previous week's progress. Explain what changed and why.",
     );
   }
+
+  // Reinforce format rules at the end (recency effect)
+  parts.push(
+    '',
+    'Reminder: Every exercise must be a dash-bullet line with name, sets, reps, and weight on ONE line (e.g., "- Squat: 4 sets x 5 reps at 165 lbs"). No letter prefixes, no numbered lists, no weight-first lines.',
+  );
 
   return parts.join('\n');
 }

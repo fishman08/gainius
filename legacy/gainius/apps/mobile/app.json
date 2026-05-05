@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Workout",
+    "slug": "workout",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0b0d10"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.workout.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0b0d10"
+      },
+      "package": "com.workout.app"
+    },
+    "scheme": "workout",
+    "plugins": ["expo-router"]
+  }
+}

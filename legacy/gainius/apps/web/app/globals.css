@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Rethink+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Brand */
+  --brand-orange-50:  #FFF7ED;
+  --brand-orange-100: #FFEDD5;
+  --brand-orange-200: #FED7AA;
+  --brand-orange-300: #FDBA74;
+  --brand-orange-400: #FB923C;
+  --brand-orange-500: #F97316;
+  --brand-orange-600: #EA580C;
+  --brand-orange-700: #C2410C;
+  --brand-orange-900: #431407;
+
+  /* Slate */
+  --slate-50:  #F8FAFC;
+  --slate-100: #F1F5F9;
+  --slate-200: #E2E8F0;
+  --slate-300: #CBD5E1;
+  --slate-400: #94A3B8;
+  --slate-500: #64748B;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1E293B;
+  --slate-900: #0F172A;
+
+  /* Semantic */
+  --success-400: #4ADE80;
+  --success-500: #22C55E;
+  --error-400:   #F87171;
+  --error-500:   #EF4444;
+
+  /* Light theme tokens (default) */
+  --primary:           var(--brand-orange-500);
+  --primary-text:      var(--slate-900);
+  --primary-muted:     var(--brand-orange-50);
+
+  --bg:                var(--slate-50);
+  --surface:           #FFFFFF;
+  --surface-elevated:  #FFFFFF;
+  --surface-border:    var(--slate-200);
+
+  --fg:                var(--slate-900);
+  --fg-secondary:      var(--slate-500);
+  --fg-hint:           var(--slate-400);
+
+  --success:           var(--success-500);
+  --error:             var(--error-500);
+  --accent:            var(--success-500);
+
+  --input-bg:          #FFFFFF;
+  --input-border:      var(--slate-200);
+
+  --gradient: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
+
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.10);
+  --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.12);
+  --shadow-glow: 0 8px 28px rgba(249, 115, 22, 0.28);
+
+  --font-display: 'Barlow Condensed', 'Oswald', sans-serif;
+  --font-body:    'Rethink Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:    'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+}
+
+[data-theme='dark'] {
+  --primary:           var(--brand-orange-400);
+  --primary-text:      #FFFFFF;
+  --primary-muted:     var(--brand-orange-900);
+
+  --bg:                var(--slate-900);
+  --surface:           var(--slate-800);
+  --surface-elevated:  var(--slate-700);
+  --surface-border:    var(--slate-700);
+
+  --fg:                var(--slate-100);
+  --fg-secondary:      var(--slate-400);
+  --fg-hint:           var(--slate-500);
+
+  --success:           var(--success-400);
+  --error:             var(--error-400);
+  --accent:            var(--success-400);
+
+  --input-bg:          var(--slate-800);
+  --input-border:      var(--slate-700);
+
+  --gradient: linear-gradient(135deg, #FB923C 0%, #FDBA74 100%);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 8px 28px rgba(251, 146, 60, 0.35);
+}
+
+html, body {
+  font-family: var(--font-body);
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer components {
+  .display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .headline {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.05;
+  }
+  .overline {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-secondary);
+  }
+}

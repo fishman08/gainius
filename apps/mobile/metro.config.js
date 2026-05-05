@@ -10,11 +10,10 @@ const config = getDefaultConfig(projectRoot);
 config.watchFolders = [workspaceRoot];
 
 // Resolve modules from the local app first, then the workspace root.
+// pnpm with node-linker=hoisted puts everything at the workspace root.
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, "node_modules"),
   path.resolve(workspaceRoot, "node_modules"),
 ];
-
-config.resolver.disableHierarchicalLookup = true;
 
 module.exports = config;

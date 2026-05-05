@@ -55,14 +55,16 @@ function UnitToggle({
   imperialLabel: string;
 }) {
   return (
-    <div className="bg-surface inline-flex rounded-full border border-border p-1 text-sm">
+    <div className="bg-surface border-border inline-flex rounded-full border p-1 text-xs">
       {(["metric", "imperial"] as const).map((u) => (
         <button
           key={u}
           type="button"
           onClick={() => onChange(u)}
-          className={`rounded-full px-4 py-1.5 ${
-            unitsPref === u ? "bg-accent text-bg" : "text-muted"
+          className={`overline rounded-full px-md py-1.5 ${
+            unitsPref === u
+              ? "bg-primary text-primary-text"
+              : "text-fg-secondary"
           }`}
         >
           {u === "metric" ? metricLabel : imperialLabel}
@@ -96,7 +98,7 @@ function HeightInput({
   }, [cm]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-md">
       <UnitToggle
         unitsPref={unitsPref}
         onChange={onChangeUnitsPref}
@@ -115,10 +117,10 @@ function HeightInput({
             const n = Number.parseFloat(e.target.value);
             if (Number.isFinite(n)) onChangeCm(n);
           }}
-          className="text-text w-full rounded-xl border border-border bg-surface px-4 py-3 outline-none focus:border-accent"
+          className="border-input-border bg-input-bg text-fg focus:border-primary w-full rounded-md border px-md py-md text-2xl font-mono outline-none"
         />
       ) : (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-sm">
           <input
             type="number"
             inputMode="decimal"
@@ -128,9 +130,12 @@ function HeightInput({
               setLocalFt(e.target.value);
               const ft = Number.parseFloat(e.target.value);
               const inches = Number.parseFloat(localIn || "0");
-              if (Number.isFinite(ft)) onChangeCm(feetInchesToCm(ft, Number.isFinite(inches) ? inches : 0));
+              if (Number.isFinite(ft))
+                onChangeCm(
+                  feetInchesToCm(ft, Number.isFinite(inches) ? inches : 0),
+                );
             }}
-            className="text-text w-full rounded-xl border border-border bg-surface px-4 py-3 outline-none focus:border-accent"
+            className="border-input-border bg-input-bg text-fg focus:border-primary w-full rounded-md border px-md py-md text-2xl font-mono outline-none"
           />
           <input
             type="number"
@@ -141,9 +146,12 @@ function HeightInput({
               setLocalIn(e.target.value);
               const inches = Number.parseFloat(e.target.value);
               const ft = Number.parseFloat(localFt || "0");
-              if (Number.isFinite(inches)) onChangeCm(feetInchesToCm(Number.isFinite(ft) ? ft : 0, inches));
+              if (Number.isFinite(inches))
+                onChangeCm(
+                  feetInchesToCm(Number.isFinite(ft) ? ft : 0, inches),
+                );
             }}
-            className="text-text w-full rounded-xl border border-border bg-surface px-4 py-3 outline-none focus:border-accent"
+            className="border-input-border bg-input-bg text-fg focus:border-primary w-full rounded-md border px-md py-md text-2xl font-mono outline-none"
           />
         </div>
       )}
@@ -172,7 +180,7 @@ function WeightInput({
   }, [kg, unitsPref]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-md">
       <UnitToggle
         unitsPref={unitsPref}
         onChange={onChangeUnitsPref}
@@ -192,7 +200,7 @@ function WeightInput({
             onChangeKg(unitsPref === "metric" ? n : lbsToKg(n));
           }
         }}
-        className="text-text w-full rounded-xl border border-border bg-surface px-4 py-3 outline-none focus:border-accent"
+        className="border-input-border bg-input-bg text-fg focus:border-primary w-full rounded-md border px-md py-md text-2xl font-mono outline-none"
       />
     </div>
   );

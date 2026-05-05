@@ -7,7 +7,7 @@ type Props = {
 
 export function NumberChoice({ options, value, onChange }: Props) {
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+    <div className="grid grid-cols-2 gap-sm sm:grid-cols-3">
       {options.map((option) => {
         const selected = value === option.value;
         return (
@@ -15,13 +15,14 @@ export function NumberChoice({ options, value, onChange }: Props) {
             key={option.value}
             type="button"
             onClick={() => onChange(option.value)}
-            className={`rounded-xl border px-5 py-4 text-center font-medium transition ${
+            className={`shadow-sm rounded-lg border px-lg py-md text-center transition ${
               selected
-                ? "border-accent bg-accent/10"
-                : "border-border bg-surface hover:border-muted"
+                ? "border-primary bg-primary-muted shadow-md"
+                : "border-border bg-surface hover:border-fg-hint"
             }`}
           >
-            {option.label}
+            <span className="display block text-3xl">{option.value}</span>
+            <span className="text-fg-secondary text-xs">days</span>
           </button>
         );
       })}

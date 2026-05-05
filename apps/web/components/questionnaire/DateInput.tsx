@@ -27,7 +27,7 @@ export function DateInput({ value, onChange }: Props) {
       min={min}
       max={max}
       onChange={(e) => onChange(e.target.value)}
-      className="text-text w-full rounded-xl border border-border bg-surface px-4 py-3 outline-none focus:border-accent"
+      className="border-input-border bg-input-bg text-fg focus:border-primary w-full rounded-md border px-md py-md text-base outline-none"
     />
   );
 }

@@ -19,21 +19,26 @@ export default async function Page() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-6 px-6 text-center">
-      <h1 className="text-4xl font-semibold tracking-tight">Workout</h1>
-      <p className="text-muted">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-lg px-lg text-center">
+      <span className="overline text-xs">Gainius</span>
+      <h1 className="display text-5xl leading-[0.95]">
+        Train smarter,
+        <br />
+        not harder.
+      </h1>
+      <p className="text-fg-secondary text-base">
         AI-curated training, built around your goals, equipment, and schedule.
       </p>
-      <div className="flex w-full flex-col gap-3">
+      <div className="mt-md flex w-full flex-col gap-sm">
         <Link
           href="/sign-up"
-          className="rounded-xl bg-accent px-5 py-3 text-center font-medium text-bg hover:opacity-90"
+          className="bg-primary text-primary-text shadow-glow rounded-full px-lg py-md text-center font-semibold hover:opacity-90"
         >
           Get started
         </Link>
         <Link
           href="/sign-in"
-          className="rounded-xl border border-border px-5 py-3 text-center font-medium hover:bg-surface"
+          className="border-border hover:bg-surface text-fg rounded-full border px-lg py-md text-center font-medium"
         >
           Sign in
         </Link>

@@ -106,16 +106,16 @@ export function Wizard({ stepIndex, initialAnswers, userId }: Props) {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-xl flex-col px-6 py-8">
+    <div className="mx-auto flex min-h-screen max-w-xl flex-col px-lg py-xl">
       <ProgressBar current={stepIndex + 1} total={total} />
 
-      <div className="mt-10 flex-1">
-        <h2 className="text-2xl font-semibold tracking-tight">{question.title}</h2>
+      <div className="mt-2xl flex-1">
+        <h2 className="headline text-3xl">{question.title}</h2>
         {question.help && (
-          <p className="text-muted mt-2 text-sm">{question.help}</p>
+          <p className="text-fg-secondary mt-sm text-sm">{question.help}</p>
         )}
 
-        <div className="mt-8">
+        <div className="mt-xl">
           {renderControl(question, {
             value: pending,
             onChange: setPending,
@@ -131,15 +131,15 @@ export function Wizard({ stepIndex, initialAnswers, userId }: Props) {
           })}
         </div>
 
-        {error && <p className="text-danger mt-4 text-sm">{error}</p>}
+        {error && <p className="text-error mt-md text-sm">{error}</p>}
       </div>
 
-      <div className="mt-8 flex gap-3">
+      <div className="mt-xl flex gap-sm">
         <button
           type="button"
           onClick={handleBack}
           disabled={stepIndex === 0 || saving}
-          className="rounded-xl border border-border px-5 py-3 font-medium hover:bg-surface disabled:opacity-30"
+          className="border-border hover:bg-surface text-fg rounded-full border px-lg py-md font-medium disabled:opacity-30"
         >
           Back
         </button>
@@ -147,7 +147,7 @@ export function Wizard({ stepIndex, initialAnswers, userId }: Props) {
           type="button"
           onClick={handleNext}
           disabled={saving}
-          className="flex-1 rounded-xl bg-accent px-5 py-3 font-medium text-bg disabled:opacity-50"
+          className="bg-primary text-primary-text shadow-glow flex-1 rounded-full px-lg py-md font-semibold disabled:opacity-50"
         >
           {saving ? "Saving…" : stepIndex === total - 1 ? "Finish" : "Next"}
         </button>

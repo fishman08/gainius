@@ -31,43 +31,50 @@ export default function SignInPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 px-6">
-      <h1 className="text-3xl font-semibold">Sign in</h1>
-      <form onSubmit={onSubmit} className="flex flex-col gap-3">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-lg px-lg">
+      <div className="space-y-2">
+        <span className="overline text-xs">Welcome back</span>
+        <h1 className="headline text-4xl">Sign in</h1>
+      </div>
+      <form onSubmit={onSubmit} className="flex flex-col gap-sm">
         <label className="flex flex-col gap-1 text-sm">
-          <span className="text-muted">Email</span>
+          <span className="text-fg-secondary text-xs uppercase tracking-wider">
+            Email
+          </span>
           <input
             type="email"
             autoComplete="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-xl border border-border bg-surface px-4 py-3 outline-none focus:border-accent"
+            className="border-input-border bg-input-bg text-fg focus:border-primary rounded-md border px-md py-md text-base outline-none"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm">
-          <span className="text-muted">Password</span>
+          <span className="text-fg-secondary text-xs uppercase tracking-wider">
+            Password
+          </span>
           <input
             type="password"
             autoComplete="current-password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded-xl border border-border bg-surface px-4 py-3 outline-none focus:border-accent"
+            className="border-input-border bg-input-bg text-fg focus:border-primary rounded-md border px-md py-md text-base outline-none"
           />
         </label>
-        {error && <p className="text-danger text-sm">{error}</p>}
+        {error && <p className="text-error text-sm">{error}</p>}
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-xl bg-accent px-5 py-3 font-medium text-bg disabled:opacity-50"
+          className="bg-primary text-primary-text mt-sm rounded-full px-lg py-md font-semibold disabled:opacity-50"
         >
           {submitting ? "Signing in…" : "Sign in"}
         </button>
       </form>
-      <p className="text-muted text-center text-sm">
+      <p className="text-fg-secondary text-center text-sm">
         New here?{" "}
-        <Link href="/sign-up" className="text-accent underline">
+        <Link href="/sign-up" className="text-primary font-medium underline">
           Create an account
         </Link>
       </p>

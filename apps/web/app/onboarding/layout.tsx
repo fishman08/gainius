@@ -18,6 +18,14 @@ export default async function OnboardingLayout({
     .eq("user_id", user.id)
     .maybeSingle();
 
+  // Lazy-create the profile row for users that pre-existed the signup trigger.
+  // RLS allows users to insert their own profile.
+  if (!profile) {
+    await supabase
+      .from("profiles")
+      .insert({ user_id: user.id });
+  }
+
   if (profile?.onboarding_completed_at) redirect("/home");
 
   return <div className="min-h-screen">{children}</div>;

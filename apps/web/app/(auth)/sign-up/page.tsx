@@ -31,27 +31,33 @@ export default function SignUpPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 px-6">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-lg px-lg">
       <div className="space-y-2">
-        <h1 className="text-3xl font-semibold">Create your account</h1>
-        <p className="text-muted text-sm">
-          Two quick details, then a short questionnaire so we can build your plan.
+        <span className="overline text-xs">Welcome</span>
+        <h1 className="headline text-4xl">Create your account</h1>
+        <p className="text-fg-secondary text-sm">
+          Two quick details, then a short questionnaire so we can build your
+          plan.
         </p>
       </div>
-      <form onSubmit={onSubmit} className="flex flex-col gap-3">
+      <form onSubmit={onSubmit} className="flex flex-col gap-sm">
         <label className="flex flex-col gap-1 text-sm">
-          <span className="text-muted">Email</span>
+          <span className="text-fg-secondary text-xs uppercase tracking-wider">
+            Email
+          </span>
           <input
             type="email"
             autoComplete="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-xl border border-border bg-surface px-4 py-3 outline-none focus:border-accent"
+            className="border-input-border bg-input-bg text-fg focus:border-primary rounded-md border px-md py-md text-base outline-none"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm">
-          <span className="text-muted">Password</span>
+          <span className="text-fg-secondary text-xs uppercase tracking-wider">
+            Password
+          </span>
           <input
             type="password"
             autoComplete="new-password"
@@ -59,21 +65,21 @@ export default function SignUpPage() {
             minLength={8}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded-xl border border-border bg-surface px-4 py-3 outline-none focus:border-accent"
+            className="border-input-border bg-input-bg text-fg focus:border-primary rounded-md border px-md py-md text-base outline-none"
           />
         </label>
-        {error && <p className="text-danger text-sm">{error}</p>}
+        {error && <p className="text-error text-sm">{error}</p>}
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-xl bg-accent px-5 py-3 font-medium text-bg disabled:opacity-50"
+          className="bg-primary text-primary-text mt-sm rounded-full px-lg py-md font-semibold disabled:opacity-50"
         >
           {submitting ? "Creating…" : "Create account"}
         </button>
       </form>
-      <p className="text-muted text-center text-sm">
+      <p className="text-fg-secondary text-center text-sm">
         Already have an account?{" "}
-        <Link href="/sign-in" className="text-accent underline">
+        <Link href="/sign-in" className="text-primary font-medium underline">
           Sign in
         </Link>
       </p>

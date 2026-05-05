@@ -7,7 +7,7 @@ type Props = {
 
 export function SingleChoice({ options, value, onChange }: Props) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-sm">
       {options.map((option) => {
         const selected = value === option.value;
         return (
@@ -15,13 +15,13 @@ export function SingleChoice({ options, value, onChange }: Props) {
             key={option.value}
             type="button"
             onClick={() => onChange(option.value)}
-            className={`rounded-xl border px-5 py-4 text-left transition ${
+            className={`shadow-sm rounded-lg border px-lg py-md text-left transition ${
               selected
-                ? "border-accent bg-accent/10"
-                : "border-border bg-surface hover:border-muted"
+                ? "border-primary bg-primary-muted text-fg shadow-md"
+                : "border-border bg-surface hover:border-fg-hint"
             }`}
           >
-            {option.label}
+            <span className="text-base font-medium">{option.label}</span>
           </button>
         );
       })}

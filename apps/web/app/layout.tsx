@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Workout",
+  title: "Gainius",
   description: "AI-curated workout plans, made for you.",
 };
 
@@ -13,7 +13,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen font-sans antialiased">{children}</body>
+      <body className="bg-bg text-fg min-h-screen font-body antialiased">
+        {children}
+      </body>
     </html>
   );
 }

@@ -30,5 +30,12 @@
         "autoIncrement": true
       }
     }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "alexsalman311@gmail.com"
+      }
+    }
   }
 }

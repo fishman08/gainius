@@ -1,0 +1,1293 @@
+[
+  {
+    "name": "PubMed / PubMed Central (NCBI)",
+    "base_url": "https://pubmed.ncbi.nlm.nih.gov",
+    "scraping_targets": [
+      {
+        "label": "ESearch – resistance training abstracts",
+        "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=resistance+training[MeSH]+AND+muscle+hypertrophy&retmax=10&retmode=json",
+        "type": "api",
+        "priority": 1
+      },
+      {
+        "label": "EFetch – fetch abstract by PMID",
+        "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=33054160&rettype=abstract&retmode=xml",
+        "type": "api",
+        "priority": 1
+      },
+      {
+        "label": "PMC OAI-PMH – open-access full text",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/oai/oai.cgi?verb=Identify",
+        "type": "api",
+        "priority": 2
+      },
+      {
+        "label": "Robots.txt",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/robots.txt",
+        "type": "robots",
+        "priority": 3
+      }
+    ],
+    "content_type": "Peer-reviewed abstracts and open-access full-text via E-utilities REST API",
+    "evidence_quality": "high",
+    "update_frequency": "daily",
+    "categories": [
+      "strength_hypertrophy",
+      "cardio_endurance",
+      "mobility_recovery",
+      "hiit_conditioning",
+      "rehab_injury_prevention"
+    ],
+    "access_model": "free",
+    "scraping_method": "api",
+    "js_rendering_required": false,
+    "notes": "Best single source for research. Register free NCBI API key for 10 req/sec (3/sec without). Key MeSH terms: Exercise, Resistance Training, HIIT, Physical Fitness. Use ESearch → EFetch workflow. PMC OAI-PMH bulk access at 3 req/sec.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:39:57.036Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": true,
+      "robots_allows_bots": false,
+      "response_time_ms": 495,
+      "content_type_detected": "application/json"
+    },
+    "ingestion_score": 95,
+    "recommended_scrape_interval_hours": 24,
+    "ingestion_notes": []
+  },
+  {
+    "name": "Physiopedia",
+    "base_url": "https://www.physio-pedia.com",
+    "scraping_targets": [
+      {
+        "label": "Therapeutic exercise category API",
+        "url": "https://www.physio-pedia.com/api.php?action=query&list=categorymembers&cmtitle=Category:Therapeutic_Exercise&format=json&cmlimit=50",
+        "type": "api",
+        "priority": 1
+      },
+      {
+        "label": "Parse page by name",
+        "url": "https://www.physio-pedia.com/api.php?action=parse&page=Therapeutic_Exercise&format=json",
+        "type": "api",
+        "priority": 1
+      },
+      {
+        "label": "Stretching page",
+        "url": "https://www.physio-pedia.com/api.php?action=parse&page=Stretching&format=json",
+        "type": "api",
+        "priority": 2
+      }
+    ],
+    "content_type": "Physical therapy encyclopedia with referenced rehab and exercise protocols",
+    "evidence_quality": "high",
+    "update_frequency": "daily",
+    "categories": [
+      "mobility_recovery",
+      "rehab_injury_prevention",
+      "flexibility",
+      "strength_hypertrophy"
+    ],
+    "access_model": "free",
+    "scraping_method": "api",
+    "js_rendering_required": false,
+    "notes": "MediaWiki API at /api.php. action=query for category listings; action=parse for full page content. FREE open access. May have Cloudflare protection — use browser-like headers and respect rate limits.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:20.577Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 1954,
+      "content_type_detected": "application/json"
+    },
+    "ingestion_score": 95,
+    "recommended_scrape_interval_hours": 24,
+    "ingestion_notes": []
+  },
+  {
+    "name": "NASM Blog",
+    "base_url": "https://blog.nasm.org",
+    "scraping_targets": [
+      {
+        "label": "Main blog",
+        "url": "https://blog.nasm.org/",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "Corrective exercise",
+        "url": "https://blog.nasm.org/ces/",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "Fitness articles",
+        "url": "https://blog.nasm.org/fitness/",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "Sitemap",
+        "url": "https://blog.nasm.org/sitemap.xml",
+        "type": "sitemap",
+        "priority": 2
+      }
+    ],
+    "content_type": "Corrective exercise, flexibility protocols, and evidence-based training",
+    "evidence_quality": "high",
+    "update_frequency": "weekly",
+    "categories": [
+      "mobility_recovery",
+      "strength_hypertrophy",
+      "flexibility",
+      "rehab_injury_prevention",
+      "cardio_endurance"
+    ],
+    "access_model": "free",
+    "scraping_method": "html",
+    "js_rendering_required": false,
+    "notes": "ALL blog content free. Strong corrective exercise coverage (overactive/underactive muscles, movement screening). Server-rendered HTML.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:21.077Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 99,
+      "content_type_detected": "text/html"
+    },
+    "ingestion_score": 94,
+    "recommended_scrape_interval_hours": 168,
+    "ingestion_notes": []
+  },
+  {
+    "name": "Uphill Athlete",
+    "base_url": "https://uphillathlete.com",
+    "scraping_targets": [
+      {
+        "label": "RSS feed",
+        "url": "https://uphillathlete.com/feed/",
+        "type": "rss",
+        "priority": 1
+      },
+      {
+        "label": "Aerobic training",
+        "url": "https://uphillathlete.com/aerobic-training/",
+        "type": "html",
+        "priority": 2
+      },
+      {
+        "label": "Strength training",
+        "url": "https://uphillathlete.com/strength-training/",
+        "type": "html",
+        "priority": 2
+      },
+      {
+        "label": "Sitemap",
+        "url": "https://uphillathlete.com/sitemap.xml",
+        "type": "sitemap",
+        "priority": 3
+      }
+    ],
+    "content_type": "Endurance training science — aerobic base, zone training, mountain athletics",
+    "evidence_quality": "high",
+    "update_frequency": "weekly",
+    "categories": [
+      "cardio_endurance",
+      "strength_hypertrophy",
+      "mobility_recovery",
+      "sport_specific"
+    ],
+    "access_model": "free",
+    "scraping_method": "rss",
+    "js_rendering_required": false,
+    "notes": "WordPress — server-rendered, scraper-friendly. Written by Olympic-level coaches. Excellent coverage of polarized training, zone 2, aerobic threshold concepts.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:15.650Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 438,
+      "content_type_detected": "application/rss+xml"
+    },
+    "ingestion_score": 92,
+    "recommended_scrape_interval_hours": 168,
+    "ingestion_notes": []
+  },
+  {
+    "name": "Squat University",
+    "base_url": "https://squatuniversity.com",
+    "scraping_targets": [
+      {
+        "label": "RSS feed",
+        "url": "https://squatuniversity.com/feed/",
+        "type": "rss",
+        "priority": 1
+      },
+      {
+        "label": "Full blog index",
+        "url": "https://squatuniversity.com/featured-links/blog/",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "Sitemap",
+        "url": "https://squatuniversity.com/sitemap_index.xml",
+        "type": "sitemap",
+        "priority": 2
+      }
+    ],
+    "content_type": "Mobility, movement assessment, and injury prevention by Dr. Aaron Horschig (DPT)",
+    "evidence_quality": "high",
+    "update_frequency": "weekly",
+    "categories": [
+      "mobility_recovery",
+      "strength_hypertrophy",
+      "rehab_injury_prevention",
+      "flexibility"
+    ],
+    "access_model": "free",
+    "scraping_method": "rss",
+    "js_rendering_required": false,
+    "notes": "WordPress — easiest to scrape of all sites. ALL content free. Blog index organized by: Mobility Help (ankle/hip/overhead/thoracic), Stability Help (knee/core), Technique Fixes (squat/deadlift/Olympic), Injury & Rehab.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:18.222Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 544,
+      "content_type_detected": "application/rss+xml"
+    },
+    "ingestion_score": 92,
+    "recommended_scrape_interval_hours": 168,
+    "ingestion_notes": []
+  },
+  {
+    "name": "TrainingPeaks Blog",
+    "base_url": "https://www.trainingpeaks.com",
+    "scraping_targets": [
+      {
+        "label": "Blog listing",
+        "url": "https://www.trainingpeaks.com/blog/",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "RSS feed",
+        "url": "https://www.trainingpeaks.com/blog/feed/",
+        "type": "rss",
+        "priority": 1
+      },
+      {
+        "label": "Robots.txt",
+        "url": "https://www.trainingpeaks.com/robots.txt",
+        "type": "robots",
+        "priority": 3
+      }
+    ],
+    "content_type": "Endurance coaching articles — cycling, running, triathlon, training zones",
+    "evidence_quality": "high",
+    "update_frequency": "daily",
+    "categories": ["cardio_endurance", "sport_specific", "nutrition_performance"],
+    "access_model": "free",
+    "scraping_method": "rss",
+    "js_rendering_required": false,
+    "notes": "Blog is free; platform is subscription. High-authority endurance coaching platform. Certified coaches and exercise physiologists. Rate limiting likely — use polite crawl delays.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:17.276Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": true,
+      "robots_allows_bots": false,
+      "response_time_ms": 1208,
+      "content_type_detected": "text/html"
+    },
+    "ingestion_score": 91,
+    "recommended_scrape_interval_hours": 24,
+    "ingestion_notes": []
+  },
+  {
+    "name": "ACSM – Position Stands & Blog",
+    "base_url": "https://www.acsm.org",
+    "scraping_targets": [
+      {
+        "label": "Position Stands page",
+        "url": "https://www.acsm.org/education-resources/pronouncements-scientific-communications/position-stands/",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "Blog",
+        "url": "https://www.acsm.org/all-blog-posts/",
+        "type": "html",
+        "priority": 2
+      },
+      {
+        "label": "Robots.txt",
+        "url": "https://www.acsm.org/robots.txt",
+        "type": "robots",
+        "priority": 3
+      }
+    ],
+    "content_type": "Authoritative exercise prescription guidelines and Position Stands",
+    "evidence_quality": "high",
+    "update_frequency": "monthly",
+    "categories": [
+      "strength_hypertrophy",
+      "cardio_endurance",
+      "mobility_recovery",
+      "hiit_conditioning",
+      "nutrition_performance"
+    ],
+    "access_model": "free",
+    "scraping_method": "html",
+    "js_rendering_required": false,
+    "notes": "Gold-standard Position Stands are free. MSSE journal articles paywalled. Blog covers all major training modalities.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:00.913Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 301,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 332,
+      "content_type_detected": "text/html"
+    },
+    "ingestion_score": 90,
+    "recommended_scrape_interval_hours": 720,
+    "ingestion_notes": []
+  },
+  {
+    "name": "Renaissance Periodization",
+    "base_url": "https://rpstrength.com",
+    "scraping_targets": [
+      {
+        "label": "Blog Atom feed",
+        "url": "https://rpstrength.com/blogs/articles.atom",
+        "type": "rss",
+        "priority": 1
+      },
+      {
+        "label": "Blog listing",
+        "url": "https://rpstrength.com/blogs/articles",
+        "type": "html",
+        "priority": 2
+      },
+      {
+        "label": "Sitemap",
+        "url": "https://rpstrength.com/sitemap.xml",
+        "type": "sitemap",
+        "priority": 3
+      }
+    ],
+    "content_type": "Hypertrophy and periodization articles by PhD-level exercise scientists",
+    "evidence_quality": "high",
+    "update_frequency": "weekly",
+    "categories": ["strength_hypertrophy", "mobility_recovery", "nutrition_performance"],
+    "access_model": "free",
+    "scraping_method": "rss",
+    "js_rendering_required": false,
+    "notes": "Shopify platform. Atom feed at /blogs/articles.atom. Pagination via ?page=N. High-quality hypertrophy content by Dr. Mike Israetel.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:03.243Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 185,
+      "content_type_detected": "application/atom+xml"
+    },
+    "ingestion_score": 90,
+    "recommended_scrape_interval_hours": 168,
+    "ingestion_notes": []
+  },
+  {
+    "name": "Science for Sport",
+    "base_url": "https://scienceforsport.com",
+    "scraping_targets": [
+      {
+        "label": "RSS feed",
+        "url": "https://scienceforsport.com/feed",
+        "type": "rss",
+        "priority": 1
+      },
+      {
+        "label": "Blog",
+        "url": "https://scienceforsport.com/blog",
+        "type": "html",
+        "priority": 2
+      },
+      {
+        "label": "Sitemap",
+        "url": "https://scienceforsport.com/sitemap.xml",
+        "type": "sitemap",
+        "priority": 3
+      }
+    ],
+    "content_type": "Research summaries for sports science practitioners",
+    "evidence_quality": "high",
+    "update_frequency": "weekly",
+    "categories": [
+      "strength_hypertrophy",
+      "cardio_endurance",
+      "mobility_recovery",
+      "sport_specific"
+    ],
+    "access_model": "freemium",
+    "scraping_method": "rss",
+    "js_rendering_required": false,
+    "notes": "WordPress. Free blog content; premium full summaries gated.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:05.794Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 301,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 460,
+      "content_type_detected": "application/rss+xml"
+    },
+    "ingestion_score": 85,
+    "recommended_scrape_interval_hours": 168,
+    "ingestion_notes": ["💰 Partial paywall — only ingest freely accessible content"]
+  },
+  {
+    "name": "Stronger By Science",
+    "base_url": "https://www.strongerbyscience.com",
+    "scraping_targets": [
+      {
+        "label": "Articles RSS feed",
+        "url": "https://www.strongerbyscience.com/articles/feed",
+        "type": "rss",
+        "priority": 1
+      },
+      {
+        "label": "Meta-analysis master list",
+        "url": "https://www.strongerbyscience.com/master-list/",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "Sitemap",
+        "url": "https://www.strongerbyscience.com/sitemap_index.xml",
+        "type": "sitemap",
+        "priority": 2
+      },
+      {
+        "label": "Robots.txt",
+        "url": "https://www.strongerbyscience.com/robots.txt",
+        "type": "robots",
+        "priority": 3
+      }
+    ],
+    "content_type": "In-depth evidence-based training articles and meta-analysis index by Greg Nuckols",
+    "evidence_quality": "high",
+    "update_frequency": "irregular",
+    "categories": ["strength_hypertrophy", "cardio_endurance", "hiit_conditioning"],
+    "access_model": "free",
+    "scraping_method": "rss",
+    "js_rendering_required": false,
+    "notes": "Master-list page is extremely high value — curated links to all major exercise meta-analyses. May 403 bots — use browser-like headers.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:02.657Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 301,
+      "primary_target_accessible": true,
+      "robots_txt_found": true,
+      "robots_allows_bots": false,
+      "response_time_ms": 1112,
+      "content_type_detected": "application/rss+xml"
+    },
+    "ingestion_score": 84,
+    "recommended_scrape_interval_hours": 336,
+    "ingestion_notes": []
+  },
+  {
+    "name": "Frontiers in Sports and Active Living",
+    "base_url": "https://www.frontiersin.org",
+    "scraping_targets": [
+      {
+        "label": "RSS feed",
+        "url": "https://www.frontiersin.org/journals/sports-and-active-living/articles?format=rss",
+        "type": "rss",
+        "priority": 1
+      },
+      {
+        "label": "Article listing",
+        "url": "https://www.frontiersin.org/journals/sports-and-active-living/articles",
+        "type": "html",
+        "priority": 2
+      },
+      {
+        "label": "Robots.txt",
+        "url": "https://www.frontiersin.org/robots.txt",
+        "type": "robots",
+        "priority": 3
+      }
+    ],
+    "content_type": "Open-access peer-reviewed research (CC-BY license)",
+    "evidence_quality": "high",
+    "update_frequency": "daily",
+    "categories": [
+      "strength_hypertrophy",
+      "cardio_endurance",
+      "mobility_recovery",
+      "hiit_conditioning"
+    ],
+    "access_model": "free",
+    "scraping_method": "rss",
+    "js_rendering_required": true,
+    "notes": "React/Next.js frontend — prefer PMC API access for full text. RSS gives article metadata. CC-BY license means free reuse.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:39:58.768Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 302,
+      "primary_target_accessible": true,
+      "robots_txt_found": true,
+      "robots_allows_bots": false,
+      "response_time_ms": 1124,
+      "content_type_detected": ""
+    },
+    "ingestion_score": 83,
+    "recommended_scrape_interval_hours": 24,
+    "ingestion_notes": [
+      "🔧 Requires headless browser (Playwright/Puppeteer) for JS-rendered content"
+    ]
+  },
+  {
+    "name": "ExRx.net Exercise Database",
+    "base_url": "https://exrx.net",
+    "scraping_targets": [
+      {
+        "label": "Exercise directory",
+        "url": "https://exrx.net/Lists/Directory",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "Muscle index",
+        "url": "https://exrx.net/Lists/Muscle",
+        "type": "html",
+        "priority": 2
+      },
+      {
+        "label": "Site notes/journal",
+        "url": "https://exrx.net/Notes/SiteJournal",
+        "type": "html",
+        "priority": 3
+      }
+    ],
+    "content_type": "Gold-standard exercise classification with biomechanics, muscle maps, and joint analysis",
+    "evidence_quality": "high",
+    "update_frequency": "monthly",
+    "categories": [
+      "strength_hypertrophy",
+      "cardio_endurance",
+      "mobility_recovery",
+      "calisthenics_bodyweight",
+      "rehab_injury_prevention"
+    ],
+    "access_model": "freemium",
+    "scraping_method": "api",
+    "js_rendering_required": false,
+    "notes": "CONTENT IS COPYRIGHTED. Do not scrape without permission. Has a commercial JSON REST API — contact /Store/Other/Licensing for bearer token pricing. Static HTML (easy to parse if licensed). 2,100+ exercises with synergist/stabilizer breakdowns.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:08.340Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 77,
+      "content_type_detected": "text/html"
+    },
+    "ingestion_score": 83,
+    "recommended_scrape_interval_hours": 720,
+    "ingestion_notes": [
+      "💰 Partial paywall — only ingest freely accessible content",
+      "⚖️ Commercial licensing required — do NOT scrape without permission"
+    ]
+  },
+  {
+    "name": "HIIT Science",
+    "base_url": "https://hiitscience.com",
+    "scraping_targets": [
+      {
+        "label": "RSS feed",
+        "url": "https://hiitscience.com/feed/",
+        "type": "rss",
+        "priority": 1
+      },
+      {
+        "label": "Blog",
+        "url": "https://hiitscience.com/hiit-science-blog/",
+        "type": "html",
+        "priority": 2
+      },
+      {
+        "label": "Sitemap",
+        "url": "https://hiitscience.com/sitemap.xml",
+        "type": "sitemap",
+        "priority": 3
+      }
+    ],
+    "content_type": "HIIT research articles and applied training science by sports PhDs (Buchheit & Laursen)",
+    "evidence_quality": "high",
+    "update_frequency": "weekly",
+    "categories": ["hiit_conditioning", "cardio_endurance", "strength_hypertrophy"],
+    "access_model": "freemium",
+    "scraping_method": "rss",
+    "js_rendering_required": false,
+    "notes": "WordPress — server-rendered. RSS at /feed/. Founded by Martin Buchheit & Paul Laursen. Accredited by NSCA, BASES, ESSA, USA Triathlon. Free blog; paid courses.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:14.811Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 553,
+      "content_type_detected": "application/rss+xml"
+    },
+    "ingestion_score": 83,
+    "recommended_scrape_interval_hours": 168,
+    "ingestion_notes": ["💰 Partial paywall — only ingest freely accessible content"]
+  },
+  {
+    "name": "Breaking Muscle",
+    "base_url": "https://breakingmuscle.com",
+    "scraping_targets": [
+      {
+        "label": "Main RSS feed",
+        "url": "https://breakingmuscle.com/feed/rss",
+        "type": "rss",
+        "priority": 1
+      },
+      {
+        "label": "Fitness RSS",
+        "url": "https://breakingmuscle.com/feed/fitness.xml",
+        "type": "rss",
+        "priority": 1
+      },
+      {
+        "label": "Workouts RSS",
+        "url": "https://breakingmuscle.com/feed/workouts.xml",
+        "type": "rss",
+        "priority": 1
+      },
+      {
+        "label": "Healthy eating RSS",
+        "url": "https://breakingmuscle.com/feed/healthy-eating.xml",
+        "type": "rss",
+        "priority": 2
+      },
+      {
+        "label": "Sitemap",
+        "url": "https://breakingmuscle.com/sitemap.xml",
+        "type": "sitemap",
+        "priority": 3
+      }
+    ],
+    "content_type": "Training articles, exercise guides, and workout programming",
+    "evidence_quality": "medium",
+    "update_frequency": "daily",
+    "categories": [
+      "strength_hypertrophy",
+      "cardio_endurance",
+      "mobility_recovery",
+      "calisthenics_bodyweight",
+      "hiit_conditioning",
+      "nutrition_performance"
+    ],
+    "access_model": "free",
+    "scraping_method": "rss",
+    "js_rendering_required": false,
+    "notes": "Best RSS infrastructure of any practitioner site — 9 category-specific feeds. WordPress/Genesis. Server-rendered and scraper-friendly.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:04.109Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 301,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 464,
+      "content_type_detected": "application/rss+xml"
+    },
+    "ingestion_score": 82,
+    "recommended_scrape_interval_hours": 24,
+    "ingestion_notes": []
+  },
+  {
+    "name": "DAREBEE",
+    "base_url": "https://darebee.com",
+    "scraping_targets": [
+      {
+        "label": "Workout library",
+        "url": "https://darebee.com/workouts.html",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "Exercise library",
+        "url": "https://darebee.com/exercises.html",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "Training programs",
+        "url": "https://darebee.com/programs.html",
+        "type": "html",
+        "priority": 2
+      },
+      {
+        "label": "Fitness guides",
+        "url": "https://darebee.com/fitness.html",
+        "type": "html",
+        "priority": 2
+      }
+    ],
+    "content_type": "Non-profit bodyweight workout library — 2,600+ illustrated workout posters",
+    "evidence_quality": "medium",
+    "update_frequency": "daily",
+    "categories": [
+      "calisthenics_bodyweight",
+      "cardio_endurance",
+      "hiit_conditioning",
+      "flexibility",
+      "mind_body"
+    ],
+    "access_model": "free",
+    "scraping_method": "html",
+    "js_rendering_required": false,
+    "notes": "NON-PROFIT. Static HTML — very easy to scrape. Workout data encoded in IMAGE posters — use OCR or vision model to extract exercise text. Metadata (name, type, difficulty) in page HTML. No API or RSS. New workouts Monday–Thursday.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:13.280Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 899,
+      "content_type_detected": "text/html"
+    },
+    "ingestion_score": 82,
+    "recommended_scrape_interval_hours": 24,
+    "ingestion_notes": []
+  },
+  {
+    "name": "ACE Exercise Library",
+    "base_url": "https://www.acefitness.org",
+    "scraping_targets": [
+      {
+        "label": "Exercise library",
+        "url": "https://www.acefitness.org/resources/everyone/exercise-library/",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "Blog",
+        "url": "https://www.acefitness.org/resources/everyone/blog/",
+        "type": "html",
+        "priority": 2
+      },
+      {
+        "label": "Robots.txt",
+        "url": "https://www.acefitness.org/robots.txt",
+        "type": "robots",
+        "priority": 3
+      }
+    ],
+    "content_type": "Authoritative exercise library with photos, step-by-step instructions",
+    "evidence_quality": "high",
+    "update_frequency": "weekly",
+    "categories": ["strength_hypertrophy", "cardio_endurance", "mobility_recovery", "flexibility"],
+    "access_model": "free",
+    "scraping_method": "html",
+    "js_rendering_required": true,
+    "notes": "200–400 exercises with filtering (body part, equipment, level). Commercial content licensing available. Exercise URLs: /resources/everyone/exercise-library/{id}/{slug}. JS may be required for filtering interface.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:13.857Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": true,
+      "robots_allows_bots": false,
+      "response_time_ms": 161,
+      "content_type_detected": "text/html"
+    },
+    "ingestion_score": 80,
+    "recommended_scrape_interval_hours": 168,
+    "ingestion_notes": [
+      "🔧 Requires headless browser (Playwright/Puppeteer) for JS-rendered content"
+    ]
+  },
+  {
+    "name": "Examine.com",
+    "base_url": "https://examine.com",
+    "scraping_targets": [
+      {
+        "label": "Supplement guides",
+        "url": "https://examine.com/guides/",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "Conditions index",
+        "url": "https://examine.com/conditions/",
+        "type": "html",
+        "priority": 2
+      },
+      {
+        "label": "Sitemap",
+        "url": "https://examine.com/sitemap.xml",
+        "type": "sitemap",
+        "priority": 3
+      }
+    ],
+    "content_type": "Evidence-graded supplement and exercise research summaries by independent researchers",
+    "evidence_quality": "high",
+    "update_frequency": "daily",
+    "categories": [
+      "strength_hypertrophy",
+      "cardio_endurance",
+      "mobility_recovery",
+      "nutrition_performance"
+    ],
+    "access_model": "freemium",
+    "scraping_method": "html",
+    "js_rendering_required": true,
+    "notes": "Basic pages free, full summaries behind Examine+ (~$29/month). No public API. 800+ supplement entries with evidence grades. Custom CMS — may need headless browser.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:04.933Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 422,
+      "content_type_detected": "text/html"
+    },
+    "ingestion_score": 78,
+    "recommended_scrape_interval_hours": 24,
+    "ingestion_notes": [
+      "🔧 Requires headless browser (Playwright/Puppeteer) for JS-rendered content",
+      "💰 Partial paywall — only ingest freely accessible content"
+    ]
+  },
+  {
+    "name": "free-exercise-db (GitHub)",
+    "base_url": "https://github.com/yuhonas/free-exercise-db",
+    "scraping_targets": [
+      {
+        "label": "Exercises JSON (public domain)",
+        "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json",
+        "type": "json",
+        "priority": 1
+      },
+      {
+        "label": "README",
+        "url": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/README.md",
+        "type": "html",
+        "priority": 3
+      }
+    ],
+    "content_type": "Public domain structured JSON exercise database — 800+ exercises",
+    "evidence_quality": "medium",
+    "update_frequency": "irregular",
+    "categories": [
+      "strength_hypertrophy",
+      "cardio_endurance",
+      "mobility_recovery",
+      "calisthenics_bodyweight",
+      "flexibility"
+    ],
+    "access_model": "free",
+    "scraping_method": "json_file",
+    "js_rendering_required": false,
+    "notes": "PUBLIC DOMAIN (Unlicense). Single JSON download — no API, no pagination, no auth. Fields: name, force, level, mechanic, equipment, primaryMuscles, secondaryMuscles, instructions, category, images. Best starting point for structured exercise data.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:06.638Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 443,
+      "content_type_detected": "text/plain"
+    },
+    "ingestion_score": 75,
+    "recommended_scrape_interval_hours": 336,
+    "ingestion_notes": []
+  },
+  {
+    "name": "ExerciseDB API (Open Source)",
+    "base_url": "https://exercisedb.dev",
+    "scraping_targets": [
+      {
+        "label": "Open source fork",
+        "url": "https://github.com/bootstrapping-lab/exercisedb-api",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "Official API docs",
+        "url": "https://exercisedb.dev/docs",
+        "type": "html",
+        "priority": 2
+      }
+    ],
+    "content_type": "REST API with 1,300+ exercises — target muscles, equipment, GIF demos, instructions",
+    "evidence_quality": "medium",
+    "update_frequency": "irregular",
+    "categories": [
+      "strength_hypertrophy",
+      "cardio_endurance",
+      "mobility_recovery",
+      "calisthenics_bodyweight"
+    ],
+    "access_model": "free",
+    "scraping_method": "api",
+    "js_rendering_required": false,
+    "notes": "Self-host open-source v1 (1,300 exercises) via the bootstrapping-lab fork. Commercial v2 has 11,000+ but requires RapidAPI key. Fields: exerciseId, name, bodyParts, targetMuscles, secondaryMuscles, equipment, instructions, exerciseTips, gifUrl.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:10.210Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 1469,
+      "content_type_detected": "text/html"
+    },
+    "ingestion_score": 73,
+    "recommended_scrape_interval_hours": 336,
+    "ingestion_notes": []
+  },
+  {
+    "name": "MDPI Sports",
+    "base_url": "https://www.mdpi.com",
+    "scraping_targets": [
+      {
+        "label": "RSS feed",
+        "url": "https://www.mdpi.com/rss/journal/sports",
+        "type": "rss",
+        "priority": 1
+      },
+      {
+        "label": "Journal listing",
+        "url": "https://www.mdpi.com/journal/sports",
+        "type": "html",
+        "priority": 2
+      },
+      {
+        "label": "Robots.txt",
+        "url": "https://www.mdpi.com/robots.txt",
+        "type": "robots",
+        "priority": 3
+      }
+    ],
+    "content_type": "Open-access peer-reviewed exercise science articles (CC-BY)",
+    "evidence_quality": "high",
+    "update_frequency": "weekly",
+    "categories": [
+      "strength_hypertrophy",
+      "cardio_endurance",
+      "mobility_recovery",
+      "sport_specific"
+    ],
+    "access_model": "free",
+    "scraping_method": "rss",
+    "js_rendering_required": false,
+    "notes": "ISSN 2075-4663. Clean RSS. Also indexed in PMC for full text.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:39:59.311Z",
+      "targets_tested": 1,
+      "targets_accessible": 0,
+      "primary_target_status": 403,
+      "primary_target_accessible": false,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 89,
+      "content_type_detected": "text/html"
+    },
+    "ingestion_score": 72,
+    "recommended_scrape_interval_hours": 168,
+    "ingestion_notes": ["⚠️ Primary target unreachable — verify URL or check for bot blocking"]
+  },
+  {
+    "name": "wger Workout Manager API",
+    "base_url": "https://wger.de",
+    "scraping_targets": [
+      {
+        "label": "Exercise categories",
+        "url": "https://wger.de/api/v2/exercisecategory/?format=json",
+        "type": "api",
+        "priority": 1
+      },
+      {
+        "label": "Exercise list (English)",
+        "url": "https://wger.de/api/v2/exercise/?format=json&language=2&limit=100",
+        "type": "api",
+        "priority": 1
+      },
+      {
+        "label": "Exercise info (detailed)",
+        "url": "https://wger.de/api/v2/exerciseinfo/1/",
+        "type": "api",
+        "priority": 2
+      },
+      {
+        "label": "Muscles",
+        "url": "https://wger.de/api/v2/muscle/?format=json",
+        "type": "api",
+        "priority": 2
+      },
+      {
+        "label": "Equipment",
+        "url": "https://wger.de/api/v2/equipment/?format=json",
+        "type": "api",
+        "priority": 2
+      }
+    ],
+    "content_type": "Open-source REST API exercise database with muscles, equipment, translations",
+    "evidence_quality": "medium",
+    "update_frequency": "monthly",
+    "categories": ["strength_hypertrophy", "cardio_endurance", "mobility_recovery"],
+    "access_model": "free",
+    "scraping_method": "api",
+    "js_rendering_required": false,
+    "notes": "No auth required for public endpoints. Django REST Framework. Pagination via limit/offset. Self-hostable via Docker for unlimited access. License: AGPL-3.0 (code), CC-BY-SA 3.0 (exercise data).",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:07.862Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 823,
+      "content_type_detected": "application/json"
+    },
+    "ingestion_score": 71,
+    "recommended_scrape_interval_hours": 720,
+    "ingestion_notes": []
+  },
+  {
+    "name": "T-Nation",
+    "base_url": "https://www.t-nation.com",
+    "scraping_targets": [
+      {
+        "label": "Training articles",
+        "url": "https://www.t-nation.com/training/",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "Bodybuilding articles",
+        "url": "https://www.t-nation.com/bodybuilding/",
+        "type": "html",
+        "priority": 1
+      },
+      {
+        "label": "Sitemap",
+        "url": "https://www.t-nation.com/sitemap.xml",
+        "type": "sitemap",
+        "priority": 2
+      }
+    ],
+    "content_type": "Practitioner training articles — 20+ years of archived content",
+    "evidence_quality": "medium",
+    "update_frequency": "daily",
+    "categories": ["strength_hypertrophy", "calisthenics_bodyweight", "mobility_recovery"],
+    "access_model": "free",
+    "scraping_method": "html",
+    "js_rendering_required": true,
+    "notes": "Custom CMS. Thousands of articles from experienced coaches (Thibaudeau, Cressey, Dan John). Contains supplement marketing — filter when ingesting. Custom platform may have aggressive bot detection.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:22.101Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 301,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 119,
+      "content_type_detected": ""
+    },
+    "ingestion_score": 68,
+    "recommended_scrape_interval_hours": 24,
+    "ingestion_notes": [
+      "🔧 Requires headless browser (Playwright/Puppeteer) for JS-rendered content"
+    ]
+  },
+  {
+    "name": "BJSM Blog & Podcast",
+    "base_url": "https://bjsm.bmj.com",
+    "scraping_targets": [
+      {
+        "label": "RSS table of contents",
+        "url": "https://bjsm.bmj.com/rss/current.xml",
+        "type": "rss",
+        "priority": 1
+      },
+      {
+        "label": "Blog",
+        "url": "https://bjsm.bmj.com/pages/blog/",
+        "type": "html",
+        "priority": 2
+      },
+      {
+        "label": "Robots.txt",
+        "url": "https://bjsm.bmj.com/robots.txt",
+        "type": "robots",
+        "priority": 3
+      }
+    ],
+    "content_type": "Clinical sports medicine blog, podcast notes, Editor's Choice open-access articles",
+    "evidence_quality": "high",
+    "update_frequency": "weekly",
+    "categories": [
+      "strength_hypertrophy",
+      "cardio_endurance",
+      "rehab_injury_prevention",
+      "sport_specific"
+    ],
+    "access_model": "freemium",
+    "scraping_method": "rss",
+    "js_rendering_required": false,
+    "notes": "Impact Factor 16.2. Articles mostly paywalled — use PubMed for abstracts. Blog, podcast, and Editor's Choice articles are FREE. HighWire Press platform — clean semantic HTML. RSS for TOC.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:21.581Z",
+      "targets_tested": 1,
+      "targets_accessible": 0,
+      "primary_target_status": 403,
+      "primary_target_accessible": false,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 61,
+      "content_type_detected": "text/html"
+    },
+    "ingestion_score": 65,
+    "recommended_scrape_interval_hours": 168,
+    "ingestion_notes": [
+      "⚠️ Primary target unreachable — verify URL or check for bot blocking",
+      "💰 Partial paywall — only ingest freely accessible content"
+    ]
+  },
+  {
+    "name": "Springer Nature Open Access API",
+    "base_url": "https://api.springernature.com",
+    "scraping_targets": [
+      {
+        "label": "Open Access sports API",
+        "url": "https://api.springernature.com/openaccess/json?q=resistance+training&p=5&api_key=REPLACE_WITH_KEY",
+        "type": "api",
+        "priority": 1
+      },
+      {
+        "label": "Sports Medicine Open RSS",
+        "url": "https://sportsmedicine-open.springeropen.com/articles?format=rss",
+        "type": "rss",
+        "priority": 2
+      }
+    ],
+    "content_type": "Open-access sports medicine and exercise research via Springer Nature API",
+    "evidence_quality": "high",
+    "update_frequency": "weekly",
+    "categories": [
+      "strength_hypertrophy",
+      "cardio_endurance",
+      "mobility_recovery",
+      "rehab_injury_prevention"
+    ],
+    "access_model": "api_key_required",
+    "scraping_method": "api",
+    "js_rendering_required": false,
+    "notes": "Free API key at dev.springernature.com. 500 requests/day free tier. JSON and XML output. Replace REPLACE_WITH_KEY before running.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:00.067Z",
+      "targets_tested": 1,
+      "targets_accessible": 0,
+      "primary_target_status": 401,
+      "primary_target_accessible": false,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 353,
+      "content_type_detected": "application/json"
+    },
+    "ingestion_score": 60,
+    "recommended_scrape_interval_hours": 168,
+    "ingestion_notes": [
+      "⚠️ Primary target unreachable — verify URL or check for bot blocking",
+      "🔑 Register for API key before ingesting"
+    ]
+  },
+  {
+    "name": "MuscleWiki API",
+    "base_url": "https://api.musclewiki.com",
+    "scraping_targets": [
+      {
+        "label": "API root",
+        "url": "https://api.musclewiki.com/",
+        "type": "api",
+        "priority": 1
+      },
+      {
+        "label": "API demo",
+        "url": "https://api.musclewiki.com/demo",
+        "type": "html",
+        "priority": 2
+      }
+    ],
+    "content_type": "Commercial REST API — 1,800+ exercises with video demonstrations",
+    "evidence_quality": "medium",
+    "update_frequency": "monthly",
+    "categories": ["strength_hypertrophy", "calisthenics_bodyweight", "rehab_injury_prevention"],
+    "access_model": "api_key_required",
+    "scraping_method": "api",
+    "js_rendering_required": false,
+    "notes": "Requires X-API-Key header. Free: 500 calls/month (playground). Paid: $5/mo (1K), $29/mo (20K), $79/mo (100K). FastAPI backend. Filters: muscle group, equipment, experience level. 7,300+ video demos.",
+    "live_check": {
+      "timestamp": "2026-03-25T04:40:11.980Z",
+      "targets_tested": 1,
+      "targets_accessible": 1,
+      "primary_target_status": 200,
+      "primary_target_accessible": true,
+      "robots_txt_found": false,
+      "robots_allows_bots": null,
+      "response_time_ms": 1370,
+      "content_type_detected": "text/html"
+    },
+    "ingestion_score": 59,
+    "recommended_scrape_interval_hours": 720,
+    "ingestion_notes": ["🔑 Register for API key before ingesting"]
+  }
+]

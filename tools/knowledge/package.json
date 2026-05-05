@@ -1,0 +1,20 @@
+{
+  "name": "@fitness-tracker/knowledge",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "refresh": "tsx src/refresh.ts",
+    "query": "tsx src/cli-query.ts",
+    "export": "tsx src/export-json.ts"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "fast-xml-parser": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

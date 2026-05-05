@@ -11,3 +11,4 @@ export { EXERCISE_CATALOG } from './data/exerciseCatalog';
 export type { CatalogExercise, ExerciseCategory } from './data/exerciseCatalog';
 export { searchKnowledge } from './data/knowledgeSearch';
 export type { KnowledgeEntry, KnowledgeIndex } from './data/knowledgeTypes';
+export * as onboarding from './onboarding';

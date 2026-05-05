@@ -29,7 +29,7 @@ export default function SetRow({
   const themedStyles = useMemo(
     () => ({
       completedRow: {
-        backgroundColor: theme.mode === 'dark' ? '#1b3d1b' : '#E8F5E9',
+        backgroundColor: theme.colors.primaryMuted,
         borderRadius: 8,
       },
     }),
@@ -61,7 +61,7 @@ export default function SetRow({
       />
       <IconButton
         icon={completed ? 'check-circle' : 'check-circle-outline'}
-        iconColor={completed ? theme.colors.success : theme.colors.textHint}
+        iconColor={completed ? theme.colors.accent : theme.colors.textHint}
         size={24}
         onPress={onToggleComplete}
       />

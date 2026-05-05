@@ -50,15 +50,15 @@ export default function ExerciseCard({
   const themedStyles = useMemo(
     () => ({
       completedCard: {
-        borderColor: theme.colors.success,
-        borderWidth: 2,
+        borderLeftWidth: 4,
+        borderLeftColor: theme.colors.accent,
       },
       target: {
         color: theme.colors.textSecondary,
         marginBottom: 8,
       },
       doneLabel: {
-        color: theme.colors.success,
+        color: theme.colors.accent,
         marginTop: 4,
         textAlign: 'right' as const,
       },

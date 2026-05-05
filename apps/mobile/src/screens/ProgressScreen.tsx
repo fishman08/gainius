@@ -59,7 +59,10 @@ export default function ProgressScreen() {
           Back to overview
         </Chip>
 
-        <Text variant="headlineSmall" style={{ marginBottom: 16 }}>
+        <Text
+          variant="headlineSmall"
+          style={{ marginBottom: 16, fontFamily: 'BarlowCondensed_700Bold' }}
+        >
           {selectedExercise}
         </Text>
 
@@ -98,7 +101,10 @@ export default function ProgressScreen() {
       style={{ flex: 1, backgroundColor: theme.colors.background }}
       contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
     >
-      <Text variant="headlineMedium" style={{ marginBottom: 16 }}>
+      <Text
+        variant="headlineMedium"
+        style={{ marginBottom: 16, fontFamily: 'BarlowCondensed_700Bold' }}
+      >
         Progress
       </Text>
 

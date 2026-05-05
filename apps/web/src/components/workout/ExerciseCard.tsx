@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { LoggedExercise, PlannedExercise } from '@fitness-tracker/shared';
+import { Pencil, X } from 'lucide-react';
 import { SetRow } from './SetRow';
 import { ExercisePicker } from './ExercisePicker';
 import { useTheme } from '../../providers/ThemeProvider';
@@ -70,10 +71,9 @@ export function ExerciseCard({
     <div
       style={{
         background: theme.colors.surface,
-        border: allComplete
-          ? `2px solid ${theme.colors.success}`
-          : `1px solid ${theme.colors.surfaceBorder}`,
-        borderRadius: 12,
+        borderLeft: allComplete ? `4px solid ${theme.colors.accent}` : undefined,
+        boxShadow: theme.shadows.sm,
+        borderRadius: theme.borderRadius.md,
         padding: 20,
         marginBottom: 16,
       }}
@@ -142,7 +142,15 @@ export function ExerciseCard({
         ) : (
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <h3 style={{ margin: 0, fontSize: 17, color: theme.colors.text }}>
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: 17,
+                  color: theme.colors.text,
+                  fontFamily: "'Rethink Sans', sans-serif",
+                  fontWeight: 600,
+                }}
+              >
                 {exercise.exerciseName}
               </h3>
               {(onEditExercise || onDeleteExercise) && (
@@ -165,7 +173,7 @@ export function ExerciseCard({
                         justifyContent: 'center',
                       }}
                     >
-                      {'\u270E'}
+                      <Pencil size={14} />
                     </button>
                   )}
                   {onDeleteExercise && (
@@ -186,7 +194,7 @@ export function ExerciseCard({
                         justifyContent: 'center',
                       }}
                     >
-                      {'\u2715'}
+                      <X size={14} />
                     </button>
                   )}
                 </div>
@@ -195,7 +203,7 @@ export function ExerciseCard({
             {allComplete && (
               <span
                 style={{
-                  background: theme.colors.success,
+                  background: theme.colors.accent,
                   color: theme.colors.primaryText,
                   fontSize: 12,
                   padding: '2px 10px',
@@ -271,7 +279,7 @@ export function ExerciseCard({
             background: 'transparent',
             color: theme.colors.primary,
             border: `1px dashed ${theme.colors.primary}`,
-            borderRadius: 6,
+            borderRadius: theme.borderRadius.sm,
             fontSize: 13,
             fontWeight: 600,
             cursor: 'pointer',

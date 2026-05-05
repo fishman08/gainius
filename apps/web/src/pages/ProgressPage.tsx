@@ -54,7 +54,16 @@ export default function ProgressPage() {
 
   return (
     <div style={{ maxWidth: 800, margin: '20px auto', padding: 16 }}>
-      <h1 style={{ marginTop: 0, marginBottom: 20 }}>Progress</h1>
+      <h1
+        style={{
+          marginTop: 0,
+          marginBottom: 20,
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 700,
+        }}
+      >
+        Progress
+      </h1>
 
       <PeriodSelector value={period} onChange={setPeriod} />
 

@@ -105,13 +105,22 @@ export default function SettingsPage() {
         <div
           style={{
             background: theme.colors.surface,
-            borderRadius: 12,
+            borderRadius: theme.borderRadius.md,
             padding: 24,
-            border: `1px solid ${theme.colors.surfaceBorder}`,
+            boxShadow: theme.shadows.sm,
             marginBottom: 16,
           }}
         >
-          <h2 style={{ marginTop: 0, marginBottom: 8 }}>Claude API Key</h2>
+          <h2
+            style={{
+              marginTop: 0,
+              marginBottom: 8,
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 600,
+            }}
+          >
+            Claude API Key
+          </h2>
           <p style={{ color: theme.colors.textSecondary, fontSize: 14, marginBottom: 16 }}>
             Enter your Anthropic API key to enable AI chat. Your key is stored in this browser.
           </p>
@@ -156,7 +165,7 @@ export default function SettingsPage() {
                 backgroundColor: theme.colors.primary,
                 color: theme.colors.primaryText,
                 border: 'none',
-                borderRadius: 8,
+                borderRadius: theme.borderRadius.sm,
                 fontWeight: 600,
                 fontSize: 16,
                 cursor: 'pointer',
@@ -174,7 +183,7 @@ export default function SettingsPage() {
                   backgroundColor: 'transparent',
                   color: theme.colors.textSecondary,
                   border: `1px solid ${theme.colors.surfaceBorder}`,
-                  borderRadius: 8,
+                  borderRadius: theme.borderRadius.sm,
                   fontWeight: 600,
                   fontSize: 16,
                   cursor: 'pointer',
@@ -190,13 +199,22 @@ export default function SettingsPage() {
       <div
         style={{
           background: theme.colors.surface,
-          borderRadius: 12,
+          borderRadius: theme.borderRadius.md,
           padding: 24,
-          border: `1px solid ${theme.colors.surfaceBorder}`,
+          boxShadow: theme.shadows.sm,
           marginBottom: 16,
         }}
       >
-        <h2 style={{ marginTop: 0, marginBottom: 8 }}>Appearance</h2>
+        <h2
+          style={{
+            marginTop: 0,
+            marginBottom: 8,
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 600,
+          }}
+        >
+          Appearance
+        </h2>
         <p style={{ color: theme.colors.textSecondary, fontSize: 14, marginBottom: 16 }}>
           Choose your preferred color theme.
         </p>
@@ -213,12 +231,7 @@ export default function SettingsPage() {
                     ? `2px solid ${theme.colors.primary}`
                     : `1px solid ${theme.colors.surfaceBorder}`,
                 borderRadius: 8,
-                backgroundColor:
-                  themeMode === m.value
-                    ? theme.mode === 'dark'
-                      ? '#1a2a3a'
-                      : '#EBF3FC'
-                    : 'transparent',
+                backgroundColor: themeMode === m.value ? theme.colors.primaryMuted : 'transparent',
                 color: themeMode === m.value ? theme.colors.primary : theme.colors.textSecondary,
                 fontWeight: themeMode === m.value ? 600 : 400,
                 fontSize: 14,
@@ -231,6 +244,62 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {currentUser && (
+        <div
+          style={{
+            background: theme.colors.surface,
+            borderRadius: theme.borderRadius.md,
+            padding: 24,
+            boxShadow: theme.shadows.sm,
+            marginBottom: 16,
+          }}
+        >
+          <h2
+            style={{
+              marginTop: 0,
+              marginBottom: 8,
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 600,
+            }}
+          >
+            Training Phase
+          </h2>
+          <p style={{ color: theme.colors.textSecondary, fontSize: 14, marginBottom: 16 }}>
+            Set your current training phase to get tailored AI advice.
+          </p>
+          <select
+            value={currentUser.preferences?.trainingPhase ?? ''}
+            onChange={async (e) => {
+              const phase = e.target.value || undefined;
+              const updated = {
+                ...currentUser,
+                preferences: {
+                  ...currentUser.preferences,
+                  trainingPhase: phase as 'bulk' | 'cut' | 'maintain' | 'recomp' | undefined,
+                },
+              };
+              await storage.saveUser(updated);
+              setCurrentUser(updated);
+            }}
+            style={{
+              width: '100%',
+              padding: 12,
+              border: `1px solid ${theme.colors.inputBorder}`,
+              borderRadius: 8,
+              fontSize: 16,
+              backgroundColor: theme.colors.inputBackground,
+              color: theme.colors.text,
+            }}
+          >
+            <option value="">None</option>
+            <option value="bulk">Bulk</option>
+            <option value="cut">Cut</option>
+            <option value="maintain">Maintain</option>
+            <option value="recomp">Recomp</option>
+          </select>
+        </div>
+      )}
+
       <AuthSection />
 
       <SyncSettings onSyncNow={handleSyncNow} />
@@ -241,13 +310,22 @@ export default function SettingsPage() {
         <div
           style={{
             background: theme.colors.surface,
-            borderRadius: 12,
+            borderRadius: theme.borderRadius.md,
             padding: 24,
-            border: `1px solid ${theme.colors.surfaceBorder}`,
+            boxShadow: theme.shadows.sm,
             marginBottom: 16,
           }}
         >
-          <h2 style={{ marginTop: 0, marginBottom: 8 }}>Custom AI Instructions</h2>
+          <h2
+            style={{
+              marginTop: 0,
+              marginBottom: 8,
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 600,
+            }}
+          >
+            Custom AI Instructions
+          </h2>
           <p style={{ color: theme.colors.textSecondary, fontSize: 14, marginBottom: 16 }}>
             Add custom instructions for the AI coach. These will be included in every conversation.
           </p>
@@ -283,7 +361,7 @@ export default function SettingsPage() {
               backgroundColor: theme.colors.primary,
               color: theme.colors.primaryText,
               border: 'none',
-              borderRadius: 8,
+              borderRadius: theme.borderRadius.sm,
               fontWeight: 600,
               fontSize: 16,
               cursor: 'pointer',

@@ -123,6 +123,7 @@ export default function RestTimer({
 const styles = StyleSheet.create({
   label: {
     marginBottom: 4,
+    fontFamily: 'BarlowCondensed_600SemiBold',
   },
   presetRow: {
     flexDirection: 'row',
@@ -144,6 +145,7 @@ const styles = StyleSheet.create({
   time: {
     fontVariant: ['tabular-nums'],
     marginBottom: 8,
+    fontFamily: 'BarlowCondensed_700Bold',
   },
   buttons: {
     flexDirection: 'row',

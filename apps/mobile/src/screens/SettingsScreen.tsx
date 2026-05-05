@@ -158,6 +158,43 @@ export default function SettingsScreen() {
         </Card.Content>
       </Card>
 
+      {currentUser && (
+        <Card style={styles.card}>
+          <Card.Title title="Training Phase" />
+          <Card.Content>
+            <Text variant="bodyMedium" style={[styles.hint, { color: theme.colors.textSecondary }]}>
+              Set your current training phase to get tailored AI advice.
+            </Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View style={{ width: 460 }}>
+                <SegmentedButtons
+                  value={currentUser.preferences?.trainingPhase ?? ''}
+                  onValueChange={async (value) => {
+                    const phase = value || undefined;
+                    const updated = {
+                      ...currentUser,
+                      preferences: {
+                        ...currentUser.preferences,
+                        trainingPhase: phase as 'bulk' | 'cut' | 'maintain' | 'recomp' | undefined,
+                      },
+                    };
+                    await storage.saveUser(updated);
+                    setCurrentUser(updated);
+                  }}
+                  buttons={[
+                    { value: '', label: 'None' },
+                    { value: 'bulk', label: 'Bulk' },
+                    { value: 'cut', label: 'Cut' },
+                    { value: 'maintain', label: 'Maintain' },
+                    { value: 'recomp', label: 'Recomp' },
+                  ]}
+                />
+              </View>
+            </ScrollView>
+          </Card.Content>
+        </Card>
+      )}
+
       <AuthSection />
 
       <SyncSettings onSyncNow={handleSyncNow} />

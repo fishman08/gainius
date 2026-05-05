@@ -15,8 +15,15 @@ export default function MessageBubble({ message }: Props) {
   const userMarkdownStyles = useMemo(
     () =>
       StyleSheet.create({
-        body: { color: theme.colors.messageBubbleUserText, fontSize: 15 },
+        body: {
+          color: theme.colors.messageBubbleUserText,
+          fontSize: 15,
+          fontFamily: 'RethinkSans_400Regular',
+        },
         paragraph: { marginTop: 0, marginBottom: 4 },
+        strong: { fontFamily: 'RethinkSans_700Bold' },
+        em: { fontFamily: 'RethinkSans_400Regular', fontStyle: 'italic' },
+        code_inline: { fontFamily: 'RethinkSans_500Medium' },
       }),
     [theme],
   );
@@ -24,9 +31,15 @@ export default function MessageBubble({ message }: Props) {
   const aiMarkdownStyles = useMemo(
     () =>
       StyleSheet.create({
-        body: { color: theme.colors.messageBubbleAIText, fontSize: 15 },
+        body: {
+          color: theme.colors.messageBubbleAIText,
+          fontSize: 15,
+          fontFamily: 'RethinkSans_400Regular',
+        },
         paragraph: { marginTop: 0, marginBottom: 4 },
-        strong: { fontWeight: '700' as const },
+        strong: { fontFamily: 'RethinkSans_700Bold' },
+        em: { fontFamily: 'RethinkSans_400Regular', fontStyle: 'italic' },
+        code_inline: { fontFamily: 'RethinkSans_500Medium' },
       }),
     [theme],
   );
@@ -36,6 +49,7 @@ export default function MessageBubble({ message }: Props) {
       <View
         style={[
           styles.bubble,
+          isUser ? styles.userBubble : styles.aiBubble,
           {
             backgroundColor: isUser ? theme.colors.messageBubbleUser : theme.colors.messageBubbleAI,
           },
@@ -53,5 +67,7 @@ const styles = StyleSheet.create({
   row: { marginBottom: 12, paddingHorizontal: 12 },
   rowUser: { alignItems: 'flex-end' },
   rowAi: { alignItems: 'flex-start' },
-  bubble: { maxWidth: '80%', padding: 12, borderRadius: 16 },
+  bubble: { maxWidth: '80%', padding: 12 },
+  userBubble: { borderRadius: 20 },
+  aiBubble: { borderRadius: 20, elevation: 1 },
 });

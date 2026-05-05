@@ -41,7 +41,7 @@ export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss
         padding: 12,
         backgroundColor: warningBg,
         border: `1px solid ${warningBorder}`,
-        borderRadius: 8,
+        borderRadius: theme.borderRadius.md,
       }}
     >
       <h4 style={{ margin: '0 0 8px', fontSize: 14, color: warningText }}>
@@ -101,7 +101,7 @@ export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss
             backgroundColor: theme.colors.primary,
             color: theme.colors.primaryText,
             border: 'none',
-            borderRadius: 6,
+            borderRadius: theme.borderRadius.sm,
             cursor: 'pointer',
             fontWeight: 600,
           }}
@@ -115,7 +115,7 @@ export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss
             backgroundColor: 'transparent',
             color: theme.colors.textSecondary,
             border: `1px solid ${theme.colors.surfaceBorder}`,
-            borderRadius: 6,
+            borderRadius: theme.borderRadius.sm,
             cursor: 'pointer',
           }}
         >

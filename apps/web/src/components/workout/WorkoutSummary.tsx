@@ -1,17 +1,39 @@
 import { useSelector, useDispatch } from 'react-redux';
-import type { RootState } from '../../store';
+import ReactMarkdown from 'react-markdown';
+import type { RootState, AppDispatch } from '../../store';
 import { clearActiveSession } from '../../store/slices/workoutSlice';
+import { requestSessionReview, clearSessionReview } from '../../store/slices/chatSlice';
 import { useTheme } from '../../providers/ThemeProvider';
+import { useAuth } from '../../providers/AuthProvider';
+import { useStorage } from '../../providers/StorageProvider';
+import { useState, useEffect } from 'react';
+import type { User } from '@fitness-tracker/shared';
 
 interface WorkoutSummaryProps {
   onDone: () => void;
 }
 
 export function WorkoutSummary({ onDone }: WorkoutSummaryProps) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { theme } = useTheme();
   const { history, currentPlan } = useSelector((state: RootState) => state.workout);
+  const { sessionReview, sessionReviewLoading } = useSelector((state: RootState) => state.chat);
+  const { user: authUser } = useAuth();
+  const storage = useStorage();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const session = history[0];
+
+  useEffect(() => {
+    if (authUser?.id) {
+      storage.getUser(authUser.id).then(setCurrentUser);
+    }
+  }, [authUser, storage]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearSessionReview());
+    };
+  }, [dispatch]);
 
   if (!session) return null;
 
@@ -38,33 +60,63 @@ export function WorkoutSummary({ onDone }: WorkoutSummaryProps) {
 
   return (
     <div style={{ maxWidth: 600, margin: '20px auto', padding: 16 }}>
-      <h2 style={{ textAlign: 'center', color: theme.colors.success }}>Workout Complete!</h2>
+      <h2
+        style={{
+          textAlign: 'center',
+          color: theme.colors.accent,
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 700,
+        }}
+      >
+        Workout Complete!
+      </h2>
 
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-around',
           background: theme.colors.surface,
-          border: `1px solid ${theme.colors.surfaceBorder}`,
-          borderRadius: 12,
+          boxShadow: theme.shadows.md,
+          borderRadius: theme.borderRadius.md,
           padding: 20,
           marginBottom: 20,
         }}
       >
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 24, fontWeight: 700, color: theme.colors.text }}>
+          <div
+            style={{
+              fontSize: 28,
+              fontWeight: 700,
+              color: theme.colors.text,
+              fontFamily: "'Barlow Condensed', sans-serif",
+            }}
+          >
             {durationMin}
           </div>
           <div style={{ fontSize: 13, color: theme.colors.textHint }}>minutes</div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 24, fontWeight: 700, color: theme.colors.text }}>
+          <div
+            style={{
+              fontSize: 28,
+              fontWeight: 700,
+              color: theme.colors.text,
+              fontFamily: "'Barlow Condensed', sans-serif",
+            }}
+          >
             {exercisesDone}
           </div>
           <div style={{ fontSize: 13, color: theme.colors.textHint }}>exercises</div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 24, fontWeight: 700, color: theme.colors.text }}>
+          <div
+            style={{
+              fontSize: 28,
+              fontWeight: 700,
+              color: theme.colors.text,
+              fontFamily: "'Barlow Condensed', sans-serif",
+            }}
+          >
             {totalVolume.toLocaleString()}
           </div>
           <div style={{ fontSize: 13, color: theme.colors.textHint }}>lbs volume</div>
@@ -74,12 +126,20 @@ export function WorkoutSummary({ onDone }: WorkoutSummaryProps) {
       <div
         style={{
           background: theme.colors.surface,
-          border: `1px solid ${theme.colors.surfaceBorder}`,
-          borderRadius: 12,
+          boxShadow: theme.shadows.sm,
+          borderRadius: theme.borderRadius.md,
           padding: 20,
         }}
       >
-        <h3 style={{ marginTop: 0, marginBottom: 16, color: theme.colors.text }}>
+        <h3
+          style={{
+            marginTop: 0,
+            marginBottom: 16,
+            color: theme.colors.text,
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 600,
+          }}
+        >
           Exercise Details
         </h3>
         {session.loggedExercises.map((ex) => {
@@ -116,6 +176,52 @@ export function WorkoutSummary({ onDone }: WorkoutSummaryProps) {
       </div>
 
       <button
+        onClick={() =>
+          dispatch(
+            requestSessionReview({
+              session,
+              plan: currentPlan,
+              user: currentUser,
+              weightUnit: currentUser?.preferences?.weightUnit ?? 'lbs',
+            }),
+          )
+        }
+        disabled={sessionReviewLoading || !!sessionReview}
+        style={{
+          width: '100%',
+          padding: '12px 0',
+          background: 'transparent',
+          color: theme.colors.primary,
+          border: `1px solid ${theme.colors.primary}`,
+          borderRadius: theme.borderRadius.sm,
+          fontSize: 15,
+          fontWeight: 600,
+          cursor: sessionReviewLoading || sessionReview ? 'default' : 'pointer',
+          marginTop: 16,
+          opacity: sessionReviewLoading ? 0.6 : 1,
+        }}
+      >
+        {sessionReviewLoading ? 'Analyzing...' : sessionReview ? 'AI Review' : 'Get AI Review'}
+      </button>
+
+      {sessionReview && (
+        <div
+          style={{
+            background: theme.colors.surface,
+            boxShadow: theme.shadows.sm,
+            borderRadius: theme.borderRadius.md,
+            padding: 16,
+            marginTop: 12,
+            fontSize: 14,
+            lineHeight: 1.6,
+            color: theme.colors.text,
+          }}
+        >
+          <ReactMarkdown>{sessionReview}</ReactMarkdown>
+        </div>
+      )}
+
+      <button
         onClick={handleDone}
         style={{
           width: '100%',
@@ -123,7 +229,7 @@ export function WorkoutSummary({ onDone }: WorkoutSummaryProps) {
           background: theme.colors.primary,
           color: theme.colors.primaryText,
           border: 'none',
-          borderRadius: 8,
+          borderRadius: theme.borderRadius.sm,
           fontSize: 16,
           fontWeight: 700,
           cursor: 'pointer',

@@ -43,7 +43,7 @@ export function RestTimer({
   const buttonStyle: React.CSSProperties = {
     padding: '6px 16px',
     border: 'none',
-    borderRadius: 6,
+    borderRadius: theme.borderRadius.sm,
     fontSize: 13,
     fontWeight: 600,
     cursor: 'pointer',
@@ -56,8 +56,8 @@ export function RestTimer({
         alignItems: 'center',
         gap: 12,
         background: theme.colors.surface,
-        border: `1px solid ${theme.colors.surfaceBorder}`,
-        borderRadius: 10,
+        boxShadow: theme.shadows.sm,
+        borderRadius: theme.borderRadius.md,
         padding: '12px 20px',
         marginBottom: 20,
       }}
@@ -82,7 +82,7 @@ export function RestTimer({
             style={{
               padding: '4px 8px',
               fontSize: 12,
-              borderRadius: 4,
+              borderRadius: theme.borderRadius.sm,
               cursor: isRunning ? 'default' : 'pointer',
               border: `1px solid ${theme.colors.surfaceBorder}`,
               background: duration === preset.value ? theme.colors.primary : theme.colors.surface,
@@ -115,8 +115,8 @@ export function RestTimer({
       <span style={{ fontSize: 13, color: theme.colors.textHint }}>sec</span>
       <span
         style={{
-          fontSize: 22,
-          fontFamily: 'monospace',
+          fontSize: 32,
+          fontFamily: "'Barlow Condensed', sans-serif",
           fontWeight: 700,
           minWidth: 70,
           color: theme.colors.text,

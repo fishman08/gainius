@@ -4,7 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ChatScreen from '../screens/ChatScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import ProgressScreen from '../screens/ProgressScreen';
@@ -17,10 +17,10 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const tabIcons: Record<string, { focused: string; unfocused: string }> = {
-  Chat: { focused: 'chatbubbles', unfocused: 'chatbubbles-outline' },
-  Workout: { focused: 'barbell', unfocused: 'barbell-outline' },
-  Progress: { focused: 'stats-chart', unfocused: 'stats-chart-outline' },
-  Settings: { focused: 'settings', unfocused: 'settings-outline' },
+  Chat: { focused: 'chat', unfocused: 'chat-outline' },
+  Workout: { focused: 'dumbbell', unfocused: 'dumbbell' },
+  Progress: { focused: 'chart-line', unfocused: 'chart-line-variant' },
+  Settings: { focused: 'cog', unfocused: 'cog-outline' },
 };
 
 function MainTabs() {
@@ -33,13 +33,16 @@ function MainTabs() {
         tabBarIcon: ({ focused, color, size }) => {
           const icons = tabIcons[route.name];
           const iconName = focused ? icons.focused : icons.unfocused;
-          return <Ionicons name={iconName as never} size={size} color={color} />;
+          return <MaterialCommunityIcons name={iconName as never} size={size} color={color} />;
         },
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.textHint,
-        headerStyle: { backgroundColor: theme.colors.primary },
-        headerTintColor: theme.colors.primaryText,
-        tabBarStyle: { backgroundColor: theme.colors.surface },
+        headerStyle: { backgroundColor: theme.colors.navBar },
+        headerTintColor: theme.colors.navBarText,
+        tabBarStyle: {
+          backgroundColor: theme.colors.surface,
+          borderTopColor: theme.colors.surfaceBorder,
+        },
       })}
     >
       <Tab.Screen name="Chat" component={ChatScreen} options={{ title: 'AI Coach' }} />

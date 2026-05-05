@@ -28,6 +28,6 @@ export default function StatCard({ label, value }: StatCardProps) {
 const styles = StyleSheet.create({
   card: { flex: 1 },
   content: { alignItems: 'center', paddingVertical: 12 },
-  value: { fontWeight: '700' },
+  value: { fontWeight: '700', fontFamily: 'BarlowCondensed_700Bold' },
   label: { marginTop: 2 },
 });

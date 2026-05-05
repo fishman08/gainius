@@ -47,29 +47,29 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const paperTheme = useMemo(() => {
     const base = isDark ? MD3DarkTheme : MD3LightTheme;
-    const fontConfig = {
-      fontFamily: 'RethinkSans_400Regular',
-    };
+    const bodyFont = { fontFamily: 'RethinkSans_400Regular' };
+    const displayFont = { fontFamily: 'BarlowCondensed_700Bold' };
+    const headlineFont = { fontFamily: 'BarlowCondensed_600SemiBold' };
     return {
       ...base,
       fonts: configureFonts({
         config: {
-          ...fontConfig,
-          displayLarge: { ...fontConfig, fontFamily: 'RethinkSans_700Bold' },
-          displayMedium: { ...fontConfig, fontFamily: 'RethinkSans_700Bold' },
-          displaySmall: { ...fontConfig, fontFamily: 'RethinkSans_700Bold' },
-          headlineLarge: { ...fontConfig, fontFamily: 'RethinkSans_700Bold' },
-          headlineMedium: { ...fontConfig, fontFamily: 'RethinkSans_600SemiBold' },
-          headlineSmall: { ...fontConfig, fontFamily: 'RethinkSans_600SemiBold' },
-          titleLarge: { ...fontConfig, fontFamily: 'RethinkSans_600SemiBold' },
-          titleMedium: { ...fontConfig, fontFamily: 'RethinkSans_500Medium' },
-          titleSmall: { ...fontConfig, fontFamily: 'RethinkSans_500Medium' },
-          labelLarge: { ...fontConfig, fontFamily: 'RethinkSans_500Medium' },
-          labelMedium: { ...fontConfig, fontFamily: 'RethinkSans_500Medium' },
-          labelSmall: { ...fontConfig, fontFamily: 'RethinkSans_500Medium' },
-          bodyLarge: { ...fontConfig },
-          bodyMedium: { ...fontConfig },
-          bodySmall: { ...fontConfig },
+          ...bodyFont,
+          displayLarge: { ...displayFont },
+          displayMedium: { ...displayFont },
+          displaySmall: { ...displayFont },
+          headlineLarge: { ...headlineFont },
+          headlineMedium: { ...headlineFont },
+          headlineSmall: { ...headlineFont },
+          titleLarge: { fontFamily: 'RethinkSans_600SemiBold' },
+          titleMedium: { fontFamily: 'RethinkSans_500Medium' },
+          titleSmall: { fontFamily: 'RethinkSans_500Medium' },
+          labelLarge: { fontFamily: 'RethinkSans_500Medium' },
+          labelMedium: { fontFamily: 'RethinkSans_500Medium' },
+          labelSmall: { fontFamily: 'RethinkSans_500Medium' },
+          bodyLarge: { ...bodyFont },
+          bodyMedium: { ...bodyFont },
+          bodySmall: { ...bodyFont },
         },
       }),
       colors: {
@@ -81,11 +81,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         onSurface: theme.colors.text,
         onSurfaceVariant: theme.colors.textSecondary,
         outline: theme.colors.surfaceBorder,
+        primaryContainer: theme.colors.primaryMuted,
+        onPrimary: theme.colors.primaryText,
       },
     };
   }, [isDark, theme]);
 
-  // Don't render until we've read the stored preference to avoid flash
   if (!loaded) return null;
 
   return (

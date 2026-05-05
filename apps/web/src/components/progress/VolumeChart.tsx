@@ -17,13 +17,23 @@ export function VolumeChart({ data }: VolumeChartProps) {
     <div
       style={{
         background: theme.colors.surface,
-        border: `1px solid ${theme.colors.surfaceBorder}`,
-        borderRadius: 12,
+        boxShadow: theme.shadows.sm,
+        borderRadius: theme.borderRadius.md,
         padding: 20,
         marginBottom: 24,
       }}
     >
-      <h3 style={{ marginTop: 0, marginBottom: 16, fontSize: 16 }}>Weekly Volume (lbs)</h3>
+      <h3
+        style={{
+          marginTop: 0,
+          marginBottom: 16,
+          fontSize: 16,
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 600,
+        }}
+      >
+        Weekly Volume (lbs)
+      </h3>
       <ResponsiveContainer width="100%" height={220}>
         <BarChart data={data}>
           <XAxis dataKey="weekLabel" tick={{ fontSize: 12, fill: theme.colors.textHint }} />

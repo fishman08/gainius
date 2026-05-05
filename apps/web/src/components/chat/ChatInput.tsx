@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { Send } from 'lucide-react';
 import { VoiceInputModal } from '../voice/VoiceInputModal';
 import { useTheme } from '../../providers/ThemeProvider';
 
@@ -56,7 +57,7 @@ export default function ChatInput({ onSend, disabled }: Props) {
             flex: 1,
             padding: '12px 16px',
             border: `1px solid ${theme.colors.inputBorder}`,
-            borderRadius: 20,
+            borderRadius: theme.borderRadius.full,
             fontSize: 16,
             outline: 'none',
             backgroundColor: theme.colors.inputBackground,
@@ -89,17 +90,21 @@ export default function ChatInput({ onSend, disabled }: Props) {
           onClick={handleSend}
           disabled={disabled || !text.trim()}
           style={{
-            padding: '12px 20px',
+            width: 44,
+            height: 44,
             backgroundColor: theme.colors.primary,
             color: theme.colors.primaryText,
             border: 'none',
-            borderRadius: 20,
+            borderRadius: theme.borderRadius.full,
             fontWeight: 600,
             cursor: 'pointer',
             opacity: disabled || !text.trim() ? 0.5 : 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          Send
+          <Send size={18} />
         </button>
       </div>
       {showVoice && (

@@ -23,9 +23,17 @@ export default function MessageBubble({ message }: Props) {
         style={{
           maxWidth: '80%',
           padding: '12px 16px',
-          borderRadius: 16,
-          backgroundColor: isUser ? theme.colors.messageBubbleUser : theme.colors.messageBubbleAI,
-          color: isUser ? theme.colors.messageBubbleUserText : theme.colors.messageBubbleAIText,
+          borderRadius: theme.borderRadius.lg,
+          ...(isUser
+            ? {
+                background: `linear-gradient(135deg, ${theme.colors.gradient1}, ${theme.colors.gradient2})`,
+                color: '#ffffff',
+              }
+            : {
+                backgroundColor: theme.colors.messageBubbleAI,
+                color: theme.colors.messageBubbleAIText,
+                boxShadow: theme.shadows.sm,
+              }),
           fontSize: 15,
           lineHeight: 1.5,
         }}

@@ -8,6 +8,10 @@ import {
   RethinkSans_600SemiBold,
   RethinkSans_700Bold,
 } from '@expo-google-fonts/rethink-sans';
+import {
+  BarlowCondensed_600SemiBold,
+  BarlowCondensed_700Bold,
+} from '@expo-google-fonts/barlow-condensed';
 import { Provider } from 'react-redux';
 import { store } from './src/store';
 import { StorageProvider } from './src/providers/StorageProvider';
@@ -23,6 +27,8 @@ export default function App() {
     RethinkSans_500Medium,
     RethinkSans_600SemiBold,
     RethinkSans_700Bold,
+    BarlowCondensed_600SemiBold,
+    BarlowCondensed_700Bold,
   });
 
   if (!fontsLoaded) {

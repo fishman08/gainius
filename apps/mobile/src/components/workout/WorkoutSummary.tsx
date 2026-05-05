@@ -1,10 +1,14 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { ScrollView, View, StyleSheet } from 'react-native';
-import { Card, Text, Button } from 'react-native-paper';
+import { Card, Text, Button, ActivityIndicator } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
-import type { RootState } from '../../store';
+import type { RootState, AppDispatch } from '../../store';
 import { clearActiveSession } from '../../store/slices/workoutSlice';
+import { requestSessionReview, clearSessionReview } from '../../store/slices/chatSlice';
 import { useAppTheme } from '../../providers/ThemeProvider';
+import { useAuth } from '../../providers/AuthProvider';
+import { useStorage } from '../../providers/StorageProvider';
+import type { User } from '@fitness-tracker/shared';
 
 interface Props {
   onDone: () => void;
@@ -21,15 +25,31 @@ function formatDuration(startTime: string, endTime?: string): string {
 }
 
 export default function WorkoutSummary({ onDone }: Props) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { theme } = useAppTheme();
   const session = useSelector((state: RootState) => state.workout.history[0]);
   const currentPlan = useSelector((state: RootState) => state.workout.currentPlan);
+  const { sessionReview, sessionReviewLoading } = useSelector((state: RootState) => state.chat);
+  const { user: authUser } = useAuth();
+  const storageService = useStorage();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    if (authUser?.id) {
+      storageService.getUser(authUser.id).then(setCurrentUser);
+    }
+  }, [authUser, storageService]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearSessionReview());
+    };
+  }, [dispatch]);
 
   const themedStyles = useMemo(
     () => ({
       container: { backgroundColor: theme.colors.background },
-      heading: { color: theme.colors.success },
+      heading: { color: theme.colors.accent, fontFamily: 'BarlowCondensed_700Bold' as const },
       detail: { color: theme.colors.text },
       target: { color: theme.colors.textSecondary },
     }),
@@ -110,6 +130,33 @@ export default function WorkoutSummary({ onDone }: Props) {
         );
       })}
 
+      <Button
+        mode="outlined"
+        onPress={() =>
+          dispatch(
+            requestSessionReview({
+              session,
+              plan: currentPlan,
+              user: currentUser,
+              weightUnit: currentUser?.preferences?.weightUnit ?? 'lbs',
+            }),
+          )
+        }
+        disabled={sessionReviewLoading || !!sessionReview}
+        loading={sessionReviewLoading}
+        style={styles.reviewButton}
+      >
+        {sessionReview ? 'AI Review' : 'Get AI Review'}
+      </Button>
+
+      {sessionReview && (
+        <Card style={styles.reviewCard}>
+          <Card.Content>
+            <Text variant="bodyMedium">{sessionReview}</Text>
+          </Card.Content>
+        </Card>
+      )}
+
       <Button mode="contained" onPress={handleDone} style={styles.doneButton}>
         Done
       </Button>
@@ -131,5 +178,7 @@ const styles = StyleSheet.create({
   exerciseCard: { marginBottom: 8 },
   detail: { marginTop: 2 },
   target: { marginTop: 2 },
+  reviewButton: { marginTop: 12 },
+  reviewCard: { marginTop: 12 },
   doneButton: { marginTop: 16 },
 });

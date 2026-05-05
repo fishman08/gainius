@@ -11,14 +11,23 @@ export function StatCard({ label, value }: StatCardProps) {
   return (
     <div
       style={{
-        background: theme.colors.surface,
-        border: `1px solid ${theme.colors.surfaceBorder}`,
-        borderRadius: 12,
+        background: theme.colors.surfaceElevated,
+        boxShadow: theme.shadows.md,
+        borderRadius: theme.borderRadius.md,
         padding: '20px 16px',
         textAlign: 'center',
       }}
     >
-      <div style={{ fontSize: 28, fontWeight: 700, color: theme.colors.text }}>{value}</div>
+      <div
+        style={{
+          fontSize: 32,
+          fontWeight: 700,
+          color: theme.colors.text,
+          fontFamily: "'Barlow Condensed', sans-serif",
+        }}
+      >
+        {value}
+      </div>
       <div style={{ fontSize: 13, color: theme.colors.textHint, marginTop: 4 }}>{label}</div>
     </div>
   );

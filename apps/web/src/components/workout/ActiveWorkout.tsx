@@ -133,7 +133,16 @@ export function ActiveWorkout({ onComplete }: ActiveWorkoutProps) {
           marginBottom: 16,
         }}
       >
-        <h2 style={{ margin: 0, color: theme.colors.text }}>Active Workout</h2>
+        <h2
+          style={{
+            margin: 0,
+            color: theme.colors.text,
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 700,
+          }}
+        >
+          Active Workout
+        </h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button
             onClick={handleHeaderMic}
@@ -201,7 +210,7 @@ export function ActiveWorkout({ onComplete }: ActiveWorkoutProps) {
           background: 'transparent',
           color: theme.colors.primary,
           border: `2px dashed ${theme.colors.primary}`,
-          borderRadius: 8,
+          borderRadius: theme.borderRadius.sm,
           fontSize: 15,
           fontWeight: 600,
           cursor: 'pointer',
@@ -217,10 +226,10 @@ export function ActiveWorkout({ onComplete }: ActiveWorkoutProps) {
         style={{
           width: '100%',
           padding: '14px 0',
-          background: theme.colors.success,
+          background: theme.colors.accent,
           color: theme.colors.primaryText,
           border: 'none',
-          borderRadius: 8,
+          borderRadius: theme.borderRadius.sm,
           fontSize: 16,
           fontWeight: 700,
           cursor: 'pointer',

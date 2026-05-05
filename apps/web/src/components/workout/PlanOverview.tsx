@@ -54,13 +54,21 @@ export function PlanOverview() {
       <div
         style={{
           background: theme.colors.surface,
-          border: `1px solid ${theme.colors.surfaceBorder}`,
-          borderRadius: 12,
+          boxShadow: theme.shadows.md,
+          borderRadius: theme.borderRadius.md,
           padding: 24,
           marginBottom: 24,
         }}
       >
-        <h2 style={{ marginTop: 0, marginBottom: 16, color: theme.colors.text }}>
+        <h2
+          style={{
+            marginTop: 0,
+            marginBottom: 16,
+            color: theme.colors.text,
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 700,
+          }}
+        >
           Week {currentPlan.weekNumber} Plan
         </h2>
 
@@ -93,26 +101,8 @@ export function PlanOverview() {
                       fontWeight: 600,
                       padding: '2px 8px',
                       borderRadius: 12,
-                      background:
-                        suggestion.direction === 'increase'
-                          ? theme.mode === 'dark'
-                            ? '#1b3d1b'
-                            : '#E8F5E9'
-                          : suggestion.direction === 'decrease'
-                            ? theme.mode === 'dark'
-                              ? '#3d2e00'
-                              : '#FFF3E0'
-                            : theme.colors.background,
-                      color:
-                        suggestion.direction === 'increase'
-                          ? theme.mode === 'dark'
-                            ? '#66BB6A'
-                            : '#2E7D32'
-                          : suggestion.direction === 'decrease'
-                            ? theme.mode === 'dark'
-                              ? '#FFB74D'
-                              : '#E65100'
-                            : theme.colors.textSecondary,
+                      background: theme.colors.primaryMuted,
+                      color: theme.colors.primary,
                     }}
                   >
                     AI: {suggestion.suggestedWeight} lbs
@@ -131,7 +121,7 @@ export function PlanOverview() {
             background: theme.colors.primary,
             color: theme.colors.primaryText,
             border: 'none',
-            borderRadius: 8,
+            borderRadius: theme.borderRadius.sm,
             fontSize: 16,
             fontWeight: 700,
             cursor: 'pointer',

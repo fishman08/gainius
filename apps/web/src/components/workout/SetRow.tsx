@@ -1,3 +1,4 @@
+import { Check, X, Mic } from 'lucide-react';
 import { useTheme } from '../../providers/ThemeProvider';
 
 interface SetRowProps {
@@ -31,11 +32,7 @@ export function SetRow({
     gap: 12,
     padding: '8px 12px',
     borderRadius: 6,
-    background: completed
-      ? theme.mode === 'dark'
-        ? '#1b3d1b'
-        : '#E8F5E9'
-      : theme.colors.background,
+    background: completed ? theme.colors.primaryMuted : theme.colors.background,
     marginBottom: 6,
   };
 
@@ -43,7 +40,7 @@ export function SetRow({
     width: 60,
     padding: '6px 8px',
     border: `1px solid ${theme.colors.surfaceBorder}`,
-    borderRadius: 4,
+    borderRadius: theme.borderRadius.sm,
     fontSize: 14,
     textAlign: 'center',
     background: theme.colors.inputBackground,
@@ -90,12 +87,10 @@ export function SetRow({
             alignItems: 'center',
             justifyContent: 'center',
             opacity: completed ? 0.3 : 0.7,
+            color: theme.colors.textSecondary,
           }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill={theme.colors.textSecondary}>
-            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5z" />
-            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
-          </svg>
+          <Mic size={14} />
         </button>
       )}
       <button
@@ -105,9 +100,9 @@ export function SetRow({
           height: 32,
           borderRadius: '50%',
           border: completed
-            ? `2px solid ${theme.colors.success}`
+            ? `2px solid ${theme.colors.accent}`
             : `2px solid ${theme.colors.surfaceBorder}`,
-          background: completed ? theme.colors.success : theme.colors.surface,
+          background: completed ? theme.colors.accent : theme.colors.surface,
           color: completed ? theme.colors.primaryText : theme.colors.surfaceBorder,
           fontSize: 16,
           cursor: 'pointer',
@@ -116,7 +111,7 @@ export function SetRow({
           justifyContent: 'center',
         }}
       >
-        {'\u2713'}
+        <Check size={16} />
       </button>
       {onDelete && (
         <button
@@ -136,7 +131,7 @@ export function SetRow({
             fontSize: 16,
           }}
         >
-          {'\u00d7'}
+          <X size={14} />
         </button>
       )}
     </div>

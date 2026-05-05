@@ -46,11 +46,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const theme = isDark ? darkTheme : lightTheme;
 
   useEffect(() => {
-    const root = document.documentElement;
-    root.style.setProperty(
-      '--theme-transition',
-      'background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease',
-    );
     document.body.style.backgroundColor = theme.colors.background;
     document.body.style.color = theme.colors.text;
     document.body.style.fontFamily = "'Rethink Sans', sans-serif";
@@ -65,6 +60,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       style.textContent = `
         *, *::before, *::after {
           transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after {
+            transition: none !important;
+            animation: none !important;
+          }
         }
       `;
       document.head.appendChild(style);

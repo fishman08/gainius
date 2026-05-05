@@ -163,7 +163,7 @@ export default function ChatPage() {
             padding: '4px 10px',
             background: 'transparent',
             border: `1px solid ${theme.colors.surfaceBorder}`,
-            borderRadius: 6,
+            borderRadius: theme.borderRadius.sm,
             cursor: 'pointer',
             fontSize: 13,
             color: theme.colors.textSecondary,
@@ -194,7 +194,14 @@ export default function ChatPage() {
                 justifyContent: 'center',
               }}
             >
-              <h2 style={{ color: theme.colors.primary }}>AI Fitness Coach</h2>
+              <h2
+                style={{
+                  color: theme.colors.text,
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                }}
+              >
+                AI Fitness Coach
+              </h2>
               <p style={{ color: theme.colors.textSecondary }}>
                 Ask me about workout planning, exercises, or your fitness goals.
               </p>

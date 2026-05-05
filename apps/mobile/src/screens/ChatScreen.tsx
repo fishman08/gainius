@@ -171,7 +171,9 @@ export default function ChatScreen() {
       </View>
       {messages.length === 0 && !isLoading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 }}>
-          <Text variant="headlineSmall">AI Fitness Coach</Text>
+          <Text variant="headlineSmall" style={{ fontFamily: 'BarlowCondensed_600SemiBold' }}>
+            AI Fitness Coach
+          </Text>
           <Text
             variant="bodyMedium"
             style={{ marginTop: 8, color: theme.colors.textSecondary, textAlign: 'center' }}

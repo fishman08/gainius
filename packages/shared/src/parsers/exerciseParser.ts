@@ -1,4 +1,5 @@
 import type { ExtractedExercise, ExerciseType } from './types';
+import { searchExercises } from '../utils/exerciseSearch';
 
 /**
  * Patterns matched (examples):
@@ -48,6 +49,10 @@ const COOLDOWN_HEADER = /^(?:#{1,3}\s*|\*\*\s*)(?:cool[\s-]?down)\b/i;
 const WORKING_HEADER = /^(?:#{1,3}\s*|\*\*\s*)(?:working|main|strength)\b/i;
 
 const SUPERSET_PREFIX = /^([A-Z])(\d+)[.)]\s*/i;
+
+// Guard A for Pattern 3: reject names starting with conversational words
+const NOISE_PREFIX =
+  /^(you|i|we|they|he|she|it|that|this|try|do|did|can|could|should|would|let|if|when|from|about|around|maybe|also|just|note|keep|aim|go|get|add|up|down|over|set|hit|step|bodyweight)\b/i;
 
 function parseDayHeader(line: string): number | null {
   const m = line.match(DAY_HEADER_PATTERN);
@@ -132,12 +137,19 @@ function parseLine(line: string): ExtractedExercise | null {
     const name = cleanName(match[1]);
     // Avoid false positives on short/numeric names
     if (name.length < 3) return null;
+    // Guard A: Reject conversational prefixes
+    if (NOISE_PREFIX.test(name)) return null;
+    // Guard B: Name must contain at least one 4+ letter word
+    if (!/[a-zA-Z]{4,}/.test(name)) return null;
+    // Guard C: Catalog cross-check — penalize unknown exercises
+    const catalogHits = searchExercises(name, 1);
+    const finalConfidence = catalogHits.length > 0 ? 0.75 : 0.4;
     return {
       name,
       sets: parseInt(match[2], 10),
       reps: match[3].includes('-') ? match[3].replace(/\s/g, '') : parseInt(match[3], 10),
       weight: match[4] ? parseFloat(match[4]) : undefined,
-      confidence: 0.75,
+      confidence: finalConfidence,
     };
   }
 

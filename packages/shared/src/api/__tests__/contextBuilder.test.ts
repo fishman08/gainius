@@ -95,7 +95,7 @@ describe('buildSystemPrompt', () => {
         cloudSyncEnabled: false,
       },
     });
-    expect(prompt).toContain('100 kg');
+    expect(prompt).toContain('100x5 kg');
   });
 
   it('shows bodyweight for weight = 0', () => {
@@ -117,7 +117,7 @@ describe('buildSystemPrompt', () => {
       },
     ];
     const prompt = buildSystemPrompt({ recentSessions: sessions });
-    expect(prompt).toContain('Pull-ups: bodyweight x 8 reps');
+    expect(prompt).toContain('Pull-ups: BWx8 lbs');
   });
 
   it('filters out sessions older than 14 days', () => {

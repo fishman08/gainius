@@ -45,4 +45,5 @@ export interface WeightSuggestion {
   direction: 'increase' | 'same' | 'decrease';
   confidence: 'high' | 'medium' | 'low';
   reason: string;
+  recentSets?: { date: string; sets: { weight: number; reps: number }[] }[];
 }

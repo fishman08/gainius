@@ -3,11 +3,18 @@ export interface ClaudeMessage {
   content: string;
 }
 
+export interface ClaudeSystemBlock {
+  type: 'text';
+  text: string;
+  cache_control?: { type: 'ephemeral' };
+}
+
 export interface ClaudeRequest {
   model: string;
   max_tokens: number;
-  system?: string;
+  system?: string | ClaudeSystemBlock[];
   messages: ClaudeMessage[];
+  temperature?: number;
 }
 
 export interface ClaudeContentBlock {
@@ -25,6 +32,8 @@ export interface ClaudeResponse {
   usage: {
     input_tokens: number;
     output_tokens: number;
+    cache_creation_input_tokens?: number;
+    cache_read_input_tokens?: number;
   };
 }
 
@@ -42,10 +51,13 @@ export interface SendMessageOptions {
   systemPrompt?: string;
   model?: string;
   maxTokens?: number;
+  temperature?: number;
 }
 
 export interface SendMessageResult {
   text: string;
   inputTokens: number;
   outputTokens: number;
+  cacheCreationInputTokens?: number;
+  cacheReadInputTokens?: number;
 }

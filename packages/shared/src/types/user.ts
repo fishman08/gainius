@@ -12,4 +12,5 @@ export interface UserPreferences {
   restTimerDefault: number;
   voiceInputEnabled: boolean;
   cloudSyncEnabled: boolean;
+  trainingPhase?: 'bulk' | 'cut' | 'maintain' | 'recomp';
 }

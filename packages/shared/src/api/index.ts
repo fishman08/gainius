@@ -1,4 +1,9 @@
 export { sendMessage, validateApiKey, ClaudeApiError } from './claudeClient';
-export { buildSystemPrompt } from './contextBuilder';
-export type { ContextOptions, PreviousPlanData, ExerciseProgression } from './contextBuilder';
+export { buildSystemPrompt, buildSessionReviewPrompt } from './contextBuilder';
+export type {
+  ContextOptions,
+  PreviousPlanData,
+  ExerciseProgression,
+  KnowledgeSnippet,
+} from './contextBuilder';
 export type { ClaudeMessage, SendMessageOptions, SendMessageResult } from './types';

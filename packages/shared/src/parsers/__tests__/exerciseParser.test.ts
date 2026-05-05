@@ -252,6 +252,54 @@ describe('extractExercises', () => {
     });
   });
 
+  describe('Pattern 3 noise rejection', () => {
+    it('rejects conversational pronoun prefix "You hit"', () => {
+      const result = extractExercises('- You hit 4x6 at 155 lbs last week');
+      expect(result).toHaveLength(0);
+    });
+
+    it('rejects preposition prefix "Step up from"', () => {
+      const result = extractExercises('- Step up from 3x5');
+      expect(result).toHaveLength(0);
+    });
+
+    it('rejects "You did 3x8"', () => {
+      const result = extractExercises('- You did 3x8');
+      expect(result).toHaveLength(0);
+    });
+
+    it('rejects "Try 3x10 at bodyweight"', () => {
+      const result = extractExercises('- Try 3x10 at bodyweight');
+      expect(result).toHaveLength(0);
+    });
+
+    it('penalizes or rejects bare "Bodyweight 3x10" (no catalog match)', () => {
+      const result = extractExercises('- Bodyweight 3x10');
+      if (result.length > 0) {
+        expect(result[0].confidence).toBeLessThanOrEqual(0.4);
+      }
+    });
+
+    it('still parses "Deadlift 5x5 @ 225" (regression check)', () => {
+      const result = extractExercises('- Deadlift 5x5 @ 225');
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe('Deadlift');
+      expect(result[0].weight).toBe(225);
+    });
+
+    it('still parses "Romanian Deadlift 4x8 at 135"', () => {
+      const result = extractExercises('- Romanian Deadlift 4x8 at 135');
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe('Romanian Deadlift');
+    });
+
+    it('still parses "Face Pulls 3x15"', () => {
+      const result = extractExercises('- Face Pulls 3x15');
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe('Face Pulls');
+    });
+  });
+
   describe('edge cases', () => {
     it('returns empty array for empty input', () => {
       expect(extractExercises('')).toEqual([]);

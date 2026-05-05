@@ -7,8 +7,9 @@ import type {
 } from './types';
 
 const DEFAULT_API_BASE_URL = 'https://api.anthropic.com';
-const DEFAULT_MODEL = 'claude-sonnet-4-5-20250929';
-const DEFAULT_MAX_TOKENS = 1024;
+const DEFAULT_MODEL = 'claude-sonnet-4-6';
+const DEFAULT_MAX_TOKENS = 2048;
+const DEFAULT_TEMPERATURE = 0.5;
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 1000;
 
@@ -53,13 +54,16 @@ async function makeRequest(apiKey: string, body: ClaudeRequest): Promise<ClaudeR
 }
 
 export async function sendMessage(options: SendMessageOptions): Promise<SendMessageResult> {
-  const { apiKey, messages, systemPrompt, model, maxTokens } = options;
+  const { apiKey, messages, systemPrompt, model, maxTokens, temperature } = options;
 
   const body: ClaudeRequest = {
     model: model ?? DEFAULT_MODEL,
     max_tokens: maxTokens ?? DEFAULT_MAX_TOKENS,
+    temperature: temperature ?? DEFAULT_TEMPERATURE,
     messages,
-    ...(systemPrompt ? { system: systemPrompt } : {}),
+    ...(systemPrompt
+      ? { system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }] }
+      : {}),
   };
 
   let lastError: Error | null = null;
@@ -76,6 +80,8 @@ export async function sendMessage(options: SendMessageOptions): Promise<SendMess
         text,
         inputTokens: result.usage.input_tokens,
         outputTokens: result.usage.output_tokens,
+        cacheCreationInputTokens: result.usage.cache_creation_input_tokens,
+        cacheReadInputTokens: result.usage.cache_read_input_tokens,
       };
     } catch (error) {
       lastError = error as Error;

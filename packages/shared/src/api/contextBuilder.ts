@@ -23,6 +23,13 @@ export interface ExerciseProgression {
   direction: 'progressed' | 'stalled' | 'regressed';
 }
 
+export interface KnowledgeSnippet {
+  title: string;
+  source: string;
+  content: string;
+  evidence_quality: string;
+}
+
 export interface ContextOptions {
   recentSessions?: WorkoutSession[];
   goals?: string;
@@ -32,6 +39,7 @@ export interface ContextOptions {
   previousPlanContext?: string;
   previousPlanData?: PreviousPlanData;
   previousMessages?: ChatMessage[];
+  knowledgeContext?: KnowledgeSnippet[];
 }
 
 function filterSessionsByDate(sessions: WorkoutSession[]): WorkoutSession[] {
@@ -42,22 +50,22 @@ function filterSessionsByDate(sessions: WorkoutSession[]): WorkoutSession[] {
 }
 
 function formatSession(session: WorkoutSession, weightUnit: string): string {
-  const date = session.date;
   const exercises = session.loggedExercises
     .map((ex) => {
       const completedSets = ex.sets.filter((s) => s.completed);
       if (completedSets.length === 0) return `  - ${ex.exerciseName}: no sets logged`;
-      const bestSet = completedSets.reduce(
-        (best, set) => (set.weight > (best?.weight ?? 0) ? set : best),
-        completedSets[0],
-      );
-      if (!bestSet) return `  - ${ex.exerciseName}: no sets logged`;
-      const weightLabel = bestSet.weight === 0 ? 'bodyweight' : `${bestSet.weight} ${weightUnit}`;
-      return `  - ${ex.exerciseName}: ${weightLabel} x ${bestSet.reps} reps (${completedSets.length} sets)`;
+      const setDetails = completedSets
+        .map((s) => {
+          const w = s.weight === 0 ? 'BW' : `${s.weight}`;
+          const rpe = s.rpe ? ` RPE${s.rpe}` : '';
+          return `${w}x${s.reps}${rpe}`;
+        })
+        .join(', ');
+      return `  - ${ex.exerciseName}: ${setDetails} ${weightUnit}`;
     })
     .join('\n');
 
-  return `${date}:\n${exercises}`;
+  return `${session.date}:\n${exercises}`;
 }
 
 function groupExercisesByDay(exercises: PlannedExercise[]): Map<number, PlannedExercise[]> {
@@ -171,6 +179,20 @@ export function buildSystemPrompt(options: ContextOptions): string {
 
   if (options.preferences) {
     parts.push('', `User preferences: weight unit = ${options.preferences.weightUnit}`);
+    if (options.preferences.trainingPhase) {
+      const phaseGuidance: Record<string, string> = {
+        cut: 'User is in a CUT phase (caloric deficit). Prioritize strength preservation over progression, manage fatigue carefully, keep intensity high but reduce total volume, avoid aggressive weight increases, monitor recovery.',
+        bulk: 'User is in a BULK phase (caloric surplus). Prioritize progressive overload, higher training volume, push for weight/rep PRs.',
+        maintain:
+          'User is in a MAINTENANCE phase. Sustain current strength, moderate volume, balanced approach.',
+        recomp:
+          'User is in a RECOMPOSITION phase. Moderate progressive overload, balanced volume, prioritize protein timing.',
+      };
+      parts.push(
+        `Training phase: ${options.preferences.trainingPhase.toUpperCase()}`,
+        phaseGuidance[options.preferences.trainingPhase],
+      );
+    }
   }
 
   if (options.goals) {
@@ -180,8 +202,16 @@ export function buildSystemPrompt(options: ContextOptions): string {
   if (options.recentSessions && options.recentSessions.length > 0) {
     const sessions = filterSessionsByDate(options.recentSessions);
     if (sessions.length > 0) {
-      parts.push('', 'Recent workout history (last 2 weeks):');
-      sessions.forEach((s) => parts.push(formatSession(s, weightUnit)));
+      parts.push(
+        '',
+        'Recent workout history (last 2 weeks) — newest first, per-set format = weight x reps RPE#:',
+      );
+      const sortedNewestFirst = [...sessions].sort((a, b) => (a.date < b.date ? 1 : -1));
+      sortedNewestFirst.forEach((s) => parts.push(formatSession(s, weightUnit)));
+      parts.push(
+        '',
+        'Use this logged history when making recommendations: cite specific recent sets when suggesting next-session weights, flag exercises trending up vs stalling, and reference the user’s actual numbers rather than generic guidance.',
+      );
     }
   }
 
@@ -193,6 +223,12 @@ export function buildSystemPrompt(options: ContextOptions): string {
       parts.push(
         `  - ${s.exerciseName}: ${s.suggestedWeight} ${weightUnit} ${arrow} (${s.reason})`,
       );
+      if (s.recentSets) {
+        for (const rs of s.recentSets) {
+          const sets = rs.sets.map((st) => `${st.weight}x${st.reps}`).join(', ');
+          parts.push(`      ${rs.date}: ${sets}`);
+        }
+      }
     }
     parts.push(
       '',
@@ -234,11 +270,91 @@ export function buildSystemPrompt(options: ContextOptions): string {
     );
   }
 
+  if (options.knowledgeContext && options.knowledgeContext.length > 0) {
+    parts.push('', 'Relevant exercise science knowledge:');
+    for (const snippet of options.knowledgeContext) {
+      parts.push(`  [${snippet.source} — ${snippet.evidence_quality}] ${snippet.title}`);
+      parts.push(`  ${snippet.content.slice(0, 500)}`);
+      parts.push('');
+    }
+    parts.push(
+      'Use the above knowledge to inform your advice when relevant. Cite the source name when referencing specific findings.',
+    );
+  }
+
   // Reinforce format rules at the end (recency effect)
   parts.push(
     '',
     'Reminder: Every exercise must be a dash-bullet line with name, sets, reps, and weight on ONE line (e.g., "- Squat: 4 sets x 5 reps at 165 lbs"). No letter prefixes, no numbered lists, no weight-first lines.',
   );
+
+  return parts.join('\n');
+}
+
+export function buildSessionReviewPrompt(
+  session: WorkoutSession,
+  plan: WorkoutPlan | null,
+  weightUnit: string,
+): string {
+  const parts: string[] = [];
+  parts.push('You are a knowledgeable fitness coach reviewing a completed workout session.');
+  parts.push('');
+  parts.push(
+    'IMPORTANT: Do NOT output exercises in dash-bullet format (e.g., "- Bench Press: 4 sets x 8 reps"). Use plain prose only. The app parser will accidentally extract formatted exercises from your review.',
+  );
+  parts.push('');
+  parts.push(`Session date: ${session.date}`);
+  if (session.startTime && session.endTime) {
+    const durationMin = Math.round(
+      (new Date(session.endTime).getTime() - new Date(session.startTime).getTime()) / 60000,
+    );
+    parts.push(`Duration: ${durationMin} minutes`);
+  }
+  parts.push('');
+  parts.push('Completed exercises:');
+  for (const ex of session.loggedExercises) {
+    const completedSets = ex.sets.filter((s) => s.completed);
+    if (completedSets.length === 0) {
+      parts.push(`  ${ex.exerciseName}: skipped`);
+      continue;
+    }
+    const setDetails = completedSets
+      .map((s) => {
+        const w = s.weight === 0 ? 'BW' : `${s.weight}`;
+        const rpe = s.rpe ? ` RPE${s.rpe}` : '';
+        return `${w}x${s.reps}${rpe}`;
+      })
+      .join(', ');
+    parts.push(`  ${ex.exerciseName}: ${setDetails} ${weightUnit}`);
+  }
+
+  if (plan) {
+    parts.push('');
+    parts.push('Planned vs actual:');
+    for (const planned of plan.exercises) {
+      const logged = session.loggedExercises.find(
+        (ex) => ex.plannedExerciseId === planned.id || ex.exerciseName === planned.exerciseName,
+      );
+      if (!logged) {
+        parts.push(
+          `  ${planned.exerciseName}: planned ${planned.targetSets}x${planned.targetReps} — MISSED`,
+        );
+        continue;
+      }
+      const completedSets = logged.sets.filter((s) => s.completed);
+      parts.push(
+        `  ${planned.exerciseName}: planned ${planned.targetSets}x${planned.targetReps}${planned.suggestedWeight ? ` @${planned.suggestedWeight}` : ''} — did ${completedSets.length} sets`,
+      );
+    }
+  }
+
+  parts.push('');
+  parts.push('Provide a brief review (150 words max) covering:');
+  parts.push('1. Performance vs plan (if applicable)');
+  parts.push('2. Volume and intensity observations');
+  parts.push('3. One specific suggestion for the next session');
+  parts.push('');
+  parts.push('Use conversational prose. NO dash-bullet exercise lines.');
 
   return parts.join('\n');
 }

@@ -35,6 +35,11 @@ export function suggestWeight(
 
   if (exerciseSessions.length < 2) return null;
 
+  const recentSetsData = exerciseSessions.map((es) => ({
+    date: es.date,
+    sets: es.sets.map((s) => ({ weight: s.weight, reps: s.reps })),
+  }));
+
   // Get the most recent weight used
   const recentSets = exerciseSessions[0].sets;
   const currentWeight = Math.max(...recentSets.map((s) => s.weight));
@@ -57,6 +62,7 @@ export function suggestWeight(
       direction: 'same',
       confidence: 'medium',
       reason: 'RPE is high — maintain current weight',
+      recentSets: recentSetsData,
     };
   }
 
@@ -76,6 +82,7 @@ export function suggestWeight(
       direction: 'increase',
       confidence: 'high',
       reason: `Consistently hitting ${typicalTargetReps} reps — ready to progress`,
+      recentSets: recentSetsData,
     };
   }
 
@@ -87,6 +94,7 @@ export function suggestWeight(
       direction: 'same',
       confidence: 'medium',
       reason: 'Getting close — keep current weight until more consistent',
+      recentSets: recentSetsData,
     };
   }
 
@@ -101,6 +109,7 @@ export function suggestWeight(
       direction: 'decrease',
       confidence: 'medium',
       reason: 'Struggling with current weight — consider a small reduction',
+      recentSets: recentSetsData,
     };
   }
 
@@ -111,6 +120,7 @@ export function suggestWeight(
     direction: 'same',
     confidence: 'medium',
     reason: 'Maintain current weight',
+    recentSets: recentSetsData,
   };
 }
 

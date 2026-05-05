@@ -12,9 +12,12 @@ import {
   generateId,
   sendMessage,
   buildSystemPrompt,
+  buildSessionReviewPrompt,
   extractExercises,
   suggestWeightsForPlan,
+  searchKnowledge,
 } from '@fitness-tracker/shared';
+import type { WorkoutSession, WorkoutPlan } from '@fitness-tracker/shared';
 import { getApiKey, getCustomPrompt } from '../../services/apiKeyStorage';
 
 export interface ChatState {
@@ -23,6 +26,8 @@ export interface ChatState {
   isLoading: boolean;
   error: string | null;
   lastExtractedExercises: ExtractedExercise[];
+  sessionReview: string | null;
+  sessionReviewLoading: boolean;
 }
 
 const initialState: ChatState = {
@@ -31,6 +36,8 @@ const initialState: ChatState = {
   isLoading: false,
   error: null,
   lastExtractedExercises: [],
+  sessionReview: null,
+  sessionReviewLoading: false,
 };
 
 interface SendChatMessageArgs {
@@ -103,12 +110,20 @@ export const sendChatMessage = createAsyncThunk(
     const previousMessages =
       conversation.messages.length > 0 ? conversation.messages.slice(-6) : undefined;
 
+    const exerciseNames = currentPlan?.exercises.map((e) => e.exerciseName) ?? [];
+    const knowledgeContext = searchKnowledge(text, {
+      limit: 5,
+      evidenceFilter: 'medium',
+      exerciseNames,
+    });
+
     const systemPrompt = buildSystemPrompt({
       recentSessions: allSessions,
       preferences: user?.preferences,
       customSystemPrompt,
       weightSuggestions,
       previousMessages,
+      knowledgeContext,
     });
 
     const recentMessages = conversation.messages.slice(-MAX_CONTEXT_MESSAGES);
@@ -144,6 +159,29 @@ export const sendChatMessage = createAsyncThunk(
   },
 );
 
+interface RequestSessionReviewArgs {
+  session: WorkoutSession;
+  plan: WorkoutPlan | null;
+  user: User | null;
+  weightUnit: string;
+}
+
+export const requestSessionReview = createAsyncThunk(
+  'chat/requestSessionReview',
+  async ({ session, plan, user, weightUnit }: RequestSessionReviewArgs) => {
+    const apiKey = await getApiKey(user);
+    if (!apiKey) throw new Error('No API key configured. Go to Settings to add one.');
+
+    const systemPrompt = buildSessionReviewPrompt(session, plan, weightUnit);
+    const result = await sendMessage({
+      apiKey,
+      messages: [{ role: 'user', content: 'Please review my workout session.' }],
+      systemPrompt,
+    });
+    return result.text;
+  },
+);
+
 const chatSlice = createSlice({
   name: 'chat',
   initialState,
@@ -171,6 +209,10 @@ const chatSlice = createSlice({
       state.activeConversationId = null;
       state.lastExtractedExercises = [];
       state.error = null;
+    },
+    clearSessionReview(state) {
+      state.sessionReview = null;
+      state.sessionReviewLoading = false;
     },
   },
   extraReducers: (builder) => {
@@ -202,6 +244,18 @@ const chatSlice = createSlice({
         } else {
           state.conversations.unshift(action.payload);
         }
+      })
+      .addCase(requestSessionReview.pending, (state) => {
+        state.sessionReviewLoading = true;
+        state.sessionReview = null;
+      })
+      .addCase(requestSessionReview.fulfilled, (state, action) => {
+        state.sessionReviewLoading = false;
+        state.sessionReview = action.payload;
+      })
+      .addCase(requestSessionReview.rejected, (state, action) => {
+        state.sessionReviewLoading = false;
+        state.sessionReview = `Review failed: ${action.error.message ?? 'Unknown error'}`;
       });
   },
 });
@@ -212,5 +266,6 @@ export const {
   clearError,
   dismissExercises,
   startNewConversation,
+  clearSessionReview,
 } = chatSlice.actions;
 export default chatSlice.reducer;

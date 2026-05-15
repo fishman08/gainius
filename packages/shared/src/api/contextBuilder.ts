@@ -68,6 +68,16 @@ function formatSession(session: WorkoutSession, weightUnit: string): string {
   return `${session.date}:\n${exercises}`;
 }
 
+function formatCardioSession(session: WorkoutSession): string {
+  if (!session.cardioLog) return `${session.date}: cardio`;
+  const { activityType, durationSeconds, distanceMeters } = session.cardioLog;
+  const minutes = Math.floor(durationSeconds / 60);
+  const secs = durationSeconds % 60;
+  const durationStr = secs > 0 ? `${minutes}m ${secs}s` : `${minutes}m`;
+  const kmStr = distanceMeters ? ` — ${(distanceMeters / 1000).toFixed(2)} km` : '';
+  return `${session.date}: ${activityType} ${durationStr}${kmStr}`;
+}
+
 function groupExercisesByDay(exercises: PlannedExercise[]): Map<number, PlannedExercise[]> {
   const groups = new Map<number, PlannedExercise[]>();
   for (const ex of exercises) {
@@ -207,7 +217,13 @@ export function buildSystemPrompt(options: ContextOptions): string {
         'Recent workout history (last 2 weeks) — newest first, per-set format = weight x reps RPE#:',
       );
       const sortedNewestFirst = [...sessions].sort((a, b) => (a.date < b.date ? 1 : -1));
-      sortedNewestFirst.forEach((s) => parts.push(formatSession(s, weightUnit)));
+      sortedNewestFirst.forEach((s) => {
+        if (s.sessionType === 'cardio') {
+          parts.push(formatCardioSession(s));
+        } else {
+          parts.push(formatSession(s, weightUnit));
+        }
+      });
       parts.push(
         '',
         'Use this logged history when making recommendations: cite specific recent sets when suggesting next-session weights, flag exercises trending up vs stalling, and reference the user’s actual numbers rather than generic guidance.',

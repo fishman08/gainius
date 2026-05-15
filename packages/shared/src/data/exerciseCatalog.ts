@@ -33,24 +33,10 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     primaryMuscles: ['chest'],
   },
   {
-    name: 'Barbell Bench Press - Medium Grip',
-    category: 'Chest',
-    equipment: 'Barbell',
-    primaryMuscles: ['chest'],
-    aliases: ['Barbell Bench Press'],
-  },
-  {
     name: 'Barbell Guillotine Bench Press',
     category: 'Chest',
     equipment: 'Barbell',
     primaryMuscles: ['chest'],
-  },
-  {
-    name: 'Barbell Incline Bench Press - Medium Grip',
-    category: 'Chest',
-    equipment: 'Barbell',
-    primaryMuscles: ['chest'],
-    aliases: ['Incline Barbell Press'],
   },
   { name: 'Behind Head Chest Stretch', category: 'Chest', primaryMuscles: ['chest'] },
   {
@@ -58,7 +44,14 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Chest',
     equipment: 'Barbell',
     primaryMuscles: ['chest'],
-    aliases: ['Flat Bench', 'Flat Bench Press', 'BB Bench'],
+    aliases: [
+      'Flat Bench',
+      'Flat Bench Press',
+      'BB Bench',
+      'Barbell Bench Press - Medium Grip',
+      'Barbell Bench Press',
+      'Bench Press - Powerlifting',
+    ],
   },
   {
     name: 'Bench Press - With Bands',
@@ -73,7 +66,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     primaryMuscles: ['chest'],
   },
   { name: 'Bodyweight Flyes', category: 'Chest', equipment: 'EZ Bar', primaryMuscles: ['chest'] },
-  { name: 'Butterfly', category: 'Chest', equipment: 'Machine', primaryMuscles: ['chest'] },
   { name: 'Cable Chest Press', category: 'Chest', equipment: 'Cable', primaryMuscles: ['chest'] },
   { name: 'Cable Crossover', category: 'Chest', equipment: 'Cable', primaryMuscles: ['chest'] },
   { name: 'Cable Iron Cross', category: 'Chest', equipment: 'Cable', primaryMuscles: ['chest'] },
@@ -84,7 +76,7 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Chest',
     equipment: 'Bodyweight',
     primaryMuscles: ['chest'],
-    aliases: ['Dips', 'Weighted Dip'],
+    aliases: ['Dips', 'Weighted Dip', 'Dips - Chest Version', 'Parallel Bar Dip'],
   },
   {
     name: 'Chest Push (multiple response)',
@@ -124,18 +116,11 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     primaryMuscles: ['chest'],
   },
   {
-    name: 'Decline Barbell Bench Press',
-    category: 'Chest',
-    equipment: 'Barbell',
-    primaryMuscles: ['chest'],
-    aliases: ['Decline Bench Press', 'Decline Barbell Press'],
-  },
-  {
     name: 'Decline Bench Press',
     category: 'Chest',
     equipment: 'Barbell',
     primaryMuscles: ['chest'],
-    aliases: ['Decline Barbell Press'],
+    aliases: ['Decline Barbell Press', 'Decline Barbell Bench Press'],
   },
   {
     name: 'Decline Dumbbell Bench Press',
@@ -156,7 +141,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     equipment: 'Machine',
     primaryMuscles: ['chest'],
   },
-  { name: 'Dips - Chest Version', category: 'Chest', primaryMuscles: ['chest'] },
   { name: 'Drop Push', category: 'Chest', primaryMuscles: ['chest'] },
   {
     name: 'Dumbbell Bench Press',
@@ -175,14 +159,7 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Chest',
     equipment: 'Dumbbell',
     primaryMuscles: ['chest'],
-    aliases: ['DB Fly', 'Chest Fly', 'Flat Fly'],
-  },
-  {
-    name: 'Dumbbell Flyes',
-    category: 'Chest',
-    equipment: 'Dumbbell',
-    primaryMuscles: ['chest'],
-    aliases: ['DB Fly', 'Chest Fly', 'Flat Fly', 'Dumbbell Fly'],
+    aliases: ['DB Fly', 'Chest Fly', 'Flat Fly', 'Dumbbell Flyes'],
   },
   { name: 'Dynamic Chest Stretch', category: 'Chest', primaryMuscles: ['chest'] },
   { name: 'Elbows Back', category: 'Chest', primaryMuscles: ['chest'] },
@@ -217,7 +194,11 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Chest',
     equipment: 'Barbell',
     primaryMuscles: ['chest'],
-    aliases: ['Incline Barbell Press', 'Incline Press'],
+    aliases: [
+      'Incline Barbell Press',
+      'Incline Press',
+      'Barbell Incline Bench Press - Medium Grip',
+    ],
   },
   {
     name: 'Incline Cable Chest Press',
@@ -356,7 +337,7 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Chest',
     equipment: 'Machine',
     primaryMuscles: ['chest'],
-    aliases: ['Pec Fly Machine'],
+    aliases: ['Pec Fly Machine', 'Butterfly'],
   },
   {
     name: 'Plyo Kettlebell Pushups',
@@ -479,37 +460,17 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
   { name: 'Axle Deadlift', category: 'Back', primaryMuscles: ['lower back'] },
   { name: 'Band Assisted Pull-Up', category: 'Back', primaryMuscles: ['lats'] },
   {
-    name: 'Barbell Deadlift',
-    category: 'Back',
-    equipment: 'Barbell',
-    primaryMuscles: ['lower back'],
-  },
-  {
     name: 'Barbell Row',
     category: 'Back',
     equipment: 'Barbell',
     primaryMuscles: ['middle back'],
-    aliases: ['Bent Over Row', 'BB Row'],
-  },
-  {
-    name: 'Barbell Shrug',
-    category: 'Back',
-    equipment: 'Barbell',
-    primaryMuscles: ['traps'],
-    aliases: ['Shrug', 'Dumbbell Shrug', 'DB Shrug', 'Trap Shrug'],
+    aliases: ['Bent Over Row', 'BB Row', 'Bent Over Barbell Row'],
   },
   {
     name: 'Barbell Shrug Behind The Back',
     category: 'Back',
     equipment: 'Barbell',
     primaryMuscles: ['traps'],
-  },
-  {
-    name: 'Bent Over Barbell Row',
-    category: 'Back',
-    equipment: 'Barbell',
-    primaryMuscles: ['middle back'],
-    aliases: ['Bent Over Row', 'BB Row', 'Barbell Bent Over Row'],
   },
   {
     name: 'Bent Over One-Arm Long Bar Row',
@@ -579,7 +540,7 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Back',
     equipment: 'Barbell',
     primaryMuscles: ['lower back'],
-    aliases: ['Conventional Deadlift', 'BB Deadlift'],
+    aliases: ['Conventional Deadlift', 'BB Deadlift', 'Barbell Deadlift'],
   },
   {
     name: 'Deadlift with Bands',
@@ -612,7 +573,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     primaryMuscles: ['middle back'],
     aliases: ['DB Row', 'One Arm Row', 'Single Arm Row'],
   },
-  { name: 'Dumbbell Shrug', category: 'Back', equipment: 'Dumbbell', primaryMuscles: ['traps'] },
   { name: 'Dynamic Back Stretch', category: 'Back', primaryMuscles: ['lats'] },
   { name: 'Elevated Cable Rows', category: 'Back', equipment: 'Cable', primaryMuscles: ['lats'] },
   {
@@ -744,24 +704,22 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Back',
     equipment: 'Bodyweight',
     primaryMuscles: ['lats'],
-    aliases: ['Pullup', 'Pull Up', 'Weighted Pull-Up'],
-  },
-  {
-    name: 'Pullups',
-    category: 'Back',
-    equipment: 'Bodyweight',
-    primaryMuscles: ['lats'],
-    aliases: ['Pull-Up', 'Pullup', 'Pull Up', 'Weighted Pull-Up'],
+    aliases: ['Pullup', 'Pull Up', 'Weighted Pull-Up', 'Pullups'],
   },
   { name: 'Pyramid', category: 'Back', equipment: 'Exercise Ball', primaryMuscles: ['lower back'] },
-  { name: 'Rack Pull', category: 'Back', equipment: 'Barbell', primaryMuscles: ['lower back'] },
+  {
+    name: 'Rack Pull',
+    category: 'Back',
+    equipment: 'Barbell',
+    primaryMuscles: ['lower back'],
+    aliases: ['Rack Pulls'],
+  },
   {
     name: 'Rack Pull with Bands',
     category: 'Back',
     equipment: 'Barbell',
     primaryMuscles: ['lower back'],
   },
-  { name: 'Rack Pulls', category: 'Back', equipment: 'Barbell', primaryMuscles: ['lower back'] },
   {
     name: 'Reverse Band Deadlift',
     category: 'Back',
@@ -794,14 +752,7 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Back',
     equipment: 'Cable',
     primaryMuscles: ['middle back'],
-    aliases: ['Cable Row', 'Seated Row'],
-  },
-  {
-    name: 'Seated Cable Rows',
-    category: 'Back',
-    equipment: 'Cable',
-    primaryMuscles: ['middle back'],
-    aliases: ['Cable Row', 'Seated Row', 'Seated Cable Row'],
+    aliases: ['Cable Row', 'Seated Row', 'Seated Cable Rows'],
   },
   {
     name: 'Seated Good Mornings',
@@ -866,13 +817,7 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Back',
     equipment: 'Barbell',
     primaryMuscles: ['middle back'],
-    aliases: ['T Bar Row', 'Landmine Row'],
-  },
-  {
-    name: 'T-Bar Row with Handle',
-    category: 'Back',
-    equipment: 'Barbell',
-    primaryMuscles: ['middle back'],
+    aliases: ['T Bar Row', 'Landmine Row', 'T-Bar Row with Handle'],
   },
   {
     name: 'Two-Arm Kettlebell Row',
@@ -887,7 +832,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     primaryMuscles: ['lats'],
   },
   { name: 'Upper Back Stretch', category: 'Back', primaryMuscles: ['middle back'] },
-  { name: 'Upright Cable Row', category: 'Back', equipment: 'Cable', primaryMuscles: ['traps'] },
   {
     name: 'Upright Row - With Bands',
     category: 'Back',
@@ -975,13 +919,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     primaryMuscles: ['adductors'],
   },
   {
-    name: 'Barbell Full Squat',
-    category: 'Legs',
-    equipment: 'Barbell',
-    primaryMuscles: ['quadriceps'],
-    aliases: ['Full Squat'],
-  },
-  {
     name: 'Barbell Glute Bridge',
     category: 'Legs',
     equipment: 'Barbell',
@@ -993,14 +930,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     equipment: 'Barbell',
     primaryMuscles: ['quadriceps'],
   },
-  {
-    name: 'Barbell Hip Thrust',
-    category: 'Legs',
-    equipment: 'Barbell',
-    primaryMuscles: ['glutes'],
-    aliases: ['Hip Thrust', 'Glute Bridge'],
-  },
-  { name: 'Barbell Lunge', category: 'Legs', equipment: 'Barbell', primaryMuscles: ['quadriceps'] },
   {
     name: 'Barbell Seated Calf Raise',
     category: 'Legs',
@@ -1014,13 +943,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     primaryMuscles: ['quadriceps'],
   },
   {
-    name: 'Barbell Squat',
-    category: 'Legs',
-    equipment: 'Barbell',
-    primaryMuscles: ['quadriceps'],
-    aliases: ['Back Squat', 'BB Squat'],
-  },
-  {
     name: 'Barbell Squat To A Bench',
     category: 'Legs',
     equipment: 'Barbell',
@@ -1028,12 +950,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
   },
   {
     name: 'Barbell Step Ups',
-    category: 'Legs',
-    equipment: 'Barbell',
-    primaryMuscles: ['quadriceps'],
-  },
-  {
-    name: 'Barbell Walking Lunge',
     category: 'Legs',
     equipment: 'Barbell',
     primaryMuscles: ['quadriceps'],
@@ -1156,12 +1072,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Legs',
     equipment: 'Dumbbell',
     primaryMuscles: ['hamstrings'],
-  },
-  {
-    name: 'Dumbbell Lunges',
-    category: 'Legs',
-    equipment: 'Dumbbell',
-    primaryMuscles: ['quadriceps'],
   },
   {
     name: 'Dumbbell Rear Lunge',
@@ -1451,7 +1361,14 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Legs',
     equipment: 'Bodyweight',
     primaryMuscles: ['quadriceps'],
-    aliases: ['Walking Lunge', 'Dumbbell Lunge', 'Forward Lunge'],
+    aliases: [
+      'Walking Lunge',
+      'Dumbbell Lunge',
+      'Forward Lunge',
+      'Barbell Lunge',
+      'Barbell Walking Lunge',
+      'Dumbbell Lunges',
+    ],
   },
   {
     name: 'Lunge Pass Through',
@@ -1488,7 +1405,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     primaryMuscles: ['quadriceps'],
   },
   { name: 'Monster Walk', category: 'Legs', equipment: 'Bands', primaryMuscles: ['abductors'] },
-  { name: 'Mountain Climbers', category: 'Legs', primaryMuscles: ['quadriceps'] },
   { name: 'Moving Claw Series', category: 'Legs', primaryMuscles: ['hamstrings'] },
   { name: 'Muscle Snatch', category: 'Legs', equipment: 'Barbell', primaryMuscles: ['hamstrings'] },
   {
@@ -1522,7 +1438,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     primaryMuscles: ['hamstrings'],
     aliases: ['Nordic Curl'],
   },
-  { name: 'Olympic Squat', category: 'Legs', equipment: 'Barbell', primaryMuscles: ['quadriceps'] },
   { name: 'On Your Side Quad Stretch', category: 'Legs', primaryMuscles: ['quadriceps'] },
   { name: 'On-Your-Back Quad Stretch', category: 'Legs', primaryMuscles: ['quadriceps'] },
   { name: 'One Half Locust', category: 'Legs', primaryMuscles: ['quadriceps'] },
@@ -1829,7 +1744,14 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Legs',
     equipment: 'Barbell',
     primaryMuscles: ['quadriceps'],
-    aliases: ['Back Squat', 'BB Squat'],
+    aliases: [
+      'Back Squat',
+      'BB Squat',
+      'Barbell Full Squat',
+      'Barbell Squat',
+      'Olympic Squat',
+      'Wide Stance Barbell Squat',
+    ],
   },
   { name: 'Squat Jerk', category: 'Legs', equipment: 'Barbell', primaryMuscles: ['quadriceps'] },
   {
@@ -1966,12 +1888,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
   },
   { name: 'Weighted Squat', category: 'Legs', primaryMuscles: ['quadriceps'] },
   {
-    name: 'Wide Stance Barbell Squat',
-    category: 'Legs',
-    equipment: 'Barbell',
-    primaryMuscles: ['quadriceps'],
-  },
-  {
     name: 'Wide Stance Stiff Legs',
     category: 'Legs',
     equipment: 'Barbell',
@@ -2014,17 +1930,11 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
   },
   { name: 'Arm Circles', category: 'Shoulders', primaryMuscles: ['shoulders'] },
   {
-    name: 'Arnold Dumbbell Press',
-    category: 'Shoulders',
-    equipment: 'Dumbbell',
-    primaryMuscles: ['shoulders'],
-    aliases: ['Arnold Press'],
-  },
-  {
     name: 'Arnold Press',
     category: 'Shoulders',
     equipment: 'Dumbbell',
     primaryMuscles: ['shoulders'],
+    aliases: ['Arnold Dumbbell Press'],
   },
   {
     name: 'Back Flyes - With Bands',
@@ -2052,12 +1962,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
   },
   {
     name: 'Barbell Rear Delt Row',
-    category: 'Shoulders',
-    equipment: 'Barbell',
-    primaryMuscles: ['shoulders'],
-  },
-  {
-    name: 'Barbell Shoulder Press',
     category: 'Shoulders',
     equipment: 'Barbell',
     primaryMuscles: ['shoulders'],
@@ -2341,7 +2245,7 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Shoulders',
     equipment: 'Dumbbell',
     primaryMuscles: ['shoulders'],
-    aliases: ['Side Raise', 'DB Lateral Raise'],
+    aliases: ['Side Raise', 'DB Lateral Raise', 'Side Lateral Raise'],
   },
   {
     name: 'Lateral Raise - With Bands',
@@ -2375,16 +2279,11 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     primaryMuscles: ['shoulders'],
   },
   {
-    name: 'Machine Shoulder (Military) Press',
-    category: 'Shoulders',
-    equipment: 'Machine',
-    primaryMuscles: ['shoulders'],
-  },
-  {
     name: 'Machine Shoulder Press',
     category: 'Shoulders',
     equipment: 'Machine',
     primaryMuscles: ['shoulders'],
+    aliases: ['Machine Shoulder (Military) Press'],
   },
   {
     name: 'Medicine Ball Scoop Throw',
@@ -2457,7 +2356,13 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Shoulders',
     equipment: 'Barbell',
     primaryMuscles: ['shoulders'],
-    aliases: ['OHP', 'Military Press', 'Strict Press'],
+    aliases: [
+      'OHP',
+      'Military Press',
+      'Strict Press',
+      'Barbell Shoulder Press',
+      'Standing Military Press',
+    ],
   },
   {
     name: 'Power Partials',
@@ -2579,13 +2484,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     aliases: ['Barbell Shrug', 'Dumbbell Shrug', 'DB Shrug', 'Trap Shrug'],
   },
   {
-    name: 'Side Lateral Raise',
-    category: 'Shoulders',
-    equipment: 'Dumbbell',
-    primaryMuscles: ['shoulders'],
-    aliases: ['Lateral Raise', 'Side Raise', 'DB Lateral Raise'],
-  },
-  {
     name: 'Side Laterals to Front Raise',
     category: 'Shoulders',
     equipment: 'Dumbbell',
@@ -2667,13 +2565,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     primaryMuscles: ['shoulders'],
   },
   {
-    name: 'Standing Military Press',
-    category: 'Shoulders',
-    equipment: 'Barbell',
-    primaryMuscles: ['shoulders'],
-    aliases: ['OHP', 'Military Press', 'Strict Press'],
-  },
-  {
     name: 'Standing Palm-In One-Arm Dumbbell Press',
     category: 'Shoulders',
     equipment: 'Dumbbell',
@@ -2716,18 +2607,11 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     primaryMuscles: ['shoulders'],
   },
   {
-    name: 'Upright Barbell Row',
-    category: 'Shoulders',
-    equipment: 'Barbell',
-    primaryMuscles: ['shoulders'],
-    aliases: ['Upright Row', 'BB Upright Row'],
-  },
-  {
     name: 'Upright Row',
     category: 'Shoulders',
     equipment: 'Barbell',
     primaryMuscles: ['shoulders'],
-    aliases: ['BB Upright Row'],
+    aliases: ['BB Upright Row', 'Upright Cable Row', 'Upright Barbell Row'],
   },
   { name: 'Upward Stretch', category: 'Shoulders', primaryMuscles: ['shoulders'] },
 
@@ -2753,12 +2637,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     primaryMuscles: ['biceps'],
   },
   { name: 'Bench Dips', category: 'Arms', equipment: 'Bodyweight', primaryMuscles: ['triceps'] },
-  {
-    name: 'Bench Press - Powerlifting',
-    category: 'Arms',
-    equipment: 'Barbell',
-    primaryMuscles: ['triceps'],
-  },
   {
     name: 'Bench Press with Chains',
     category: 'Arms',
@@ -2875,12 +2753,7 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Arms',
     equipment: 'Dumbbell',
     primaryMuscles: ['biceps'],
-  },
-  {
-    name: 'Concentration Curls',
-    category: 'Arms',
-    equipment: 'Dumbbell',
-    primaryMuscles: ['biceps'],
+    aliases: ['Concentration Curls'],
   },
   {
     name: 'Cross Body Hammer Curl',
@@ -2916,24 +2789,17 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
   },
   { name: 'Drag Curl', category: 'Arms', equipment: 'Barbell', primaryMuscles: ['biceps'] },
   {
-    name: 'Dumbbell Alternate Bicep Curl',
-    category: 'Arms',
-    equipment: 'Dumbbell',
-    primaryMuscles: ['biceps'],
-  },
-  {
-    name: 'Dumbbell Bicep Curl',
-    category: 'Arms',
-    equipment: 'Dumbbell',
-    primaryMuscles: ['biceps'],
-    aliases: ['DB Curl', 'Bicep Curl', 'Standing Curl', 'Dumbbell Curl'],
-  },
-  {
     name: 'Dumbbell Curl',
     category: 'Arms',
     equipment: 'Dumbbell',
     primaryMuscles: ['biceps'],
-    aliases: ['DB Curl', 'Bicep Curl', 'Standing Curl'],
+    aliases: [
+      'DB Curl',
+      'Bicep Curl',
+      'Standing Curl',
+      'Dumbbell Alternate Bicep Curl',
+      'Dumbbell Bicep Curl',
+    ],
   },
   {
     name: 'Dumbbell Floor Press',
@@ -2976,14 +2842,7 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Arms',
     equipment: 'EZ Bar',
     primaryMuscles: ['biceps'],
-    aliases: ['EZ Curl'],
-  },
-  {
-    name: 'EZ-Bar Curl',
-    category: 'Arms',
-    equipment: 'EZ Bar',
-    primaryMuscles: ['biceps'],
-    aliases: ['EZ Curl', 'EZ Bar Curl'],
+    aliases: ['EZ Curl', 'EZ-Bar Curl'],
   },
   {
     name: 'EZ-Bar Skullcrusher',
@@ -3016,14 +2875,7 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     category: 'Arms',
     equipment: 'Dumbbell',
     primaryMuscles: ['biceps'],
-    aliases: ['DB Hammer Curl'],
-  },
-  {
-    name: 'Hammer Curls',
-    category: 'Arms',
-    equipment: 'Dumbbell',
-    primaryMuscles: ['biceps'],
-    aliases: ['Hammer Curl', 'DB Hammer Curl'],
+    aliases: ['DB Hammer Curl', 'Hammer Curls'],
   },
   { name: 'High Cable Curls', category: 'Arms', equipment: 'Cable', primaryMuscles: ['biceps'] },
   {
@@ -3194,7 +3046,6 @@ export const EXERCISE_CATALOG: CatalogExercise[] = [
     equipment: 'Dumbbell',
     primaryMuscles: ['forearms'],
   },
-  { name: 'Parallel Bar Dip', category: 'Arms', primaryMuscles: ['triceps'] },
   { name: 'Pin Presses', category: 'Arms', equipment: 'Barbell', primaryMuscles: ['triceps'] },
   { name: 'Plate Pinch', category: 'Arms', primaryMuscles: ['forearms'] },
   { name: 'Preacher Curl', category: 'Arms', equipment: 'Barbell', primaryMuscles: ['biceps'] },

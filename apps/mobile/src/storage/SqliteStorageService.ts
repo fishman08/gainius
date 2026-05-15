@@ -7,6 +7,8 @@ import type {
   LoggedExercise,
   ChatMessage,
   Conversation,
+  CardioLog,
+  CardioActivityType,
 } from '@fitness-tracker/shared';
 import { runMigrations } from './migrations';
 
@@ -86,7 +88,7 @@ export class SqliteStorageService implements StorageService {
 
   async saveWorkoutSession(session: WorkoutSession): Promise<void> {
     await this.db.runAsync(
-      'INSERT OR REPLACE INTO workout_sessions (id, user_id, plan_id, date, start_time, end_time, completed, logged_exercises) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT OR REPLACE INTO workout_sessions (id, user_id, plan_id, date, start_time, end_time, completed, logged_exercises, session_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         session.id,
         session.userId,
@@ -96,29 +98,63 @@ export class SqliteStorageService implements StorageService {
         session.endTime ?? null,
         session.completed ? 1 : 0,
         JSON.stringify(session.loggedExercises),
+        session.sessionType ?? 'strength',
       ],
     );
+    if (session.cardioLog) {
+      await this.db.runAsync(
+        'INSERT OR REPLACE INTO cardio_logs (id, session_id, activity_type, duration_seconds, distance_meters, notes) VALUES (?, ?, ?, ?, ?, ?)',
+        [
+          session.cardioLog.id,
+          session.cardioLog.sessionId,
+          session.cardioLog.activityType,
+          session.cardioLog.durationSeconds,
+          session.cardioLog.distanceMeters ?? null,
+          session.cardioLog.notes ?? null,
+        ],
+      );
+    }
   }
 
   async deleteWorkoutSession(sessionId: string): Promise<void> {
+    await this.db.runAsync('DELETE FROM cardio_logs WHERE session_id = ?', [sessionId]);
     await this.db.runAsync('DELETE FROM workout_sessions WHERE id = ?', [sessionId]);
   }
 
   async getWorkoutHistory(userId: string, limit: number): Promise<WorkoutSession[]> {
     const rows = await this.db.getAllAsync<Record<string, string | number>>(
-      'SELECT * FROM workout_sessions WHERE user_id = ? ORDER BY date DESC LIMIT ?',
+      `SELECT ws.*, cl.id AS cl_id, cl.activity_type, cl.duration_seconds, cl.distance_meters, cl.notes AS cl_notes
+       FROM workout_sessions ws
+       LEFT JOIN cardio_logs cl ON ws.id = cl.session_id
+       WHERE ws.user_id = ?
+       ORDER BY ws.date DESC
+       LIMIT ?`,
       [userId, limit],
     );
-    return rows.map((row) => ({
-      id: row.id as string,
-      userId: row.user_id as string,
-      planId: row.plan_id as string | undefined,
-      date: row.date as string,
-      startTime: row.start_time as string,
-      endTime: row.end_time as string | undefined,
-      completed: row.completed === 1,
-      loggedExercises: JSON.parse(row.logged_exercises as string),
-    }));
+    return rows.map((row) => {
+      const session: WorkoutSession = {
+        id: row.id as string,
+        userId: row.user_id as string,
+        planId: row.plan_id as string | undefined,
+        date: row.date as string,
+        startTime: row.start_time as string,
+        endTime: row.end_time as string | undefined,
+        completed: row.completed === 1,
+        loggedExercises: JSON.parse(row.logged_exercises as string),
+        sessionType: (row.session_type as 'strength' | 'cardio') ?? 'strength',
+      };
+      if (session.sessionType === 'cardio' && row.cl_id) {
+        session.cardioLog = {
+          id: row.cl_id as string,
+          sessionId: row.id as string,
+          activityType: row.activity_type as CardioActivityType,
+          durationSeconds: row.duration_seconds as number,
+          distanceMeters: row.distance_meters as number | undefined,
+          notes: row.cl_notes as string | undefined,
+        };
+      }
+      return session;
+    });
   }
 
   // Exercise History
@@ -214,6 +250,7 @@ export class SqliteStorageService implements StorageService {
   }
 
   async clearAllData(): Promise<void> {
+    await this.db.runAsync('DELETE FROM cardio_logs');
     await this.db.runAsync('DELETE FROM chat_messages');
     await this.db.runAsync('DELETE FROM conversations');
     await this.db.runAsync('DELETE FROM workout_sessions');

@@ -21,6 +21,17 @@ export interface PlannedExercise {
   notes?: string;
 }
 
+export type CardioActivityType = 'run' | 'swim' | 'walk' | 'bike';
+
+export interface CardioLog {
+  id: string;
+  sessionId: string;
+  activityType: CardioActivityType;
+  durationSeconds: number;
+  distanceMeters?: number;
+  notes?: string;
+}
+
 export interface WorkoutSession {
   id: string;
   userId: string;
@@ -30,6 +41,8 @@ export interface WorkoutSession {
   endTime?: string;
   completed: boolean;
   loggedExercises: LoggedExercise[];
+  sessionType: 'strength' | 'cardio';
+  cardioLog?: CardioLog;
 }
 
 export interface LoggedExercise {

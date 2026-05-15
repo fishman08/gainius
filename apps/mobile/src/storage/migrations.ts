@@ -33,6 +33,15 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
       logged_exercises TEXT NOT NULL DEFAULT '[]'
     );
 
+    CREATE TABLE IF NOT EXISTS cardio_logs (
+      id TEXT PRIMARY KEY,
+      session_id TEXT NOT NULL,
+      activity_type TEXT NOT NULL,
+      duration_seconds INTEGER NOT NULL,
+      distance_meters REAL,
+      notes TEXT
+    );
+
     CREATE TABLE IF NOT EXISTS conversations (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL,
@@ -54,6 +63,7 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_workout_sessions_date ON workout_sessions(date);
     CREATE INDEX IF NOT EXISTS idx_chat_messages_conversation_id ON chat_messages(conversation_id);
     CREATE INDEX IF NOT EXISTS idx_workout_plans_user_id ON workout_plans(user_id);
+    CREATE INDEX IF NOT EXISTS idx_cardio_logs_session_id ON cardio_logs(session_id);
 
     CREATE TABLE IF NOT EXISTS sync_queue (
       id TEXT PRIMARY KEY,
@@ -67,4 +77,13 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
 
     CREATE INDEX IF NOT EXISTS idx_sync_queue_created_at ON sync_queue(created_at);
   `);
+
+  // Add session_type to existing workout_sessions rows (ALTER TABLE fails if column exists)
+  try {
+    await db.execAsync(
+      `ALTER TABLE workout_sessions ADD COLUMN session_type TEXT NOT NULL DEFAULT 'strength'`,
+    );
+  } catch {
+    // Column already exists — safe to ignore
+  }
 }

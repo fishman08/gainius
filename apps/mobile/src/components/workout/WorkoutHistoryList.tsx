@@ -13,6 +13,15 @@ function computeVolume(session: WorkoutSession): number {
   );
 }
 
+function formatDuration(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  if (s > 0) return `${m}m ${s}s`;
+  return `${m}m`;
+}
+
 interface Props {
   onSessionSelect?: (sessionId: string) => void;
 }
@@ -25,6 +34,12 @@ export default function WorkoutHistoryList({ onSessionSelect }: Props) {
     () => ({
       emptyText: { color: theme.colors.textHint },
       detail: { color: theme.colors.textSecondary },
+      badge: {
+        fontSize: 11,
+        color: theme.colors.primary,
+        fontWeight: '600' as const,
+        textTransform: 'uppercase' as const,
+      },
     }),
     [theme],
   );
@@ -44,22 +59,57 @@ export default function WorkoutHistoryList({ onSessionSelect }: Props) {
       data={history}
       keyExtractor={(item) => item.id}
       scrollEnabled={false}
-      renderItem={({ item }) => (
-        <Card
-          style={styles.card}
-          onPress={onSessionSelect ? () => onSessionSelect(item.id) : undefined}
-        >
-          <Card.Content>
-            <Text variant="titleSmall">{item.date}</Text>
-            <Text variant="bodySmall" style={[styles.detail, themedStyles.detail]}>
-              {item.loggedExercises.length} exercises
-            </Text>
-            <Text variant="bodySmall" style={[styles.detail, themedStyles.detail]}>
-              Volume: {computeVolume(item).toLocaleString()} lbs
-            </Text>
-          </Card.Content>
-        </Card>
-      )}
+      renderItem={({ item }) => {
+        const isCardio = item.sessionType === 'cardio';
+
+        if (isCardio && item.cardioLog) {
+          const { activityType, durationSeconds, distanceMeters } = item.cardioLog;
+          const km = distanceMeters ? (distanceMeters / 1000).toFixed(2) : null;
+          const paceStr = (() => {
+            if (!distanceMeters || !durationSeconds) return null;
+            const secsPerKm = durationSeconds / (distanceMeters / 1000);
+            const pMin = Math.floor(secsPerKm / 60);
+            const pSec = Math.round(secsPerKm % 60);
+            return `${pMin}:${String(pSec).padStart(2, '0')} /km`;
+          })();
+
+          return (
+            <Card
+              style={styles.card}
+              onPress={onSessionSelect ? () => onSessionSelect(item.id) : undefined}
+            >
+              <Card.Content>
+                <Text variant="labelSmall" style={themedStyles.badge}>
+                  {activityType.toUpperCase()}
+                </Text>
+                <Text variant="titleSmall">{item.date}</Text>
+                <Text variant="bodySmall" style={[styles.detail, themedStyles.detail]}>
+                  {formatDuration(durationSeconds)}
+                  {km ? ` · ${km} km` : ''}
+                  {paceStr ? ` · ${paceStr}` : ''}
+                </Text>
+              </Card.Content>
+            </Card>
+          );
+        }
+
+        return (
+          <Card
+            style={styles.card}
+            onPress={onSessionSelect ? () => onSessionSelect(item.id) : undefined}
+          >
+            <Card.Content>
+              <Text variant="titleSmall">{item.date}</Text>
+              <Text variant="bodySmall" style={[styles.detail, themedStyles.detail]}>
+                {item.loggedExercises.length} exercises
+              </Text>
+              <Text variant="bodySmall" style={[styles.detail, themedStyles.detail]}>
+                Volume: {computeVolume(item).toLocaleString()} lbs
+              </Text>
+            </Card.Content>
+          </Card>
+        );
+      }}
     />
   );
 }

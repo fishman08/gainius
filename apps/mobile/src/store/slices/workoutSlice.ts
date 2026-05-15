@@ -8,6 +8,8 @@ import type {
   ExtractedExercise,
   StorageService,
   PlanComparison,
+  CardioLog,
+  CardioActivityType,
 } from '@fitness-tracker/shared';
 import { generateId, normalizeExerciseName } from '@fitness-tracker/shared';
 
@@ -85,6 +87,7 @@ export const startWorkout = createAsyncThunk(
       startTime: now,
       completed: false,
       loggedExercises,
+      sessionType: 'strength',
     };
     // Patch sessionId into each logged exercise
     session.loggedExercises.forEach((le) => {
@@ -147,6 +150,48 @@ export const deleteWorkoutSession = createAsyncThunk(
   async ({ storage, sessionId }: DeleteWorkoutSessionArgs) => {
     await storage.deleteWorkoutSession(sessionId);
     return sessionId;
+  },
+);
+
+interface LogCardioSessionArgs {
+  storage: StorageService;
+  userId: string;
+  activityType: CardioActivityType;
+  durationSeconds: number;
+  distanceMeters?: number;
+}
+
+export const logCardioSession = createAsyncThunk(
+  'workout/logCardioSession',
+  async ({
+    storage,
+    userId,
+    activityType,
+    durationSeconds,
+    distanceMeters,
+  }: LogCardioSessionArgs) => {
+    const now = new Date().toISOString();
+    const sessionId = generateId();
+    const cardioLog: CardioLog = {
+      id: generateId(),
+      sessionId,
+      activityType,
+      durationSeconds,
+      distanceMeters,
+    };
+    const session: WorkoutSession = {
+      id: sessionId,
+      userId,
+      date: now.split('T')[0],
+      startTime: now,
+      endTime: now,
+      completed: true,
+      loggedExercises: [],
+      sessionType: 'cardio',
+      cardioLog,
+    };
+    await storage.saveWorkoutSession(session);
+    return session;
   },
 );
 
@@ -359,6 +404,9 @@ const workoutSlice = createSlice({
       .addCase(deleteWorkoutSession.fulfilled, (state, action) => {
         state.history = state.history.filter((s) => s.id !== action.payload);
         state.editingSession = null;
+      })
+      .addCase(logCardioSession.fulfilled, (state, action) => {
+        state.history.unshift(action.payload);
       });
   },
 });

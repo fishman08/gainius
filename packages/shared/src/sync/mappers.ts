@@ -33,6 +33,7 @@ export interface WorkoutSessionRow {
   end_time: string | null;
   completed: boolean;
   logged_exercises: unknown[];
+  session_type?: string;
   updated_at: string;
 }
 
@@ -93,6 +94,7 @@ export function workoutSessionToRow(
     end_time: session.endTime ?? null,
     completed: session.completed,
     logged_exercises: session.loggedExercises as unknown as unknown[],
+    session_type: session.sessionType,
   };
 }
 
@@ -153,6 +155,7 @@ export function rowToWorkoutSession(row: WorkoutSessionRow): WorkoutSession {
     endTime: row.end_time ?? undefined,
     completed: row.completed,
     loggedExercises: row.logged_exercises as unknown as WorkoutSession['loggedExercises'],
+    sessionType: (row.session_type as WorkoutSession['sessionType']) ?? 'strength',
   };
 }
 

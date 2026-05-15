@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './store';
@@ -13,10 +14,24 @@ import { HomePage } from './pages/HomePage';
 import ProgressPage from './pages/ProgressPage';
 import SettingsPage from './pages/SettingsPage';
 import LoginPage from './pages/LoginPage';
+import { OnboardingWizard } from './components/settings/OnboardingWizard';
 
 function AppContent() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, supabase } = useAuth();
   const { theme } = useTheme();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (!user?.id || !supabase) return;
+    supabase
+      .from('profiles')
+      .select('onboarding_completed_at')
+      .eq('user_id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (!data || !data.onboarding_completed_at) setShowOnboarding(true);
+      });
+  }, [user?.id, supabase]);
 
   if (isLoading) {
     return (
@@ -59,6 +74,7 @@ function AppContent() {
               <Route path="/progress" element={<ProgressPage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Routes>
+            <OnboardingWizard visible={showOnboarding} onDismiss={() => setShowOnboarding(false)} />
           </NotificationBannerProvider>
         </BrowserRouter>
       </SyncProvider>

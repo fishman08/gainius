@@ -14,6 +14,7 @@ import NotificationSettings from '../components/settings/NotificationSettings';
 import AuthSection from '../components/settings/AuthSection';
 import SyncSettings from '../components/settings/SyncSettings';
 import DataExport from '../components/settings/DataExport';
+import OnboardingWizard from '../components/settings/OnboardingWizard';
 import { useSync } from '../providers/SyncProvider';
 import { useAuth } from '../providers/AuthProvider';
 import { useStorage } from '../providers/StorageProvider';
@@ -28,7 +29,8 @@ export default function SettingsScreen() {
   const [isValidating, setIsValidating] = useState(false);
   const [customPrompt, setCustomPrompt] = useState('');
   const [promptSaved, setPromptSaved] = useState(false);
-  const { user: authUser } = useAuth();
+  const [showWizard, setShowWizard] = useState(false);
+  const { user: authUser, supabase } = useAuth();
   const storage = useStorage();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
@@ -226,7 +228,29 @@ export default function SettingsScreen() {
         </Card>
       )}
 
+      {currentUser?.role === 'admin' && (
+        <Card style={styles.card}>
+          <Card.Title title="Onboarding questionnaire" />
+          <Card.Content>
+            <Text variant="bodyMedium" style={[styles.hint, { color: theme.colors.textSecondary }]}>
+              Retrigger the onboarding questionnaire to update this account's profile data.
+            </Text>
+            <Button mode="outlined" onPress={() => setShowWizard(true)} style={styles.button}>
+              Start questionnaire
+            </Button>
+          </Card.Content>
+        </Card>
+      )}
+
       {currentUser?.role === 'admin' && <DataExport />}
+
+      <OnboardingWizard
+        visible={showWizard}
+        onDismiss={() => setShowWizard(false)}
+        supabase={supabase}
+        userId={authUser?.id}
+        imperial={currentUser?.preferences?.weightUnit === 'lbs'}
+      />
     </ScrollView>
   );
 }

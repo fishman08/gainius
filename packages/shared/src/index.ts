@@ -11,4 +11,24 @@ export { EXERCISE_CATALOG } from './data/exerciseCatalog';
 export type { CatalogExercise, ExerciseCategory } from './data/exerciseCatalog';
 export { searchKnowledge } from './data/knowledgeSearch';
 export type { KnowledgeEntry, KnowledgeIndex } from './data/knowledgeTypes';
-export * as onboarding from './onboarding';
+export type {
+  Question,
+  QuestionId,
+  SingleChoiceQuestion,
+  NumberChoiceQuestion,
+  MultiChoiceQuestion,
+  DateQuestion,
+  MeasurementQuestion,
+  PartialProfile,
+  Profile,
+} from './onboarding';
+export {
+  visibleQuestions,
+  validateField,
+  totalVisibleSteps,
+  isQuestionnaireComplete,
+  cmToFeetInches,
+  feetInchesToCm,
+  kgToLbs,
+  lbsToKg,
+} from './onboarding';

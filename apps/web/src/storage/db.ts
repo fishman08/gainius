@@ -30,6 +30,7 @@ interface WorkoutSessionRow {
   endTime?: string;
   completed: number;
   loggedExercises: string;
+  sessionType?: string;
 }
 
 interface ConversationRow {
@@ -59,6 +60,15 @@ interface SyncQueueRow {
   retryCount: number;
 }
 
+export interface CardioLogRow {
+  id: string;
+  sessionId: string;
+  activityType: string;
+  durationSeconds: number;
+  distanceMeters?: number;
+  notes?: string;
+}
+
 export class FitnessTrackerDB extends Dexie {
   users!: Table<UserRow, string>;
   workoutPlans!: Table<WorkoutPlanRow, string>;
@@ -66,6 +76,7 @@ export class FitnessTrackerDB extends Dexie {
   conversations!: Table<ConversationRow, string>;
   chatMessages!: Table<ChatMessageRow, string>;
   syncQueue!: Table<SyncQueueRow, string>;
+  cardioLogs!: Table<CardioLogRow, string>;
 
   constructor() {
     super('fitness-tracker');
@@ -83,6 +94,15 @@ export class FitnessTrackerDB extends Dexie {
       conversations: 'id, userId, lastMessageAt',
       chatMessages: 'id, conversationId, timestamp',
       syncQueue: 'id, entityType, createdAt',
+    });
+    this.version(3).stores({
+      users: 'id',
+      workoutPlans: 'id, userId, startDate',
+      workoutSessions: 'id, userId, date',
+      conversations: 'id, userId, lastMessageAt',
+      chatMessages: 'id, conversationId, timestamp',
+      syncQueue: 'id, entityType, createdAt',
+      cardioLogs: 'id, sessionId',
     });
   }
 }

@@ -6,6 +6,8 @@ import type {
   LoggedExercise,
   ChatMessage,
   Conversation,
+  CardioLog,
+  CardioActivityType,
 } from '@fitness-tracker/shared';
 import { db } from './db';
 
@@ -77,20 +79,36 @@ export class DexieStorageService implements StorageService {
   // Workout Sessions
 
   async saveWorkoutSession(session: WorkoutSession): Promise<void> {
-    await db.workoutSessions.put({
-      id: session.id,
-      userId: session.userId,
-      planId: session.planId,
-      date: session.date,
-      startTime: session.startTime,
-      endTime: session.endTime,
-      completed: session.completed ? 1 : 0,
-      loggedExercises: JSON.stringify(session.loggedExercises),
+    await db.transaction('rw', db.workoutSessions, db.cardioLogs, async () => {
+      await db.workoutSessions.put({
+        id: session.id,
+        userId: session.userId,
+        planId: session.planId,
+        date: session.date,
+        startTime: session.startTime,
+        endTime: session.endTime,
+        completed: session.completed ? 1 : 0,
+        loggedExercises: JSON.stringify(session.loggedExercises),
+        sessionType: session.sessionType ?? 'strength',
+      });
+      if (session.cardioLog) {
+        await db.cardioLogs.put({
+          id: session.cardioLog.id,
+          sessionId: session.cardioLog.sessionId,
+          activityType: session.cardioLog.activityType,
+          durationSeconds: session.cardioLog.durationSeconds,
+          distanceMeters: session.cardioLog.distanceMeters,
+          notes: session.cardioLog.notes,
+        });
+      }
     });
   }
 
   async deleteWorkoutSession(sessionId: string): Promise<void> {
-    await db.workoutSessions.delete(sessionId);
+    await db.transaction('rw', db.workoutSessions, db.cardioLogs, async () => {
+      await db.cardioLogs.where('sessionId').equals(sessionId).delete();
+      await db.workoutSessions.delete(sessionId);
+    });
   }
 
   async getWorkoutHistory(userId: string, limit: number): Promise<WorkoutSession[]> {
@@ -100,7 +118,8 @@ export class DexieStorageService implements StorageService {
       .filter((r) => r.userId === userId)
       .limit(limit)
       .toArray();
-    return rows.map((row) => ({
+
+    const sessions: WorkoutSession[] = rows.map((row) => ({
       id: row.id,
       userId: row.userId,
       planId: row.planId,
@@ -109,7 +128,34 @@ export class DexieStorageService implements StorageService {
       endTime: row.endTime,
       completed: row.completed === 1,
       loggedExercises: JSON.parse(row.loggedExercises),
+      sessionType: (row.sessionType ?? 'strength') as 'strength' | 'cardio',
     }));
+
+    const cardioIds = sessions.filter((s) => s.sessionType === 'cardio').map((s) => s.id);
+
+    if (cardioIds.length === 0) {
+      return sessions;
+    }
+
+    const logs = await db.cardioLogs.where('sessionId').anyOf(cardioIds).toArray();
+    const logMap = new Map(logs.map((l) => [l.sessionId, l]));
+
+    return sessions.map((s) => {
+      if (s.sessionType !== 'cardio') return s;
+      const log = logMap.get(s.id);
+      if (!log) return s;
+      return {
+        ...s,
+        cardioLog: {
+          id: log.id,
+          sessionId: log.sessionId,
+          activityType: log.activityType as CardioActivityType,
+          durationSeconds: log.durationSeconds,
+          distanceMeters: log.distanceMeters,
+          notes: log.notes,
+        },
+      };
+    });
   }
 
   // Exercise History
@@ -195,6 +241,7 @@ export class DexieStorageService implements StorageService {
   }
 
   async clearAllData(): Promise<void> {
+    await db.cardioLogs.clear();
     await db.chatMessages.clear();
     await db.conversations.clear();
     await db.workoutSessions.clear();

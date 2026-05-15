@@ -12,6 +12,7 @@ import { NotificationSettings } from '../components/settings/NotificationSetting
 import { AuthSection } from '../components/settings/AuthSection';
 import { SyncSettings } from '../components/settings/SyncSettings';
 import { DataExport } from '../components/settings/DataExport';
+import { OnboardingWizard } from '../components/settings/OnboardingWizard';
 import { useSync } from '../providers/SyncProvider';
 import { useAuth } from '../providers/AuthProvider';
 import { useStorage } from '../providers/StorageProvider';
@@ -25,6 +26,7 @@ export default function SettingsPage() {
   const [message, setMessage] = useState('');
   const [customPrompt, setCustomPrompt] = useState('');
   const [promptMessage, setPromptMessage] = useState('');
+  const [showWizard, setShowWizard] = useState(false);
   const { user: authUser } = useAuth();
   const storage = useStorage();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -300,6 +302,49 @@ export default function SettingsPage() {
         </div>
       )}
 
+      {authUser && (
+        <div
+          style={{
+            background: theme.colors.surface,
+            borderRadius: theme.borderRadius.md,
+            padding: 24,
+            boxShadow: theme.shadows.sm,
+            marginBottom: 16,
+          }}
+        >
+          <h2
+            style={{
+              marginTop: 0,
+              marginBottom: 8,
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 600,
+            }}
+          >
+            Fitness profile
+          </h2>
+          <p style={{ color: theme.colors.textSecondary, fontSize: 14, marginBottom: 16 }}>
+            Answer a few questions so your AI coach can give you personalised recommendations.
+          </p>
+          <button
+            onClick={() => setShowWizard(true)}
+            style={{
+              width: '100%',
+              padding: 12,
+              border: `1px solid ${theme.colors.surfaceBorder}`,
+              borderRadius: theme.borderRadius.md,
+              backgroundColor: 'transparent',
+              color: theme.colors.text,
+              fontFamily: theme.typography.label.fontFamily,
+              fontSize: theme.typography.label.fontSize,
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            Update fitness profile
+          </button>
+        </div>
+      )}
+
       <AuthSection />
 
       <SyncSettings onSyncNow={handleSyncNow} />
@@ -373,6 +418,8 @@ export default function SettingsPage() {
       )}
 
       {currentUser?.role === 'admin' && <DataExport />}
+
+      <OnboardingWizard visible={showWizard} onDismiss={() => setShowWizard(false)} />
     </div>
   );
 }

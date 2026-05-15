@@ -63,7 +63,7 @@ export type MultiChoiceQuestion = {
   title: string;
   help?: string;
   options: Option<string>[];
-  freeTextField?: keyof Profile;
+  freeTextField?: Extract<keyof Profile, string>;
   freeTextLabel?: string;
   required: true;
 };
@@ -97,7 +97,7 @@ export const onboardingQuestions: Question[] = [
     kind: 'single',
     id: 'primary_goal',
     title: "What's your primary goal?",
-    help: "We'll bias the plan toward this. You can change it later.",
+    help: 'Your plan will be biased toward this. You can change it later.',
     options: asOptions(primaryGoalLabels),
     required: true,
   },
@@ -149,10 +149,10 @@ export const onboardingQuestions: Question[] = [
     kind: 'multi',
     id: 'injuries',
     title: 'Any injuries or areas to work around?',
-    help: "We'll keep these in mind when programming exercises.",
+    help: 'These will be factored into exercise selection and programming.',
     options: asOptions(injuryLabels),
     freeTextField: 'injury_notes',
-    freeTextLabel: 'Anything else we should know? (optional)',
+    freeTextLabel: 'Anything else to note? (optional)',
     required: true,
   },
   {

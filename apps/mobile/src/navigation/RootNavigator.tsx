@@ -1,9 +1,11 @@
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ChatScreen from '../screens/ChatScreen';
 import { HomeScreen } from '../screens/HomeScreen';
@@ -16,12 +18,64 @@ import { useAppTheme } from '../providers/ThemeProvider';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-const tabIcons: Record<string, { focused: string; unfocused: string }> = {
-  Chat: { focused: 'chat', unfocused: 'chat-outline' },
-  Workout: { focused: 'dumbbell', unfocused: 'dumbbell' },
-  Progress: { focused: 'chart-line', unfocused: 'chart-line-variant' },
-  Settings: { focused: 'cog', unfocused: 'cog-outline' },
-};
+const TAB_DEFS = [
+  { name: 'Chat', label: 'Chat', icon: 'chat', iconOutline: 'chat-outline' },
+  { name: 'Workout', label: 'Workout', icon: 'dumbbell', iconOutline: 'dumbbell' },
+  { name: 'Progress', label: 'Progress', icon: 'chart-line', iconOutline: 'chart-line-variant' },
+  { name: 'Settings', label: 'More', icon: 'cog', iconOutline: 'cog-outline' },
+] as const;
+
+function PulseTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const { theme } = useAppTheme();
+
+  return (
+    <View
+      style={[
+        styles.tabBar,
+        { backgroundColor: theme.colors.navBar, borderTopColor: theme.colors.surfaceBorder },
+      ]}
+    >
+      {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
+        const isFocused = state.index === index;
+        const tab = TAB_DEFS[index];
+        const color = isFocused ? theme.colors.primary : 'rgba(255,255,255,0.3)';
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate(route.name);
+          }
+        };
+
+        return (
+          <TouchableOpacity
+            key={route.key}
+            accessibilityRole="button"
+            accessibilityState={isFocused ? { selected: true } : {}}
+            accessibilityLabel={options.tabBarAccessibilityLabel}
+            onPress={onPress}
+            style={styles.tabItem}
+          >
+            {isFocused && (
+              <View style={[styles.topIndicator, { backgroundColor: theme.colors.primary }]} />
+            )}
+            <MaterialCommunityIcons
+              name={(isFocused ? tab.icon : tab.iconOutline) as never}
+              size={22}
+              color={color}
+            />
+            <Text style={[styles.tabLabel, { color }]}>{tab.label}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
 
 function MainTabs() {
   const { theme } = useAppTheme();
@@ -29,25 +83,27 @@ function MainTabs() {
   return (
     <Tab.Navigator
       id="MainTabs"
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          const icons = tabIcons[route.name];
-          const iconName = focused ? icons.focused : icons.unfocused;
-          return <MaterialCommunityIcons name={iconName as never} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.textHint,
+      tabBar={(props) => <PulseTabBar {...props} />}
+      screenOptions={{
         headerStyle: { backgroundColor: theme.colors.navBar },
         headerTintColor: theme.colors.navBarText,
-        tabBarStyle: {
-          backgroundColor: theme.colors.surface,
-          borderTopColor: theme.colors.surfaceBorder,
-        },
-      })}
+      }}
     >
-      <Tab.Screen name="Chat" component={ChatScreen} options={{ title: 'AI Coach' }} />
-      <Tab.Screen name="Workout" component={HomeScreen} options={{ title: 'Workout' }} />
-      <Tab.Screen name="Progress" component={ProgressScreen} options={{ title: 'Progress' }} />
+      <Tab.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{ title: 'AI Coach', headerShown: false }}
+      />
+      <Tab.Screen
+        name="Workout"
+        component={HomeScreen}
+        options={{ title: 'Workout', headerShown: false }}
+      />
+      <Tab.Screen
+        name="Progress"
+        component={ProgressScreen}
+        options={{ title: 'Progress', headerShown: false }}
+      />
       <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
     </Tab.Navigator>
   );
@@ -90,3 +146,30 @@ export function RootNavigator() {
     </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    flexDirection: 'row',
+    height: 58,
+    borderTopWidth: 1,
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 3,
+    position: 'relative',
+  },
+  topIndicator: {
+    position: 'absolute',
+    top: 0,
+    width: '50%',
+    height: 2,
+    borderBottomLeftRadius: 2,
+    borderBottomRightRadius: 2,
+  },
+  tabLabel: {
+    fontFamily: 'RethinkSans_600SemiBold',
+    fontSize: 10,
+  },
+});

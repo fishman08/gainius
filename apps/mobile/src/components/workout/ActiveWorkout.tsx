@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { ScrollView, StyleSheet, AppState } from 'react-native';
-import { Button } from 'react-native-paper';
+import { ScrollView, View, TouchableOpacity, StyleSheet, AppState } from 'react-native';
+import { Text } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRestTimer } from '@fitness-tracker/shared';
 import * as Haptics from 'expo-haptics';
@@ -26,9 +26,25 @@ import {
 import ExerciseCard from './ExerciseCard';
 import RestTimer from './RestTimer';
 import AddExerciseModal from './AddExerciseModal';
+import { suggestWeightsForPlan } from '@fitness-tracker/shared';
 
 interface Props {
   onComplete: () => void;
+}
+
+function useElapsed(startTime: string | undefined): string {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (!startTime) return;
+    const start = new Date(startTime).getTime();
+    const tick = () => setElapsed(Math.floor((Date.now() - start) / 1000));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [startTime]);
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
 export default function ActiveWorkout({ onComplete }: Props) {
@@ -36,6 +52,7 @@ export default function ActiveWorkout({ onComplete }: Props) {
   const storage = useStorage();
   const { theme } = useAppTheme();
   const { activeSession, currentPlan } = useSelector((state: RootState) => state.workout);
+  const history = useSelector((state: RootState) => state.workout.history);
 
   const onTimerWarning = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -55,28 +72,23 @@ export default function ActiveWorkout({ onComplete }: Props) {
     onComplete: onTimerComplete,
   });
   const [showAddExercise, setShowAddExercise] = useState(false);
-
   const appStateRef = useRef(AppState.currentState);
+  const elapsed = useElapsed(activeSession?.startTime);
 
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextState) => {
-      if (appStateRef.current.match(/inactive|background/) && nextState === 'active') {
+    const sub = AppState.addEventListener('change', (next) => {
+      if (appStateRef.current.match(/inactive|background/) && next === 'active') {
         timer.syncFromBackground();
       }
-      appStateRef.current = nextState;
+      appStateRef.current = next;
     });
-    return () => subscription.remove();
+    return () => sub.remove();
   }, [timer.syncFromBackground]);
 
-  const themedStyles = useMemo(
-    () => ({
-      container: {
-        flex: 1 as const,
-        backgroundColor: theme.colors.background,
-      },
-    }),
-    [theme],
-  );
+  const suggestions = useMemo(() => {
+    if (!currentPlan || history.length === 0) return [];
+    return suggestWeightsForPlan(history, currentPlan.exercises);
+  }, [currentPlan, history]);
 
   const handleTimerStart = useCallback(
     async (seconds?: number) => {
@@ -102,13 +114,26 @@ export default function ActiveWorkout({ onComplete }: Props) {
     cancelTimerNotifications();
     timer.stop();
   }, [timer]);
-
   const handleTimerReset = useCallback(() => {
     cancelTimerNotifications();
     timer.reset();
   }, [timer]);
 
   if (!activeSession) return null;
+
+  const planExercises = currentPlan?.exercises ?? [];
+
+  const totalSets = activeSession.loggedExercises.reduce((acc, ex) => acc + ex.sets.length, 0);
+  const completedSets = activeSession.loggedExercises.reduce(
+    (acc, ex) => acc + ex.sets.filter((s) => s.completed).length,
+    0,
+  );
+  const progressPct = totalSets > 0 ? completedSets / totalSets : 0;
+  const pctLabel = Math.round(progressPct * 100);
+
+  const planName = currentPlan
+    ? `${currentPlan.exercises[0]?.exerciseName?.split(' ')[0] ?? 'Workout'} · Day ${currentPlan.weekNumber}`
+    : 'Workout';
 
   const handleSetUpdate = (
     exerciseIndex: number,
@@ -127,37 +152,38 @@ export default function ActiveWorkout({ onComplete }: Props) {
     );
   };
 
-  const handleAddSet = (exerciseIndex: number) => {
-    dispatch(addSetToExercise({ exerciseIndex }));
-  };
-
-  const handleAddExercise = (exerciseName: string, notes?: string) => {
-    dispatch(addExerciseToActiveSession({ exerciseName, notes }));
-    setShowAddExercise(false);
-  };
-
-  const handleDeleteSet = (exerciseIndex: number, setIndex: number) => {
-    dispatch(deleteSetFromExercise({ exerciseIndex, setIndex }));
-  };
-
-  const handleDeleteExercise = (exerciseIndex: number) => {
-    dispatch(deleteExerciseFromActiveSession({ exerciseIndex }));
-  };
-
-  const handleEditExercise = (exerciseIndex: number, name: string, notes?: string) => {
-    dispatch(updateExerciseInActiveSession({ exerciseIndex, name, notes }));
-  };
-
   const handleFinish = async () => {
     dispatch(endSession());
     await dispatch(saveSession({ storage })).unwrap();
     onComplete();
   };
 
-  const planExercises = currentPlan?.exercises ?? [];
-
   return (
-    <ScrollView style={themedStyles.container} contentContainerStyle={styles.content}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      {/* Progress bar */}
+      <View style={[styles.progressTrack, { backgroundColor: theme.colors.surfaceBorder }]}>
+        <View
+          style={[
+            styles.progressFill,
+            { backgroundColor: theme.colors.primary, width: `${progressPct * 100}%` },
+          ]}
+        />
+      </View>
+
+      {/* Header row */}
+      <View style={styles.headerRow}>
+        <View>
+          <Text style={[styles.planName, { color: theme.colors.text }]}>
+            {planName.toUpperCase()}
+          </Text>
+          <Text style={[styles.planMeta, { color: theme.colors.textSecondary }]}>
+            {`${new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}  ·  ${pctLabel}% complete`}
+          </Text>
+        </View>
+        <Text style={[styles.elapsed, { color: theme.colors.primary }]}>{elapsed}</Text>
+      </View>
+
+      {/* Compact rest timer */}
       <RestTimer
         secondsLeft={timer.secondsLeft}
         isRunning={timer.isRunning}
@@ -170,60 +196,125 @@ export default function ActiveWorkout({ onComplete }: Props) {
         onSetDuration={timer.setDuration}
       />
 
-      {activeSession.loggedExercises.map((exercise, index) => {
-        const planned = planExercises.find((pe) => pe.id === exercise.plannedExerciseId);
-        return (
-          <ExerciseCard
-            key={exercise.id}
-            exercise={exercise}
-            exerciseIndex={index}
-            plannedExercise={planned}
-            onSetUpdate={handleSetUpdate}
-            onAddSet={handleAddSet}
-            onDeleteSet={handleDeleteSet}
-            onDeleteExercise={handleDeleteExercise}
-            onEditExercise={handleEditExercise}
-          />
-        );
-      })}
+      {/* Exercise list */}
+      <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
+        {activeSession.loggedExercises.map((exercise, index) => {
+          const planned = planExercises.find((pe) => pe.id === exercise.plannedExerciseId);
+          const suggestion = suggestions.find((s) => s.exerciseName === exercise.exerciseName);
+          return (
+            <ExerciseCard
+              key={exercise.id}
+              exercise={exercise}
+              exerciseIndex={index}
+              plannedExercise={planned}
+              onSetUpdate={handleSetUpdate}
+              onAddSet={(i) => dispatch(addSetToExercise({ exerciseIndex: i }))}
+              onDeleteSet={(i, si) =>
+                dispatch(deleteSetFromExercise({ exerciseIndex: i, setIndex: si }))
+              }
+              onDeleteExercise={(i) =>
+                dispatch(deleteExerciseFromActiveSession({ exerciseIndex: i }))
+              }
+              onEditExercise={(i, name, notes) =>
+                dispatch(updateExerciseInActiveSession({ exerciseIndex: i, name, notes }))
+              }
+              aiSuggestion={suggestion ? `${suggestion.suggestedWeight} lbs` : undefined}
+            />
+          );
+        })}
 
-      <Button
-        mode="outlined"
-        onPress={() => setShowAddExercise(true)}
-        style={styles.addExerciseButton}
-        icon="plus"
-      >
-        Add Exercise
-      </Button>
+        <TouchableOpacity
+          onPress={() => setShowAddExercise(true)}
+          style={[styles.addExercise, { borderColor: theme.colors.surfaceElevated }]}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.addExerciseText, { color: theme.colors.textSecondary }]}>
+            + Add Exercise
+          </Text>
+        </TouchableOpacity>
 
-      <Button
-        mode="contained"
-        onPress={handleFinish}
-        style={styles.finishButton}
-        buttonColor={theme.colors.success}
-      >
-        Finish Workout
-      </Button>
+        <TouchableOpacity
+          onPress={handleFinish}
+          style={[styles.finishBtn, { backgroundColor: theme.colors.success }]}
+          activeOpacity={0.85}
+        >
+          <Text style={[styles.finishText, { color: theme.colors.background }]}>
+            FINISH WORKOUT
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
 
       <AddExerciseModal
         visible={showAddExercise}
-        onAdd={handleAddExercise}
+        onAdd={(name, notes) => {
+          dispatch(addExerciseToActiveSession({ exerciseName: name, notes }));
+          setShowAddExercise(false);
+        }}
         onDismiss={() => setShowAddExercise(false)}
       />
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
+  container: { flex: 1 },
+  progressTrack: {
+    height: 3,
+    width: '100%',
+  },
+  progressFill: {
+    height: 3,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+  },
+  planName: {
+    fontFamily: 'BarlowCondensed_700Bold',
+    fontSize: 24,
+    lineHeight: 24,
+    textTransform: 'uppercase',
+  },
+  planMeta: {
+    fontFamily: 'RethinkSans_400Regular',
+    fontSize: 11,
+    marginTop: 2,
+  },
+  elapsed: {
+    fontFamily: 'monospace',
+    fontSize: 18,
+    fontVariant: ['tabular-nums'],
+    fontWeight: '600',
+  },
+  list: { flex: 1 },
+  listContent: {
     padding: 16,
     paddingBottom: 32,
   },
-  addExerciseButton: {
-    marginTop: 8,
+  addExercise: {
+    borderWidth: 1,
     borderStyle: 'dashed',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+    marginBottom: 12,
   },
-  finishButton: {
-    marginTop: 12,
+  addExerciseText: {
+    fontFamily: 'RethinkSans_600SemiBold',
+    fontSize: 13,
+  },
+  finishBtn: {
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  finishText: {
+    fontFamily: 'BarlowCondensed_700Bold',
+    fontSize: 18,
+    letterSpacing: 1.08,
+    textTransform: 'uppercase',
   },
 });

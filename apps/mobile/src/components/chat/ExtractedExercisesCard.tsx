@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
-import { Card, Text, Button } from 'react-native-paper';
+import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text } from 'react-native-paper';
 import type { ExtractedExercise } from '@fitness-tracker/shared';
 import { useAppTheme } from '../../providers/ThemeProvider';
 import ExercisePicker from '../workout/ExercisePicker';
@@ -11,15 +11,10 @@ interface Props {
   onDismiss: () => void;
 }
 
-function formatReps(reps: number | string): string {
-  return typeof reps === 'number' ? `${reps}` : reps;
-}
-
-function getTypeLabel(ex: ExtractedExercise): string | null {
-  if (ex.exerciseType === 'warmup') return 'Warm-up';
-  if (ex.exerciseType === 'cooldown') return 'Cool-down';
-  if (ex.exerciseType === 'superset' && ex.supersetGroup) return `Superset ${ex.supersetGroup}`;
-  return null;
+function formatDetail(ex: ExtractedExercise): string {
+  const reps = typeof ex.reps === 'number' ? ex.reps : ex.reps;
+  const base = `${ex.sets}×${reps}`;
+  return ex.weight ? `${base} · ${ex.weight} lbs` : base;
 }
 
 export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss }: Props) {
@@ -28,73 +23,130 @@ export default function ExtractedExercisesCard({ exercises, onConfirm, onDismiss
 
   if (exercises.length === 0) return null;
 
-  const cardBg = theme.mode === 'dark' ? '#3d2e00' : '#FFF3CD';
-  const titleColor = theme.mode === 'dark' ? '#FFD54F' : '#856404';
+  const cardBg = theme.mode === 'dark' ? '#1a1000' : '#FEF9F0';
 
   const updateName = (index: number, name: string) => {
     setEditableExercises((prev) => prev.map((ex, i) => (i === index ? { ...ex, name } : ex)));
   };
 
   return (
-    <Card style={[styles.card, { backgroundColor: cardBg }]}>
-      <Card.Content>
-        <Text variant="titleSmall" style={[styles.title, { color: titleColor }]}>
-          Extracted {editableExercises.length} exercise{editableExercises.length > 1 ? 's' : ''}
+    <View style={[styles.card, { backgroundColor: cardBg, borderColor: 'rgba(249,115,22,0.25)' }]}>
+      {/* Header */}
+      <View style={styles.cardHeader}>
+        <View style={[styles.headerDot, { backgroundColor: theme.colors.primary }]} />
+        <Text style={[styles.headerLabel, { color: theme.colors.primary }]}>
+          {exercises.length} EXERCISE{exercises.length > 1 ? 'S' : ''} EXTRACTED
         </Text>
-        <ScrollView style={styles.scrollArea} contentContainerStyle={styles.scrollContent}>
-          {editableExercises.map((ex, i) => (
-            <View key={i} style={styles.exerciseRow}>
-              <View style={styles.pickerContainer}>
-                <ExercisePicker
-                  value={ex.name}
-                  onChangeText={(text) => updateName(i, text)}
-                  onSelect={(name) => updateName(i, name)}
-                  label="Exercise name"
-                />
-              </View>
-              <View style={styles.metaContainer}>
-                {getTypeLabel(ex) && (
-                  <Text
-                    variant="labelSmall"
-                    style={[styles.typeBadge, { color: theme.colors.primary }]}
-                  >
-                    {getTypeLabel(ex)}
-                  </Text>
-                )}
-                <Text variant="bodySmall" style={{ color: theme.colors.textSecondary }}>
-                  {ex.sets}x{formatReps(ex.reps)}
-                  {ex.weight ? ` @ ${ex.weight}` : ''}
-                </Text>
-              </View>
+      </View>
+
+      {/* Exercise rows */}
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+        {editableExercises.map((ex, i) => (
+          <View key={i} style={[styles.exerciseRow, { borderBottomColor: 'rgba(249,115,22,0.1)' }]}>
+            <View style={styles.pickerWrap}>
+              <ExercisePicker
+                value={ex.name}
+                onChangeText={(text) => updateName(i, text)}
+                onSelect={(name) => updateName(i, name)}
+                label="Exercise name"
+              />
             </View>
-          ))}
-        </ScrollView>
-        <View style={styles.actions}>
-          <Button mode="contained" onPress={() => onConfirm(editableExercises)} compact>
-            Add to Plan
-          </Button>
-          <Button mode="text" onPress={onDismiss} compact>
-            Dismiss
-          </Button>
-        </View>
-      </Card.Content>
-    </Card>
+            <Text style={[styles.detail, { color: theme.colors.textSecondary }]}>
+              {formatDetail(ex)}
+            </Text>
+          </View>
+        ))}
+      </ScrollView>
+
+      {/* Actions */}
+      <View style={styles.actions}>
+        <TouchableOpacity
+          onPress={() => onConfirm(editableExercises)}
+          style={[styles.addBtn, { backgroundColor: theme.colors.primary }]}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.addBtnText}>ADD TO PLAN</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={onDismiss}
+          style={[styles.dismissBtn, { borderColor: theme.colors.surfaceElevated }]}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.dismissText, { color: theme.colors.textSecondary }]}>Dismiss</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { marginHorizontal: 12, marginBottom: 12 },
-  title: { marginBottom: 8 },
-  scrollArea: { maxHeight: 400 },
-  scrollContent: { paddingBottom: 8 },
-  exerciseRow: {
+  card: {
+    marginHorizontal: 16,
+    marginLeft: 36 + 16,
     marginBottom: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 14,
+  },
+  cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
+    marginBottom: 10,
+  },
+  headerDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  headerLabel: {
+    fontFamily: 'BarlowCondensed_700Bold',
+    fontSize: 11,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  scroll: { maxHeight: 200 },
+  scrollContent: { paddingBottom: 4 },
+  exerciseRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+    borderBottomWidth: 1,
     gap: 8,
   },
-  pickerContainer: { flex: 1 },
-  metaContainer: { alignItems: 'flex-end' },
-  typeBadge: { fontWeight: '600', marginBottom: 2 },
-  actions: { flexDirection: 'row', gap: 8, marginTop: 12 },
+  pickerWrap: { flex: 1 },
+  detail: {
+    fontFamily: 'BarlowCondensed_700Bold',
+    fontSize: 13,
+    fontVariant: ['tabular-nums'],
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 10,
+  },
+  addBtn: {
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  addBtnText: {
+    fontFamily: 'BarlowCondensed_700Bold',
+    fontSize: 13,
+    letterSpacing: 0.78,
+    textTransform: 'uppercase',
+    color: '#fff',
+  },
+  dismissBtn: {
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  dismissText: {
+    fontFamily: 'BarlowCondensed_700Bold',
+    fontSize: 13,
+    color: '#fff',
+  },
 });

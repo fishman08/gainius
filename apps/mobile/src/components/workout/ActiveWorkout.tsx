@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { ScrollView, View, TouchableOpacity, StyleSheet, AppState } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRestTimer } from '@fitness-tracker/shared';
@@ -51,6 +52,7 @@ export default function ActiveWorkout({ onComplete }: Props) {
   const dispatch = useDispatch<AppDispatch>();
   const storage = useStorage();
   const { theme } = useAppTheme();
+  const insets = useSafeAreaInsets();
   const { activeSession, currentPlan } = useSelector((state: RootState) => state.workout);
   const history = useSelector((state: RootState) => state.workout.history);
 
@@ -159,7 +161,12 @@ export default function ActiveWorkout({ onComplete }: Props) {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.colors.background, paddingTop: insets.top },
+      ]}
+    >
       {/* Progress bar */}
       <View style={[styles.progressTrack, { backgroundColor: theme.colors.surfaceBorder }]}>
         <View

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View, TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
 import Svg, { Path, Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { useSelector, useDispatch } from 'react-redux';
@@ -108,6 +109,7 @@ export default function ProgressScreen() {
   const storage = useStorage();
   const { user } = useAuth();
   const { theme } = useAppTheme();
+  const insets = useSafeAreaInsets();
   const userId = user?.id ?? 'local-user';
   const history = useSelector((state: RootState) => state.workout.history);
 
@@ -168,7 +170,9 @@ export default function ProgressScreen() {
       showsVerticalScrollIndicator={false}
     >
       {/* Screen title */}
-      <Text style={[styles.screenTitle, { color: theme.colors.text }]}>PROGRESS</Text>
+      <Text style={[styles.screenTitle, { color: theme.colors.text, paddingTop: insets.top + 12 }]}>
+        PROGRESS
+      </Text>
 
       {/* Period tabs */}
       <View style={[styles.periodTabRow, { borderBottomColor: theme.colors.surfaceBorder }]}>
@@ -318,7 +322,6 @@ const styles = StyleSheet.create({
     lineHeight: 42,
     textTransform: 'uppercase',
     paddingHorizontal: 16,
-    paddingTop: 20,
     paddingBottom: 0,
   },
   periodTabRow: {

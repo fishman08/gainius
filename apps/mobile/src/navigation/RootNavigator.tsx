@@ -1,5 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, View, TouchableOpacity, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
@@ -27,12 +28,18 @@ const TAB_DEFS = [
 
 function PulseTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const { theme } = useAppTheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <View
       style={[
         styles.tabBar,
-        { backgroundColor: theme.colors.navBar, borderTopColor: theme.colors.surfaceBorder },
+        {
+          backgroundColor: theme.colors.navBar,
+          borderTopColor: theme.colors.surfaceBorder,
+          height: 58 + insets.bottom,
+          paddingBottom: insets.bottom,
+        },
       ]}
     >
       {state.routes.map((route, index) => {
@@ -150,7 +157,6 @@ export function RootNavigator() {
 const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'row',
-    height: 58,
     borderTopWidth: 1,
   },
   tabItem: {

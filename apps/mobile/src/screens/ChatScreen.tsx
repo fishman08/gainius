@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, ActivityIndicator, Banner, IconButton } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import type {
@@ -34,6 +35,7 @@ export default function ChatScreen() {
   const storage = useStorage();
   const { user } = useAuth();
   const { theme } = useAppTheme();
+  const insets = useSafeAreaInsets();
   const userId = user?.id ?? 'local-user';
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [showConversations, setShowConversations] = useState(false);
@@ -148,13 +150,17 @@ export default function ChatScreen() {
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: theme.colors.background }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
     >
       {/* Coach header bar */}
       <View
         style={[
           styles.coachHeader,
-          { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.surfaceBorder },
+          {
+            backgroundColor: theme.colors.surface,
+            borderBottomColor: theme.colors.surfaceBorder,
+            paddingTop: insets.top + 14,
+          },
         ]}
       >
         <View

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../store';
@@ -28,6 +29,7 @@ export function HomeScreen() {
   const storage = useStorage();
   const { user, supabase } = useAuth();
   const { theme } = useAppTheme();
+  const insets = useSafeAreaInsets();
   const userId = user?.id ?? 'local-user';
   const { currentPlan, activeSession, planComparison } = useSelector(
     (state: RootState) => state.workout,
@@ -76,7 +78,7 @@ export function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Greeting header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
           <Text style={[styles.greetingSmall, { color: theme.colors.textSecondary }]}>
             {greeting()}
           </Text>
@@ -146,7 +148,6 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { paddingBottom: 32 },
   header: {
-    paddingTop: 20,
     paddingHorizontal: 16,
     paddingBottom: 14,
   },

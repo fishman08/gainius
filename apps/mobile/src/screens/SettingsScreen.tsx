@@ -15,6 +15,7 @@ import AuthSection from '../components/settings/AuthSection';
 import SyncSettings from '../components/settings/SyncSettings';
 import DataExport from '../components/settings/DataExport';
 import OnboardingWizard from '../components/settings/OnboardingWizard';
+import CoachingNotesCard from '../components/settings/CoachingNotesCard';
 import { useSync } from '../providers/SyncProvider';
 import { useAuth } from '../providers/AuthProvider';
 import { useStorage } from '../providers/StorageProvider';
@@ -196,6 +197,8 @@ export default function SettingsScreen() {
           </Card.Content>
         </Card>
       )}
+
+      <CoachingNotesCard />
 
       <AuthSection />
 

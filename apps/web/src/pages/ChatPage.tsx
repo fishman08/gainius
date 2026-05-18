@@ -16,6 +16,7 @@ import {
   clearError,
   dismissExercises,
   startNewConversation,
+  updateCoachingNotes,
 } from '../store/slices/chatSlice';
 import { setCurrentPlan, setPreviousPlan, setPlanComparison } from '../store/slices/workoutSlice';
 import { comparePlans } from '@fitness-tracker/shared';
@@ -31,7 +32,7 @@ export default function ChatPage() {
   const dispatch = useDispatch<AppDispatch>();
   const storage = useStorage();
   const userId = useUserId();
-  const { user: authUser } = useAuth();
+  const { user: authUser, supabase } = useAuth();
   const { theme } = useTheme();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [showConversations, setShowConversations] = useState(false);
@@ -60,7 +61,7 @@ export default function ChatPage() {
   }, [authUser]);
 
   const activeConversation = conversations.find((c) => c.id === activeConversationId);
-  const messages = activeConversation?.messages ?? [];
+  const activeMessages = activeConversation?.messages ?? [];
 
   const handleSend = useCallback(
     (text: string) => {
@@ -125,6 +126,19 @@ export default function ChatPage() {
     setShowConversations(false);
   }, [dispatch]);
 
+  useEffect(() => {
+    if (activeMessages.length > 0 && activeMessages.length % 10 === 0 && supabase && currentUser) {
+      dispatch(
+        updateCoachingNotes({
+          messages: activeMessages,
+          supabase,
+          userId,
+          user: currentUser,
+        }),
+      );
+    }
+  }, [activeMessages.length]);
+
   return (
     <div
       style={{
@@ -184,7 +198,7 @@ export default function ChatPage() {
         </div>
       ) : (
         <>
-          {messages.length === 0 && !isLoading ? (
+          {activeMessages.length === 0 && !isLoading ? (
             <div
               style={{
                 flex: 1,
@@ -207,7 +221,7 @@ export default function ChatPage() {
               </p>
             </div>
           ) : (
-            <MessageList messages={messages} />
+            <MessageList messages={activeMessages} />
           )}
 
           {isLoading && (

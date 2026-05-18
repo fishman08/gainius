@@ -6,6 +6,7 @@ import type {
   PlannedExercise,
 } from '../types';
 import type { WeightSuggestion } from '../analytics/types';
+import type { Profile } from '../onboarding/schema';
 
 const HISTORY_WINDOW_DAYS = 14;
 
@@ -40,6 +41,8 @@ export interface ContextOptions {
   previousPlanData?: PreviousPlanData;
   previousMessages?: ChatMessage[];
   knowledgeContext?: KnowledgeSnippet[];
+  profile?: Profile;
+  coachingNotes?: string;
 }
 
 function filterSessionsByDate(sessions: WorkoutSession[]): WorkoutSession[] {
@@ -185,6 +188,35 @@ export function buildSystemPrompt(options: ContextOptions): string {
 
   if (options.customSystemPrompt) {
     parts.push('', 'Additional instructions from the user:', options.customSystemPrompt);
+  }
+
+  if (options.profile) {
+    const p = options.profile;
+    parts.push(
+      '',
+      '## User Profile',
+      `- Goal: ${p.primary_goal.replace(/_/g, ' ')}`,
+      `- Experience: ${p.experience_level}`,
+      `- Training style: ${p.preferred_style.replace(/_/g, ' ')}`,
+      `- Days per week: ${p.days_per_week}`,
+      `- Session length: ${p.session_minutes} min`,
+      `- Location: ${p.training_location.replace(/_/g, ' ')}`,
+      `- Equipment: ${p.available_equipment.join(', ') || 'none'}`,
+      `- Injuries: ${p.injuries.join(', ') || 'none'}`,
+    );
+    if (p.injury_notes) {
+      parts.push(`- Injury notes: ${p.injury_notes}`);
+    }
+  }
+
+  if (options.coachingNotes) {
+    parts.push(
+      '',
+      '## Adaptive Coaching Notes',
+      options.coachingNotes,
+      '',
+      'Use these notes to calibrate your coaching style, difficulty level, and communication approach for this specific user.',
+    );
   }
 
   if (options.preferences) {

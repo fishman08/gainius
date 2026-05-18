@@ -385,4 +385,45 @@ describe('buildSystemPrompt', () => {
     expect(prompt).not.toContain('Recent workout history');
     expect(prompt).not.toContain('weight suggestions');
   });
+
+  it('includes coaching notes section when provided', () => {
+    const prompt = buildSystemPrompt({
+      coachingNotes:
+        'User prefers heavy compound movements. Finds standard intermediate recommendations too easy.',
+    });
+    expect(prompt).toContain('Adaptive Coaching Notes');
+    expect(prompt).toContain('User prefers heavy compound movements');
+  });
+
+  it('omits coaching notes section when not provided', () => {
+    const prompt = buildSystemPrompt({});
+    expect(prompt).not.toContain('Adaptive Coaching Notes');
+  });
+
+  it('coaching notes section appears after User Profile when both are present', () => {
+    const prompt = buildSystemPrompt({
+      profile: {
+        primary_goal: 'build_muscle',
+        experience_level: 'intermediate',
+        preferred_style: 'hypertrophy',
+        days_per_week: 4,
+        session_minutes: '45-60',
+        training_location: 'gym',
+        available_equipment: ['barbell', 'dumbbells'],
+        injuries: ['none'],
+        injury_notes: null,
+        date_of_birth: '1995-01-15',
+        sex_at_birth: 'male',
+        height_cm: 180,
+        weight_kg: 82,
+        activity_level: 'moderate',
+        units_preference: 'metric',
+      },
+      coachingNotes: 'Prefers morning workouts',
+    });
+    const profileIdx = prompt.indexOf('## User Profile');
+    const notesIdx = prompt.indexOf('Adaptive Coaching Notes');
+    expect(profileIdx).toBeGreaterThan(-1);
+    expect(notesIdx).toBeGreaterThan(profileIdx);
+  });
 });

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Provider } from 'react-redux';
+import { Provider, useDispatch } from 'react-redux';
 import { store } from './store';
+import type { AppDispatch } from './store';
+import { setCoachingNotes } from './store/slices/syncSlice';
 import { StorageProvider } from './providers/StorageProvider';
 import { AuthProvider, useAuth } from './providers/AuthProvider';
 import { SyncProvider } from './providers/SyncProvider';
@@ -19,19 +21,22 @@ import { OnboardingWizard } from './components/settings/OnboardingWizard';
 function AppContent() {
   const { user, isLoading, supabase } = useAuth();
   const { theme } = useTheme();
+  const dispatch = useDispatch<AppDispatch>();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     if (!user?.id || !supabase) return;
     supabase
       .from('profiles')
-      .select('onboarding_completed_at')
+      .select('onboarding_completed_at, coaching_notes')
       .eq('user_id', user.id)
       .single()
       .then(({ data }) => {
         if (!data || !data.onboarding_completed_at) setShowOnboarding(true);
+        const { coaching_notes } = data ?? {};
+        dispatch(setCoachingNotes(coaching_notes ?? null));
       });
-  }, [user?.id, supabase]);
+  }, [user?.id, supabase, dispatch]);
 
   if (isLoading) {
     return (

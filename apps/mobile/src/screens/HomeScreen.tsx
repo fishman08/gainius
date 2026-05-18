@@ -8,6 +8,7 @@ import { useStorage } from '../providers/StorageProvider';
 import { useAuth } from '../providers/AuthProvider';
 import OnboardingWizard from '../components/settings/OnboardingWizard';
 import { loadCurrentPlan, loadHistory } from '../store/slices/workoutSlice';
+import { setCoachingNotes } from '../store/slices/syncSlice';
 import EmptyPlanView from '../components/workout/EmptyPlanView';
 import ActiveWorkout from '../components/workout/ActiveWorkout';
 import WorkoutSummary from '../components/workout/WorkoutSummary';
@@ -49,7 +50,7 @@ export function HomeScreen() {
     if (!supabase || !user?.id) return;
     supabase
       .from('profiles')
-      .select('onboarding_completed_at, units_preference, full_name')
+      .select('onboarding_completed_at, units_preference, full_name, coaching_notes')
       .eq('user_id', user.id)
       .single()
       .then(({ data, error }) => {
@@ -57,8 +58,9 @@ export function HomeScreen() {
         if (!data || !data.onboarding_completed_at) setShowOnboarding(true);
         if (data?.units_preference === 'imperial') setImperialOnboarding(true);
         if (data?.full_name) setDisplayName(data.full_name);
+        dispatch(setCoachingNotes(data?.coaching_notes ?? null));
       });
-  }, [supabase, user?.id]);
+  }, [supabase, user?.id, dispatch]);
 
   if (showSummary) {
     return <WorkoutSummary onDone={() => setShowSummary(false)} />;

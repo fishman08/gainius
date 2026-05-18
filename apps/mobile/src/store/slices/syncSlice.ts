@@ -7,12 +7,14 @@ interface SyncState {
   status: SyncStatus;
   isAuthenticated: boolean;
   userEmail: string | null;
+  coachingNotes: string | null;
 }
 
 const initialState: SyncState = {
   status: INITIAL_SYNC_STATUS,
   isAuthenticated: false,
   userEmail: null,
+  coachingNotes: null,
 };
 
 const syncSlice = createSlice({
@@ -26,8 +28,11 @@ const syncSlice = createSlice({
       state.isAuthenticated = action.payload.isAuthenticated;
       state.userEmail = action.payload.email;
     },
+    setCoachingNotes(state, action: PayloadAction<string | null>) {
+      state.coachingNotes = action.payload;
+    },
   },
 });
 
-export const { setSyncStatus, setAuthState } = syncSlice.actions;
+export const { setSyncStatus, setAuthState, setCoachingNotes } = syncSlice.actions;
 export default syncSlice.reducer;

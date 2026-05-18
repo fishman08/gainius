@@ -1,4 +1,5 @@
 import type { ChatMessage } from '../types';
+import { sendMessage } from './claudeClient';
 
 export const ANALYSIS_MODEL = 'claude-haiku-4-5-20251001';
 export const MIN_MESSAGES_FOR_ANALYSIS = 10;
@@ -30,4 +31,31 @@ Rules:
 
 Conversation:
 ${conversation}`;
+}
+
+export interface CoachingAnalysisOptions {
+  apiKey: string;
+  messages: ChatMessage[];
+  existingNotes: string | null;
+}
+
+export async function analyzeConversationForInsights(
+  options: CoachingAnalysisOptions,
+): Promise<string | null> {
+  const { apiKey, messages, existingNotes } = options;
+
+  if (messages.length < MIN_MESSAGES_FOR_ANALYSIS) return null;
+
+  try {
+    const result = await sendMessage({
+      apiKey,
+      model: ANALYSIS_MODEL,
+      maxTokens: 300,
+      messages: [{ role: 'user', content: buildAnalysisPrompt(messages, existingNotes) }],
+    });
+
+    return result.text.trim() || null;
+  } catch {
+    return null;
+  }
 }

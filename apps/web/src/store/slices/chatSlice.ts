@@ -16,9 +16,12 @@ import {
   extractExercises,
   suggestWeightsForPlan,
   searchKnowledge,
+  analyzeConversationForInsights,
 } from '@fitness-tracker/shared';
 import type { WorkoutSession, WorkoutPlan } from '@fitness-tracker/shared';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { getApiKey, getCustomPrompt } from '../../services/apiKeyStorage';
+import { setCoachingNotes } from './syncSlice';
 
 export interface ChatState {
   conversations: Conversation[];
@@ -117,6 +120,9 @@ export const sendChatMessage = createAsyncThunk(
       exerciseNames,
     });
 
+    const coachingNotes =
+      (getState() as { sync: { coachingNotes: string | null } }).sync.coachingNotes ?? undefined;
+
     const systemPrompt = buildSystemPrompt({
       recentSessions: allSessions,
       preferences: user?.preferences,
@@ -124,6 +130,7 @@ export const sendChatMessage = createAsyncThunk(
       weightSuggestions,
       previousMessages,
       knowledgeContext,
+      coachingNotes,
     });
 
     const recentMessages = conversation.messages.slice(-MAX_CONTEXT_MESSAGES);
@@ -156,6 +163,37 @@ export const sendChatMessage = createAsyncThunk(
       assistantMessage,
       extracted,
     };
+  },
+);
+
+interface UpdateCoachingNotesArgs {
+  messages: ChatMessage[];
+  supabase: SupabaseClient;
+  userId: string;
+  user: User | null;
+}
+
+export const updateCoachingNotes = createAsyncThunk(
+  'chat/updateCoachingNotes',
+  async ({ messages, supabase, userId, user }: UpdateCoachingNotesArgs, { getState, dispatch }) => {
+    const apiKey = await getApiKey(user);
+    if (!apiKey) return null;
+
+    const existingNotes =
+      (getState() as { sync: { coachingNotes: string | null } }).sync.coachingNotes ?? null;
+
+    const updatedNotes = await analyzeConversationForInsights({
+      apiKey,
+      messages,
+      existingNotes,
+    });
+
+    if (updatedNotes === null) return null;
+
+    await supabase.from('profiles').update({ coaching_notes: updatedNotes }).eq('user_id', userId);
+
+    dispatch(setCoachingNotes(updatedNotes));
+    return updatedNotes;
   },
 );
 

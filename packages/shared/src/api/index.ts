@@ -7,3 +7,5 @@ export type {
   KnowledgeSnippet,
 } from './contextBuilder';
 export type { ClaudeMessage, SendMessageOptions, SendMessageResult } from './types';
+export { analyzeConversationForInsights } from './coachingAnalyzer';
+export type { CoachingAnalysisOptions } from './coachingAnalyzer';

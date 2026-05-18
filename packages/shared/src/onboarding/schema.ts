@@ -80,11 +80,11 @@ export const ProfileSchema = z.object({
   injury_notes: z.string().max(500).nullable(),
   date_of_birth: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Use YYYY-MM-DD')
+    .regex(/^\d{2}\/\d{2}\/\d{4}$/, 'Use MM/DD/YYYY')
     .refine((d) => {
-      const parsed = Date.parse(d);
-      if (Number.isNaN(parsed)) return false;
-      const dob = new Date(parsed);
+      const [mm, dd, yyyy] = d.split('/');
+      const dob = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+      if (isNaN(dob.getTime())) return false;
       const now = new Date();
       const minAge = new Date(now.getFullYear() - 120, now.getMonth(), now.getDate());
       const maxAge = new Date(now.getFullYear() - 13, now.getMonth(), now.getDate());

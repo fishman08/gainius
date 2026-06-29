@@ -7,7 +7,7 @@ import type { RootState, AppDispatch } from '../store';
 import { useStorage } from '../providers/StorageProvider';
 import { useAuth } from '../providers/AuthProvider';
 import OnboardingWizard from '../components/settings/OnboardingWizard';
-import { loadCurrentPlan, loadHistory } from '../store/slices/workoutSlice';
+import { loadCurrentPlan, loadHistory, seedGzclpPlan } from '../store/slices/workoutSlice';
 import { setCoachingNotes } from '../store/slices/syncSlice';
 import EmptyPlanView from '../components/workout/EmptyPlanView';
 import ActiveWorkout from '../components/workout/ActiveWorkout';
@@ -95,7 +95,11 @@ export function HomeScreen() {
         <StreakCard />
 
         {/* Plan overview (today's session card) */}
-        {currentPlan ? <PlanOverview /> : <EmptyPlanView />}
+        {currentPlan ? (
+          <PlanOverview />
+        ) : (
+          <EmptyPlanView onStartGzclp={() => dispatch(seedGzclpPlan({ storage, userId }))} />
+        )}
 
         {/* Quick Add — Log Cardio */}
         {showCardioCard && (

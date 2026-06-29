@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type {
   WorkoutPlan,
+  PlannedExercise,
   WorkoutSession,
   LoggedExercise,
   ExerciseSet,
@@ -11,7 +12,7 @@ import type {
   CardioLog,
   CardioActivityType,
 } from '@fitness-tracker/shared';
-import { generateId, normalizeExerciseName } from '@fitness-tracker/shared';
+import { generateId, normalizeExerciseName, GZCLP_ROTATION } from '@fitness-tracker/shared';
 
 export interface WorkoutState {
   currentPlan: WorkoutPlan | null;
@@ -32,6 +33,52 @@ const initialState: WorkoutState = {
   history: [],
   pendingExtractions: [],
 };
+
+interface SeedGzclpPlanArgs {
+  storage: StorageService;
+  userId: string;
+}
+
+export const seedGzclpPlan = createAsyncThunk(
+  'workout/seedGzclpPlan',
+  async ({ storage, userId }: SeedGzclpPlanArgs) => {
+    const planId = generateId();
+    const exercises: PlannedExercise[] = [];
+    GZCLP_ROTATION.forEach((session, sessionIndex) => {
+      session.exercises.forEach((ex, order) => {
+        exercises.push({
+          id: generateId(),
+          planId,
+          exerciseName: ex.exerciseName,
+          tier: ex.tier,
+          stage: 0,
+          targetSets: ex.tier === 'T1' ? 5 : 3,
+          targetReps: ex.tier === 'T1' ? 3 : ex.tier === 'T2' ? 10 : 15,
+          suggestedWeight: 45,
+          dayOfWeek: sessionIndex,
+          order,
+          notes:
+            ex.tier === 'T1' ? 'Last set AMRAP' : ex.tier === 'T3' ? 'Last set AMRAP' : undefined,
+        });
+      });
+    });
+    const today = new Date().toISOString().split('T')[0];
+    const plan: WorkoutPlan = {
+      id: planId,
+      userId,
+      weekNumber: 1,
+      startDate: today,
+      endDate: today,
+      createdBy: 'manual',
+      exercises,
+      conversationId: '',
+      progressionMode: 'gzclp',
+      rotationIndex: 0,
+    };
+    await storage.saveWorkoutPlan(plan);
+    return plan;
+  },
+);
 
 interface LoadCurrentPlanArgs {
   storage: StorageService;
@@ -409,6 +456,9 @@ const workoutSlice = createSlice({
         state.history = action.payload;
       })
       .addCase(loadCurrentPlan.fulfilled, (state, action) => {
+        state.currentPlan = action.payload;
+      })
+      .addCase(seedGzclpPlan.fulfilled, (state, action) => {
         state.currentPlan = action.payload;
       })
       .addCase(saveEditedSession.fulfilled, (state, action) => {

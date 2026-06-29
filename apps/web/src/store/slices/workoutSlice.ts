@@ -47,7 +47,11 @@ export const startWorkout = createAsyncThunk(
     if (!plan) throw new Error('No workout plan loaded');
 
     const now = new Date().toISOString();
-    const loggedExercises: LoggedExercise[] = plan.exercises.map((ex) => {
+    const sessionExercises =
+      plan.progressionMode === 'gzclp'
+        ? plan.exercises.filter((ex) => ex.dayOfWeek === (plan.rotationIndex ?? 0))
+        : plan.exercises;
+    const loggedExercises: LoggedExercise[] = sessionExercises.map((ex) => {
       const sets: ExerciseSet[] = [];
       const targetSets = typeof ex.targetSets === 'number' ? ex.targetSets : 1;
       for (let i = 1; i <= targetSets; i++) {

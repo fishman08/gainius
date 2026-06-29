@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../../store';
 import { useStorage } from '../../providers/StorageProvider';
 import { startWorkout, loadHistory } from '../../store/slices/workoutSlice';
-import { suggestWeightsForPlan } from '@fitness-tracker/shared';
+import { suggestWeightsForPlan, GZCLP_ROTATION } from '@fitness-tracker/shared';
 import WorkoutHistoryList from './WorkoutHistoryList';
 import EditWorkoutSession from './EditWorkoutSession';
 import PlanUpdateBanner from './PlanUpdateBanner';
@@ -50,7 +50,17 @@ export default function PlanOverview() {
     dispatch(startWorkout({ storage, userId }));
   };
 
-  const exerciseCount = currentPlan.exercises.length;
+  const rotationIndex = currentPlan.rotationIndex ?? 0;
+  const isGzclp = currentPlan.progressionMode === 'gzclp';
+  const todayExercises = isGzclp
+    ? currentPlan.exercises.filter((ex) => ex.dayOfWeek === rotationIndex)
+    : currentPlan.exercises;
+  const sessionLabel = isGzclp
+    ? `SESSION ${GZCLP_ROTATION[rotationIndex]?.label ?? ''}`
+    : todayExercises[0]?.exerciseName
+      ? inferDayLabel(todayExercises.map((e) => e.exerciseName))
+      : `WEEK ${currentPlan.weekNumber} PLAN`;
+  const exerciseCount = todayExercises.length;
   const estimatedMin = exerciseCount * 12;
 
   return (
@@ -79,22 +89,20 @@ export default function PlanOverview() {
       >
         {/* Upper section */}
         <View style={styles.sessionUpper}>
-          <Text style={[styles.planName, { color: theme.colors.text }]}>
-            {currentPlan.exercises[0]?.exerciseName
-              ? inferDayLabel(currentPlan.exercises.map((e) => e.exerciseName))
-              : `WEEK ${currentPlan.weekNumber} PLAN`}
-          </Text>
+          <Text style={[styles.planName, { color: theme.colors.text }]}>{sessionLabel}</Text>
           <Text style={[styles.planMeta, { color: theme.colors.textSecondary }]}>
-            {`Day ${currentPlan.weekNumber}  ·  ${exerciseCount} exercise${exerciseCount !== 1 ? 's' : ''}  ·  ~${estimatedMin} min`}
+            {`${exerciseCount} exercise${exerciseCount !== 1 ? 's' : ''}  ·  ~${estimatedMin} min`}
           </Text>
 
           {/* Exercise chips */}
           <View style={styles.chipRow}>
-            {currentPlan.exercises.slice(0, 5).map((ex) => {
+            {todayExercises.slice(0, 5).map((ex) => {
               const suggestion = suggestions.find((s) => s.exerciseName === ex.exerciseName);
               const label = suggestion
                 ? `${ex.exerciseName} · ${suggestion.suggestedWeight} lbs`
-                : ex.exerciseName;
+                : ex.tier
+                  ? `${ex.exerciseName} [${ex.tier}]`
+                  : ex.exerciseName;
               return (
                 <View
                   key={ex.id}
@@ -104,10 +112,10 @@ export default function PlanOverview() {
                 </View>
               );
             })}
-            {currentPlan.exercises.length > 5 && (
+            {todayExercises.length > 5 && (
               <View style={[styles.chip, { backgroundColor: theme.colors.primaryMuted }]}>
                 <Text style={[styles.chipText, { color: theme.colors.primary }]}>
-                  +{currentPlan.exercises.length - 5} more
+                  +{todayExercises.length - 5} more
                 </Text>
               </View>
             )}

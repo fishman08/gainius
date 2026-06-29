@@ -4,7 +4,7 @@ import type { RootState, AppDispatch } from '../../store';
 import { useStorage } from '../../providers/StorageProvider';
 import { useTheme } from '../../providers/ThemeProvider';
 import { startWorkout, loadHistory } from '../../store/slices/workoutSlice';
-import { resolveProgressionForPlan } from '@fitness-tracker/shared';
+import { resolveProgressionForPlan, GZCLP_ROTATION } from '@fitness-tracker/shared';
 import type { WeightSuggestion, GZCLPSuggestion } from '@fitness-tracker/shared';
 import { WorkoutHistoryList } from './WorkoutHistoryList';
 import { EditWorkoutSession } from './EditWorkoutSession';
@@ -53,6 +53,15 @@ export function PlanOverview() {
 
   if (!currentPlan) return null;
 
+  const rotationIndex = currentPlan.rotationIndex ?? 0;
+  const isGzclp = currentPlan.progressionMode === 'gzclp';
+  const todayExercises = isGzclp
+    ? currentPlan.exercises.filter((ex) => ex.dayOfWeek === rotationIndex)
+    : currentPlan.exercises;
+  const sessionLabel = isGzclp
+    ? `Session ${GZCLP_ROTATION[rotationIndex]?.label ?? ''}`
+    : `Week ${currentPlan.weekNumber} Plan`;
+
   const handleStart = () => {
     dispatch(startWorkout({ storage, userId }));
   };
@@ -78,10 +87,10 @@ export function PlanOverview() {
             fontWeight: 700,
           }}
         >
-          Week {currentPlan.weekNumber} Plan
+          {sessionLabel}
         </h2>
 
-        {currentPlan.exercises.map((ex) => {
+        {todayExercises.map((ex) => {
           const cSuggestion = consistencySuggestions.find(
             (s) => s.exerciseName === ex.exerciseName,
           );

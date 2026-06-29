@@ -6,6 +6,7 @@ import type {
   PlannedExercise,
 } from '../types';
 import type { WeightSuggestion } from '../analytics/types';
+import type { GZCLPSuggestion } from '../analytics/gzclpProgression';
 import type { Profile } from '../onboarding/schema';
 
 const HISTORY_WINDOW_DAYS = 14;
@@ -37,6 +38,7 @@ export interface ContextOptions {
   preferences?: UserPreferences;
   customSystemPrompt?: string;
   weightSuggestions?: WeightSuggestion[];
+  gzclpSuggestions?: GZCLPSuggestion[];
   previousPlanContext?: string;
   previousPlanData?: PreviousPlanData;
   previousMessages?: ChatMessage[];
@@ -281,6 +283,19 @@ export function buildSystemPrompt(options: ContextOptions): string {
     parts.push(
       '',
       'Use these suggestions to inform your advice. Mention them when relevant to the conversation.',
+    );
+  }
+
+  if (options.gzclpSuggestions && options.gzclpSuggestions.length > 0) {
+    parts.push('', 'GZCLP progression for next session:');
+    for (const s of options.gzclpSuggestions) {
+      const line = `  - ${s.exerciseName} ${s.tier} ${s.schemeLabel} @ ${s.suggestedWeight} ${weightUnit}`;
+      const reason = s.transitionReason ? ` — ${s.transitionReason}` : '';
+      parts.push(line + reason);
+    }
+    parts.push(
+      '',
+      'Use the GZCLP prescriptions above for this session. State the scheme label, weight, and reason for any stage transitions when relevant.',
     );
   }
 

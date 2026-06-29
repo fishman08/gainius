@@ -6,7 +6,6 @@ import type {
   LoggedExercise,
   ChatMessage,
   Conversation,
-  CardioLog,
   CardioActivityType,
 } from '@fitness-tracker/shared';
 import { db } from './db';
@@ -54,6 +53,8 @@ export class DexieStorageService implements StorageService {
       createdBy: plan.createdBy,
       conversationId: plan.conversationId,
       exercises: JSON.stringify(plan.exercises),
+      progressionMode: plan.progressionMode ?? 'consistency',
+      rotationIndex: plan.rotationIndex ?? 0,
     });
   }
 
@@ -73,6 +74,8 @@ export class DexieStorageService implements StorageService {
       createdBy: row.createdBy as 'ai' | 'manual',
       conversationId: row.conversationId,
       exercises: JSON.parse(row.exercises),
+      progressionMode: (row.progressionMode as WorkoutPlan['progressionMode']) ?? 'consistency',
+      rotationIndex: row.rotationIndex ?? 0,
     };
   }
 

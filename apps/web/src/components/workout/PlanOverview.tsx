@@ -4,7 +4,8 @@ import type { RootState, AppDispatch } from '../../store';
 import { useStorage } from '../../providers/StorageProvider';
 import { useTheme } from '../../providers/ThemeProvider';
 import { startWorkout, loadHistory } from '../../store/slices/workoutSlice';
-import { suggestWeightsForPlan } from '@fitness-tracker/shared';
+import { resolveProgressionForPlan } from '@fitness-tracker/shared';
+import type { WeightSuggestion, GZCLPSuggestion } from '@fitness-tracker/shared';
 import { WorkoutHistoryList } from './WorkoutHistoryList';
 import { EditWorkoutSession } from './EditWorkoutSession';
 import { PlanUpdateBanner } from './PlanUpdateBanner';
@@ -18,9 +19,17 @@ export function PlanOverview() {
   const { currentPlan, history } = useSelector((state: RootState) => state.workout);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
 
-  const suggestions = useMemo(() => {
-    if (!currentPlan || history.length === 0) return [];
-    return suggestWeightsForPlan(history, currentPlan.exercises);
+  const { consistencySuggestions, gzclpSuggestions } = useMemo(() => {
+    if (!currentPlan || history.length === 0)
+      return {
+        consistencySuggestions: [] as WeightSuggestion[],
+        gzclpSuggestions: [] as GZCLPSuggestion[],
+      };
+    const result = resolveProgressionForPlan(currentPlan, history);
+    if (result.mode === 'gzclp') {
+      return { consistencySuggestions: [], gzclpSuggestions: result.suggestions };
+    }
+    return { consistencySuggestions: result.suggestions, gzclpSuggestions: [] };
   }, [currentPlan, history]);
 
   useEffect(() => {
@@ -73,7 +82,10 @@ export function PlanOverview() {
         </h2>
 
         {currentPlan.exercises.map((ex) => {
-          const suggestion = suggestions.find((s) => s.exerciseName === ex.exerciseName);
+          const cSuggestion = consistencySuggestions.find(
+            (s) => s.exerciseName === ex.exerciseName,
+          );
+          const gSuggestion = gzclpSuggestions.find((s) => s.exerciseName === ex.exerciseName);
           return (
             <div
               key={ex.id}
@@ -87,15 +99,20 @@ export function PlanOverview() {
             >
               <span style={{ fontWeight: 500, fontSize: 15, color: theme.colors.text }}>
                 {ex.exerciseName}
+                {ex.tier && (
+                  <span style={{ color: theme.colors.textSecondary, fontSize: 12, marginLeft: 6 }}>
+                    {ex.tier}
+                  </span>
+                )}
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ color: theme.colors.textSecondary, fontSize: 14 }}>
                   {ex.targetSets} x {ex.targetReps}
                   {ex.suggestedWeight ? ` @ ${ex.suggestedWeight} lbs` : ''}
                 </span>
-                {suggestion && (
+                {gSuggestion && (
                   <span
-                    title={suggestion.reason}
+                    title={gSuggestion.transitionReason ?? gSuggestion.schemeLabel}
                     style={{
                       fontSize: 12,
                       fontWeight: 600,
@@ -105,7 +122,22 @@ export function PlanOverview() {
                       color: theme.colors.primary,
                     }}
                   >
-                    AI: {suggestion.suggestedWeight} lbs
+                    {gSuggestion.schemeLabel} @ {gSuggestion.suggestedWeight} lbs
+                  </span>
+                )}
+                {cSuggestion && (
+                  <span
+                    title={cSuggestion.reason}
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      padding: '2px 8px',
+                      borderRadius: 12,
+                      background: theme.colors.primaryMuted,
+                      color: theme.colors.primary,
+                    }}
+                  >
+                    AI: {cSuggestion.suggestedWeight} lbs
                   </span>
                 )}
               </div>

@@ -7,6 +7,8 @@ export interface WorkoutPlan {
   createdBy: 'ai' | 'manual';
   exercises: PlannedExercise[];
   conversationId: string;
+  progressionMode?: 'consistency' | 'gzclp';
+  rotationIndex?: number;
 }
 
 export interface PlannedExercise {
@@ -19,6 +21,8 @@ export interface PlannedExercise {
   dayOfWeek: number;
   order: number;
   notes?: string;
+  tier?: 'T1' | 'T2' | 'T3';
+  stage?: 0 | 1 | 2;
 }
 
 export type CardioActivityType = 'run' | 'swim' | 'walk' | 'bike';

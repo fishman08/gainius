@@ -21,6 +21,8 @@ export interface WorkoutPlanRow {
   created_by: string;
   conversation_id: string;
   exercises: unknown[];
+  progression_mode?: string;
+  rotation_index?: number;
   updated_at: string;
 }
 
@@ -79,6 +81,8 @@ export function workoutPlanToRow(plan: WorkoutPlan): Omit<WorkoutPlanRow, 'updat
     created_by: plan.createdBy,
     conversation_id: plan.conversationId,
     exercises: plan.exercises as unknown as unknown[],
+    progression_mode: plan.progressionMode ?? 'consistency',
+    rotation_index: plan.rotationIndex ?? 0,
   };
 }
 
@@ -142,6 +146,8 @@ export function rowToWorkoutPlan(row: WorkoutPlanRow): WorkoutPlan {
     createdBy: row.created_by as 'ai' | 'manual',
     conversationId: row.conversation_id,
     exercises: row.exercises as unknown as WorkoutPlan['exercises'],
+    progressionMode: (row.progression_mode as WorkoutPlan['progressionMode']) ?? 'consistency',
+    rotationIndex: row.rotation_index ?? 0,
   };
 }
 

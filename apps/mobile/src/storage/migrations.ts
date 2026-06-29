@@ -86,4 +86,20 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
   } catch {
     // Column already exists — safe to ignore
   }
+
+  // Add GZCLP progression fields to workout_plans
+  try {
+    await db.execAsync(
+      `ALTER TABLE workout_plans ADD COLUMN progression_mode TEXT NOT NULL DEFAULT 'consistency'`,
+    );
+  } catch {
+    // Column already exists — safe to ignore
+  }
+  try {
+    await db.execAsync(
+      `ALTER TABLE workout_plans ADD COLUMN rotation_index INTEGER NOT NULL DEFAULT 0`,
+    );
+  } catch {
+    // Column already exists — safe to ignore
+  }
 }

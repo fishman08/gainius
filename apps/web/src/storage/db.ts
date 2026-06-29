@@ -19,6 +19,8 @@ interface WorkoutPlanRow {
   createdBy: string;
   conversationId: string;
   exercises: string;
+  progressionMode?: string;
+  rotationIndex?: number;
 }
 
 interface WorkoutSessionRow {
@@ -98,6 +100,15 @@ export class FitnessTrackerDB extends Dexie {
     this.version(3).stores({
       users: 'id',
       workoutPlans: 'id, userId, startDate',
+      workoutSessions: 'id, userId, date',
+      conversations: 'id, userId, lastMessageAt',
+      chatMessages: 'id, conversationId, timestamp',
+      syncQueue: 'id, entityType, createdAt',
+      cardioLogs: 'id, sessionId',
+    });
+    this.version(4).stores({
+      users: 'id',
+      workoutPlans: 'id, userId, startDate, progressionMode',
       workoutSessions: 'id, userId, date',
       conversations: 'id, userId, lastMessageAt',
       chatMessages: 'id, conversationId, timestamp',

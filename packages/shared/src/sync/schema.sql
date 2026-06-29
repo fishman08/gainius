@@ -28,6 +28,10 @@ CREATE TABLE IF NOT EXISTS workout_plans (
 
 CREATE INDEX IF NOT EXISTS idx_workout_plans_user_id ON workout_plans(user_id);
 
+-- GZCLP progression columns (migration; safe to re-run)
+ALTER TABLE workout_plans ADD COLUMN IF NOT EXISTS progression_mode TEXT NOT NULL DEFAULT 'consistency';
+ALTER TABLE workout_plans ADD COLUMN IF NOT EXISTS rotation_index INTEGER NOT NULL DEFAULT 0;
+
 -- 3. Workout sessions
 CREATE TABLE IF NOT EXISTS workout_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

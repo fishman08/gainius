@@ -14,7 +14,7 @@ import {
   buildSystemPrompt,
   buildSessionReviewPrompt,
   extractExercises,
-  suggestWeightsForPlan,
+  resolveProgressionForPlan,
   searchKnowledge,
   analyzeConversationForInsights,
 } from '@fitness-tracker/shared';
@@ -106,9 +106,17 @@ export const sendChatMessage = createAsyncThunk(
     // Load sessions for both history context (14-day filter in contextBuilder) and weight suggestions
     const allSessions = await storage.getWorkoutHistory(userId, 50);
     const currentPlan = await storage.getCurrentPlan(userId);
-    const weightSuggestions = currentPlan
-      ? suggestWeightsForPlan(allSessions, currentPlan.exercises)
-      : undefined;
+
+    let weightSuggestions: Parameters<typeof buildSystemPrompt>[0]['weightSuggestions'];
+    let gzclpSuggestions: Parameters<typeof buildSystemPrompt>[0]['gzclpSuggestions'];
+    if (currentPlan) {
+      const progression = resolveProgressionForPlan(currentPlan, allSessions);
+      if (progression.mode === 'gzclp') {
+        gzclpSuggestions = progression.suggestions;
+      } else {
+        weightSuggestions = progression.suggestions;
+      }
+    }
 
     const previousMessages =
       conversation.messages.length > 0 ? conversation.messages.slice(-6) : undefined;
@@ -128,6 +136,7 @@ export const sendChatMessage = createAsyncThunk(
       preferences: user?.preferences,
       customSystemPrompt,
       weightSuggestions,
+      gzclpSuggestions,
       previousMessages,
       knowledgeContext,
       coachingNotes,

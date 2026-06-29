@@ -109,7 +109,17 @@ export const saveSession = createAsyncThunk(
     const { workout } = getState() as { workout: WorkoutState };
     if (!workout.activeSession) throw new Error('No active session');
     await storage.saveWorkoutSession(workout.activeSession);
-    return workout.activeSession;
+
+    let updatedPlan: WorkoutPlan | null = null;
+    if (workout.activeSession.completed && workout.currentPlan?.progressionMode === 'gzclp') {
+      updatedPlan = {
+        ...workout.currentPlan,
+        rotationIndex: ((workout.currentPlan.rotationIndex ?? 0) + 1) % 4,
+      };
+      await storage.saveWorkoutPlan(updatedPlan);
+    }
+
+    return { session: workout.activeSession, updatedPlan };
   },
 );
 
@@ -389,6 +399,11 @@ const workoutSlice = createSlice({
     builder
       .addCase(startWorkout.fulfilled, (state, action) => {
         state.activeSession = action.payload;
+      })
+      .addCase(saveSession.fulfilled, (state, action) => {
+        if (action.payload.updatedPlan) {
+          state.currentPlan = action.payload.updatedPlan;
+        }
       })
       .addCase(loadHistory.fulfilled, (state, action) => {
         state.history = action.payload;

@@ -1,4 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import type { RootState, AppDispatch } from '../store';
+import { clearCurrentPlan } from '../store/slices/workoutSlice';
+import { useUserId } from '../hooks/useUserId';
 import { validateApiKey } from '@fitness-tracker/shared';
 import type { User } from '@fitness-tracker/shared';
 import {
@@ -21,6 +25,10 @@ import { useTheme } from '../providers/ThemeProvider';
 import type { ThemeMode } from '@fitness-tracker/shared';
 
 export default function SettingsPage() {
+  const dispatch = useDispatch<AppDispatch>();
+  const userId = useUserId();
+  const storage = useStorage();
+  const currentPlan = useSelector((state: RootState) => state.workout.currentPlan);
   const [apiKey, setApiKey] = useState('');
   const [hasKey, setHasKey] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -29,7 +37,6 @@ export default function SettingsPage() {
   const [promptMessage, setPromptMessage] = useState('');
   const [showWizard, setShowWizard] = useState(false);
   const { user: authUser } = useAuth();
-  const storage = useStorage();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -347,6 +354,43 @@ export default function SettingsPage() {
       )}
 
       <CoachingNotesCard />
+
+      {currentPlan && (
+        <div
+          style={{
+            background: theme.colors.surface,
+            border: `1px solid ${theme.colors.surfaceBorder}`,
+            borderRadius: theme.borderRadius.md,
+            padding: 20,
+            marginBottom: 16,
+          }}
+        >
+          <div style={{ fontWeight: 600, fontSize: 15, color: theme.colors.text, marginBottom: 4 }}>
+            Current workout plan
+          </div>
+          <div style={{ fontSize: 13, color: theme.colors.textSecondary, marginBottom: 12 }}>
+            {currentPlan.progressionMode === 'gzclp'
+              ? 'GZCLP Linear Progression'
+              : 'AI-generated plan'}{' '}
+            · Week {currentPlan.weekNumber}
+          </div>
+          <button
+            onClick={() => dispatch(clearCurrentPlan({ storage, userId }))}
+            style={{
+              padding: '8px 16px',
+              background: 'transparent',
+              color: theme.colors.error,
+              border: `1px solid ${theme.colors.error}`,
+              borderRadius: theme.borderRadius.sm,
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            Remove plan
+          </button>
+        </div>
+      )}
 
       <AuthSection />
 

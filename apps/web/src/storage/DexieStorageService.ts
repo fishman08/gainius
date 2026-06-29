@@ -58,6 +58,10 @@ export class DexieStorageService implements StorageService {
     });
   }
 
+  async deleteCurrentPlan(userId: string): Promise<void> {
+    await db.workoutPlans.filter((r) => r.userId === userId).delete();
+  }
+
   async getCurrentPlan(userId: string): Promise<WorkoutPlan | null> {
     const row = await db.workoutPlans
       .orderBy('startDate')

@@ -17,6 +17,7 @@ export interface StorageService {
   // Workout Plans
   saveWorkoutPlan(plan: WorkoutPlan): Promise<void>;
   getCurrentPlan(userId: string): Promise<WorkoutPlan | null>;
+  deleteCurrentPlan(userId: string): Promise<void>;
 
   // Workout Sessions
   saveWorkoutSession(session: WorkoutSession): Promise<void>;

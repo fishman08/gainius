@@ -38,6 +38,10 @@ export class SyncedStorageService implements StorageService {
     await this.syncEngine.enqueue('workout_plan', plan.id, 'upsert', plan);
   }
 
+  async deleteCurrentPlan(userId: string): Promise<void> {
+    await this.local.deleteCurrentPlan(userId);
+  }
+
   async getCurrentPlan(userId: string): Promise<WorkoutPlan | null> {
     return this.local.getCurrentPlan(userId);
   }

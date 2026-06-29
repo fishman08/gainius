@@ -174,6 +174,13 @@ export const seedGzclpPlan = createAsyncThunk(
   },
 );
 
+export const clearCurrentPlan = createAsyncThunk(
+  'workout/clearCurrentPlan',
+  async ({ storage, userId }: { storage: StorageService; userId: string }) => {
+    await storage.deleteCurrentPlan(userId);
+  },
+);
+
 interface LoadCurrentPlanArgs {
   storage: StorageService;
   userId: string;
@@ -463,6 +470,9 @@ const workoutSlice = createSlice({
       })
       .addCase(seedGzclpPlan.fulfilled, (state, action) => {
         state.currentPlan = action.payload;
+      })
+      .addCase(clearCurrentPlan.fulfilled, (state) => {
+        state.currentPlan = null;
       })
       .addCase(saveEditedSession.fulfilled, (state, action) => {
         const idx = state.history.findIndex((s) => s.id === action.payload.id);

@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Alert, ScrollView } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
+import type { RootState, AppDispatch } from '../store';
+import { clearCurrentPlan } from '../store/slices/workoutSlice';
 import { TextInput, Button, Text, Card } from 'react-native-paper';
 import { validateApiKey } from '@fitness-tracker/shared';
 import type { User } from '@fitness-tracker/shared';
@@ -24,6 +27,8 @@ import type { ThemeMode } from '@fitness-tracker/shared';
 import { SegmentedButtons } from 'react-native-paper';
 
 export default function SettingsScreen() {
+  const dispatch = useDispatch<AppDispatch>();
+  const currentPlan = useSelector((state: RootState) => state.workout.currentPlan);
   const { syncNow } = useSync();
   const [apiKey, setApiKey] = useState('');
   const [hasKey, setHasKey] = useState(false);
@@ -200,6 +205,48 @@ export default function SettingsScreen() {
 
       <CoachingNotesCard />
 
+      {currentPlan && (
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text variant="titleSmall" style={styles.cardTitle}>
+              Current workout plan
+            </Text>
+            <Text variant="bodySmall" style={styles.cardBody}>
+              {currentPlan.progressionMode === 'gzclp'
+                ? 'GZCLP Linear Progression'
+                : 'AI-generated plan'}{' '}
+              · Week {currentPlan.weekNumber}
+            </Text>
+          </Card.Content>
+          <Card.Actions>
+            <Button
+              mode="outlined"
+              textColor="#EF4444"
+              style={{ borderColor: '#EF4444' }}
+              onPress={() => {
+                Alert.alert(
+                  'Remove plan',
+                  'This will remove your current workout plan. You can create a new one from the Workout tab.',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Remove',
+                      style: 'destructive',
+                      onPress: () =>
+                        dispatch(
+                          clearCurrentPlan({ storage, userId: authUser?.id ?? 'local-user' }),
+                        ),
+                    },
+                  ],
+                );
+              }}
+            >
+              Remove plan
+            </Button>
+          </Card.Actions>
+        </Card>
+      )}
+
       <AuthSection />
 
       <SyncSettings onSyncNow={handleSyncNow} />
@@ -261,6 +308,8 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   card: { marginBottom: 16 },
+  cardTitle: { marginBottom: 4 },
+  cardBody: { opacity: 0.7 },
   hint: { marginBottom: 12 },
   input: { marginBottom: 16 },
   buttons: { flexDirection: 'row', gap: 12 },

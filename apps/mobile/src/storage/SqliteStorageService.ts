@@ -68,6 +68,10 @@ export class SqliteStorageService implements StorageService {
     );
   }
 
+  async deleteCurrentPlan(userId: string): Promise<void> {
+    await this.db.runAsync('DELETE FROM workout_plans WHERE user_id = ?', [userId]);
+  }
+
   async getCurrentPlan(userId: string): Promise<WorkoutPlan | null> {
     const row = await this.db.getFirstAsync<Record<string, string | number>>(
       'SELECT * FROM workout_plans WHERE user_id = ? ORDER BY start_date DESC LIMIT 1',

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Modal, Portal, Text, Button, TextInput, Chip } from 'react-native-paper';
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '../../store';
@@ -90,62 +90,70 @@ export default function LogCardioModal({ visible, onDismiss }: Props) {
         onDismiss={handleDismiss}
         contentContainerStyle={themedStyles.container}
       >
-        <Text variant="titleMedium" style={styles.title}>
-          Log cardio
-        </Text>
-
-        <View style={styles.chips}>
-          {ACTIVITIES.map((a) => (
-            <Chip
-              key={a.type}
-              selected={activity === a.type}
-              onPress={() => setActivity(a.type)}
-              style={styles.chip}
-              selectedColor={theme.colors.primary}
-            >
-              {a.label}
-            </Chip>
-          ))}
-        </View>
-
-        <TextInput
-          label="Duration (min)"
-          value={minutes}
-          onChangeText={setMinutes}
-          keyboardType="decimal-pad"
-          mode="outlined"
-          style={styles.input}
-        />
-
-        <TextInput
-          label="Distance (mi) — optional"
-          value={miles}
-          onChangeText={setMiles}
-          keyboardType="decimal-pad"
-          mode="outlined"
-          style={styles.input}
-        />
-
-        {pace && (
-          <Text variant="bodySmall" style={[styles.pace, themedStyles.paceText]}>
-            Pace: {pace}
-          </Text>
-        )}
-
-        <View style={styles.buttons}>
-          <Button mode="outlined" onPress={handleDismiss} style={styles.button}>
-            Cancel
-          </Button>
-          <Button
-            mode="contained"
-            onPress={handleLog}
-            disabled={!canLog}
-            style={styles.button}
-            buttonColor={theme.colors.primary}
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            bounces={false}
+            showsVerticalScrollIndicator={false}
           >
-            Log {activityLabel}
-          </Button>
-        </View>
+            <Text variant="titleMedium" style={styles.title}>
+              Log cardio
+            </Text>
+
+            <View style={styles.chips}>
+              {ACTIVITIES.map((a) => (
+                <Chip
+                  key={a.type}
+                  selected={activity === a.type}
+                  onPress={() => setActivity(a.type)}
+                  style={styles.chip}
+                  selectedColor={theme.colors.primary}
+                >
+                  {a.label}
+                </Chip>
+              ))}
+            </View>
+
+            <TextInput
+              label="Duration (min)"
+              value={minutes}
+              onChangeText={setMinutes}
+              keyboardType="decimal-pad"
+              mode="outlined"
+              style={styles.input}
+            />
+
+            <TextInput
+              label="Distance (mi) — optional"
+              value={miles}
+              onChangeText={setMiles}
+              keyboardType="decimal-pad"
+              mode="outlined"
+              style={styles.input}
+            />
+
+            {pace && (
+              <Text variant="bodySmall" style={[styles.pace, themedStyles.paceText]}>
+                Pace: {pace}
+              </Text>
+            )}
+
+            <View style={styles.buttons}>
+              <Button mode="outlined" onPress={handleDismiss} style={styles.button}>
+                Cancel
+              </Button>
+              <Button
+                mode="contained"
+                onPress={handleLog}
+                disabled={!canLog}
+                style={styles.button}
+                buttonColor={theme.colors.primary}
+              >
+                Log {activityLabel}
+              </Button>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </Modal>
     </Portal>
   );

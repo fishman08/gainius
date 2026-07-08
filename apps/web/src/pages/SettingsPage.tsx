@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../store';
-import { clearCurrentPlan } from '../store/slices/workoutSlice';
+import { clearCurrentPlan, setCurrentPlan } from '../store/slices/workoutSlice';
 import { useUserId } from '../hooks/useUserId';
 import { validateApiKey } from '@fitness-tracker/shared';
 import type { User } from '@fitness-tracker/shared';
@@ -374,6 +374,43 @@ export default function SettingsPage() {
               : 'AI-generated plan'}{' '}
             · Week {currentPlan.weekNumber}
           </div>
+          {currentPlan.progressionMode === 'gzclp' && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 13, color: theme.colors.textSecondary, marginBottom: 8 }}>
+                Next session
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {(['A1', 'B1', 'A2', 'B2'] as const).map((label, idx) => {
+                  const active = (currentPlan.rotationIndex ?? 0) === idx;
+                  return (
+                    <button
+                      key={label}
+                      onClick={async () => {
+                        const updated = { ...currentPlan, rotationIndex: idx };
+                        await storage.saveWorkoutPlan(updated);
+                        dispatch(setCurrentPlan(updated));
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '8px 0',
+                        border: active
+                          ? `2px solid ${theme.colors.primary}`
+                          : `1px solid ${theme.colors.surfaceBorder}`,
+                        borderRadius: theme.borderRadius.sm,
+                        backgroundColor: active ? theme.colors.primaryMuted : 'transparent',
+                        color: active ? theme.colors.primary : theme.colors.textSecondary,
+                        fontWeight: active ? 600 : 400,
+                        fontSize: 13,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <button
             onClick={() => dispatch(clearCurrentPlan({ storage, userId }))}
             style={{

@@ -11,18 +11,26 @@ export type ProgressionResult =
 function getLastSetData(
   sessions: WorkoutSession[],
   exerciseName: string,
+  tier: 'T1' | 'T2' | 'T3' | undefined,
   targetReps: number | string,
-): { reps: number; hitAllReps: boolean } | null {
+): { reps: number; hitAllReps: boolean; weight: number } | null {
   const sorted = [...sessions].sort((a, b) => b.date.localeCompare(a.date));
   for (const session of sorted) {
-    const ex = session.loggedExercises.find((e) => e.exerciseName === exerciseName);
+    const ex = session.loggedExercises.find(
+      (e) =>
+        e.exerciseName === exerciseName &&
+        (tier === undefined || e.tier === undefined || e.tier === tier),
+    );
     if (!ex) continue;
     const completedSets = ex.sets.filter((s) => s.completed);
     if (completedSets.length === 0) continue;
     const lastSet = completedSets[completedSets.length - 1];
     const target = typeof targetReps === 'number' ? targetReps : parseInt(String(targetReps), 10);
     const hitAllReps = isNaN(target) ? false : completedSets.every((s) => s.reps >= target);
-    return { reps: lastSet.reps, hitAllReps };
+    const completedWithWeight = completedSets.filter((s) => s.weight > 0);
+    const weight =
+      completedWithWeight.length > 0 ? Math.max(...completedWithWeight.map((s) => s.weight)) : 0;
+    return { reps: lastSet.reps, hitAllReps, weight };
   }
   return null;
 }
@@ -31,14 +39,14 @@ function resolveGZCLPForPlan(plan: WorkoutPlan, sessions: WorkoutSession[]): GZC
   const results: GZCLPSuggestion[] = [];
   for (const ex of plan.exercises) {
     if (!ex.tier) continue;
-    const lastSet = getLastSetData(sessions, ex.exerciseName, ex.targetReps);
+    const lastSet = getLastSetData(sessions, ex.exerciseName, ex.tier, ex.targetReps);
     if (!lastSet) continue;
     const resolved = resolveGZCLP(
       {
         tier: ex.tier,
         stage: ex.stage,
         exerciseName: ex.exerciseName,
-        suggestedWeight: ex.suggestedWeight,
+        suggestedWeight: lastSet.weight > 0 ? lastSet.weight : (ex.suggestedWeight ?? 45),
       },
       lastSet,
     );

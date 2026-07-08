@@ -139,3 +139,7 @@ export function resolveGZCLP(exercise: ExerciseInput, lastSet: LastSetInput): GZ
   }
   return { newStage: null, suggestedWeight: weight, schemeLabel: T3_SCHEME };
 }
+
+export function seedT2Weight(t1Weight: number): number {
+  return Math.max(45, Math.round((t1Weight * 0.65) / 5) * 5);
+}

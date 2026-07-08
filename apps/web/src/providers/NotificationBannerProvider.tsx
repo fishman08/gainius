@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { InAppBanner } from '../components/notifications/InAppBanner';
 import type { BannerType } from '../components/notifications/InAppBanner';
+import { DeleteUndoToast } from '../components/workout/DeleteUndoToast';
 
 interface BannerItem {
   id: number;
@@ -48,6 +49,7 @@ export function NotificationBannerProvider({ children }: { children: ReactNode }
           onDismiss={() => dismiss(b.id)}
         />
       ))}
+      <DeleteUndoToast />
     </NotificationBannerContext.Provider>
   );
 }

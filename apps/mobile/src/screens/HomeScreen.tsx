@@ -7,6 +7,7 @@ import type { RootState, AppDispatch } from '../store';
 import { useStorage } from '../providers/StorageProvider';
 import { useAuth } from '../providers/AuthProvider';
 import OnboardingWizard from '../components/settings/OnboardingWizard';
+import AuthPromptModal from '../components/settings/AuthPromptModal';
 import { loadCurrentPlan, loadHistory, seedGzclpPlan } from '../store/slices/workoutSlice';
 import { setCoachingNotes } from '../store/slices/syncSlice';
 import EmptyPlanView from '../components/workout/EmptyPlanView';
@@ -28,7 +29,7 @@ function greeting(): string {
 export function HomeScreen() {
   const dispatch = useDispatch<AppDispatch>();
   const storage = useStorage();
-  const { user, supabase } = useAuth();
+  const { user, supabase, isLoading: authLoading } = useAuth();
   const { theme } = useAppTheme();
   const insets = useSafeAreaInsets();
   const userId = user?.id ?? 'local-user';
@@ -38,6 +39,7 @@ export function HomeScreen() {
   const [showSummary, setShowSummary] = useState(false);
   const [showCardioModal, setShowCardioModal] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [imperialOnboarding, setImperialOnboarding] = useState(false);
   const [displayName, setDisplayName] = useState('');
 
@@ -45,6 +47,15 @@ export function HomeScreen() {
     dispatch(loadCurrentPlan({ storage, userId }));
     dispatch(loadHistory({ storage, userId }));
   }, [dispatch, storage, userId]);
+
+  // Show auth prompt on every launch when not signed in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      setShowAuthPrompt(true);
+    } else {
+      setShowAuthPrompt(false);
+    }
+  }, [authLoading, user]);
 
   useEffect(() => {
     if (!supabase || !user?.id) return;
@@ -139,6 +150,7 @@ export function HomeScreen() {
 
       {planComparison && <PlanComparisonModal />}
       <LogCardioModal visible={showCardioModal} onDismiss={() => setShowCardioModal(false)} />
+      <AuthPromptModal visible={showAuthPrompt} onDismiss={() => setShowAuthPrompt(false)} />
       <OnboardingWizard
         visible={showOnboarding}
         onDismiss={() => setShowOnboarding(false)}

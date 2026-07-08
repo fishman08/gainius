@@ -13,6 +13,7 @@ import { HomeScreen } from '../screens/HomeScreen';
 import ProgressScreen from '../screens/ProgressScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import LoginScreen from '../screens/LoginScreen';
+import DeleteUndoSnackbar from '../components/workout/DeleteUndoSnackbar';
 import { useAuth } from '../providers/AuthProvider';
 import { useAppTheme } from '../providers/ThemeProvider';
 
@@ -150,6 +151,7 @@ export function RootNavigator() {
           )}
         </Stack.Navigator>
       </NavigationContainer>
+      <DeleteUndoSnackbar />
     </GestureHandlerRootView>
   );
 }

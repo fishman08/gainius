@@ -20,6 +20,6 @@ export {
 
 export { suggestWeight, suggestWeightsForPlan } from './weightSuggestion';
 export type { GZCLPTier, GZCLPSuggestion } from './gzclpProgression';
-export { resolveGZCLP, deriveIsLower, GZCLP_ROTATION } from './gzclpProgression';
+export { resolveGZCLP, deriveIsLower, GZCLP_ROTATION, seedT2Weight } from './gzclpProgression';
 export type { ProgressionResult } from './progressionStrategy';
 export { resolveProgressionForPlan } from './progressionStrategy';

@@ -42,12 +42,17 @@ CREATE TABLE IF NOT EXISTS workout_sessions (
   end_time TEXT,
   completed BOOLEAN NOT NULL DEFAULT false,
   logged_exercises JSONB NOT NULL DEFAULT '[]',
+  session_type TEXT NOT NULL DEFAULT 'strength',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE INDEX IF NOT EXISTS idx_workout_sessions_user_id ON workout_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_workout_sessions_date ON workout_sessions(date);
+
+-- GZCLP progression columns (migration; safe to re-run)
+ALTER TABLE workout_plans ADD COLUMN IF NOT EXISTS progression_mode TEXT NOT NULL DEFAULT 'consistency';
+ALTER TABLE workout_plans ADD COLUMN IF NOT EXISTS rotation_index INTEGER NOT NULL DEFAULT 0;
 
 -- 4. Conversations
 CREATE TABLE IF NOT EXISTS conversations (

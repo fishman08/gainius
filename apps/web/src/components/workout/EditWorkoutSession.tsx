@@ -8,7 +8,6 @@ import {
   updateEditSet,
   cancelEdit,
   saveEditedSession,
-  deleteWorkoutSession,
   loadHistory,
   addExerciseToEditSession,
   addSetToEditExercise,
@@ -16,6 +15,7 @@ import {
   deleteExerciseFromEditSession,
   updateExerciseInEditSession,
   updateEditSessionDate,
+  stagePendingDelete,
 } from '../../store/slices/workoutSlice';
 import { ExerciseCard } from './ExerciseCard';
 import { AddExerciseModal } from './AddExerciseModal';
@@ -86,10 +86,9 @@ export function EditWorkoutSession({ sessionId, userId, onDone }: Props) {
     onDone();
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('Delete this workout? This cannot be undone.')) return;
-    await dispatch(deleteWorkoutSession({ storage, sessionId }));
-    dispatch(cancelEdit());
+  const handleDelete = () => {
+    if (!window.confirm('Delete this workout?')) return;
+    dispatch(stagePendingDelete(sessionId));
     onDone();
   };
 

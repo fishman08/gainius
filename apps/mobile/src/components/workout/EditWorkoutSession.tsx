@@ -10,7 +10,6 @@ import {
   updateEditSet,
   cancelEdit,
   saveEditedSession,
-  deleteWorkoutSession,
   loadHistory,
   addExerciseToEditSession,
   addSetToEditExercise,
@@ -18,6 +17,7 @@ import {
   deleteExerciseFromEditSession,
   updateExerciseInEditSession,
   updateEditSessionDate,
+  stagePendingDelete,
 } from '../../store/slices/workoutSlice';
 import ExerciseCard from './ExerciseCard';
 import AddExerciseModal from './AddExerciseModal';
@@ -109,14 +109,13 @@ export default function EditWorkoutSession({ sessionId, userId, onDone }: Props)
   };
 
   const handleDelete = () => {
-    Alert.alert('Delete Workout', 'Delete this workout? This cannot be undone.', [
+    Alert.alert('Delete Workout', 'Delete this workout?', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
-        onPress: async () => {
-          await dispatch(deleteWorkoutSession({ storage, sessionId }));
-          dispatch(cancelEdit());
+        onPress: () => {
+          dispatch(stagePendingDelete(sessionId));
           onDone();
         },
       },

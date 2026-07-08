@@ -56,6 +56,7 @@ export interface LoggedExercise {
   exerciseName: string;
   sets: ExerciseSet[];
   notes?: string;
+  tier?: 'T1' | 'T2' | 'T3';
 }
 
 export interface ExerciseSet {

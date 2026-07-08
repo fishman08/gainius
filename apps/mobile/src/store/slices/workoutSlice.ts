@@ -12,7 +12,12 @@ import type {
   CardioLog,
   CardioActivityType,
 } from '@fitness-tracker/shared';
-import { generateId, normalizeExerciseName, GZCLP_ROTATION } from '@fitness-tracker/shared';
+import {
+  generateId,
+  normalizeExerciseName,
+  GZCLP_ROTATION,
+  seedT2Weight,
+} from '@fitness-tracker/shared';
 
 export interface WorkoutState {
   currentPlan: WorkoutPlan | null;
@@ -22,6 +27,7 @@ export interface WorkoutState {
   editingSession: WorkoutSession | null;
   history: WorkoutSession[];
   pendingExtractions: ExtractedExercise[];
+  pendingDelete: { sessionId: string; session: WorkoutSession } | null;
 }
 
 const initialState: WorkoutState = {
@@ -32,6 +38,7 @@ const initialState: WorkoutState = {
   editingSession: null,
   history: [],
   pendingExtractions: [],
+  pendingDelete: null,
 };
 
 interface SeedGzclpPlanArgs {
@@ -54,7 +61,7 @@ export const seedGzclpPlan = createAsyncThunk(
           stage: 0,
           targetSets: ex.tier === 'T1' ? 5 : 3,
           targetReps: ex.tier === 'T1' ? 3 : ex.tier === 'T2' ? 10 : 15,
-          suggestedWeight: 45,
+          suggestedWeight: ex.tier === 'T2' ? seedT2Weight(45) : 45,
           dayOfWeek: sessionIndex,
           order,
           notes:
@@ -133,6 +140,7 @@ export const startWorkout = createAsyncThunk(
         sessionId: '',
         plannedExerciseId: ex.id,
         exerciseName: ex.exerciseName,
+        tier: ex.tier,
         sets,
       };
     });
@@ -452,6 +460,22 @@ const workoutSlice = createSlice({
       exercise.exerciseName = normalizeExerciseName(action.payload.name);
       exercise.notes = action.payload.notes;
     },
+    stagePendingDelete(state, action: PayloadAction<string>) {
+      const idx = state.history.findIndex((s) => s.id === action.payload);
+      if (idx === -1) return;
+      const [session] = state.history.splice(idx, 1);
+      state.pendingDelete = { sessionId: action.payload, session };
+      state.editingSession = null;
+    },
+    restoreSession(state, action: PayloadAction<WorkoutSession>) {
+      const idx = state.history.findIndex((s) => s.date <= action.payload.date);
+      if (idx === -1) state.history.push(action.payload);
+      else state.history.splice(idx, 0, action.payload);
+      state.pendingDelete = null;
+    },
+    clearPendingDelete(state) {
+      state.pendingDelete = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -462,6 +486,10 @@ const workoutSlice = createSlice({
         if (action.payload.updatedPlan) {
           state.currentPlan = action.payload.updatedPlan;
         }
+        if (action.payload.session.completed) {
+          state.history.unshift(action.payload.session);
+        }
+        state.activeSession = null;
       })
       .addCase(loadHistory.fulfilled, (state, action) => {
         state.history = action.payload;
@@ -515,5 +543,8 @@ export const {
   deleteExerciseFromEditSession,
   updateExerciseInActiveSession,
   updateExerciseInEditSession,
+  stagePendingDelete,
+  restoreSession,
+  clearPendingDelete,
 } = workoutSlice.actions;
 export default workoutSlice.reducer;

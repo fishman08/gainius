@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../store';
-import { clearCurrentPlan } from '../store/slices/workoutSlice';
+import { clearCurrentPlan, setCurrentPlan } from '../store/slices/workoutSlice';
 import { TextInput, Button, Text, Card } from 'react-native-paper';
 import { validateApiKey } from '@fitness-tracker/shared';
 import type { User } from '@fitness-tracker/shared';
@@ -217,6 +217,30 @@ export default function SettingsScreen() {
                 : 'AI-generated plan'}{' '}
               · Week {currentPlan.weekNumber}
             </Text>
+            {currentPlan.progressionMode === 'gzclp' && (
+              <View style={{ marginTop: 16 }}>
+                <Text
+                  variant="labelSmall"
+                  style={{ color: theme.colors.textSecondary, marginBottom: 8 }}
+                >
+                  Next session
+                </Text>
+                <SegmentedButtons
+                  value={String(currentPlan.rotationIndex ?? 0)}
+                  onValueChange={async (val) => {
+                    const updated = { ...currentPlan, rotationIndex: Number(val) };
+                    await storage.saveWorkoutPlan(updated);
+                    dispatch(setCurrentPlan(updated));
+                  }}
+                  buttons={[
+                    { value: '0', label: 'A1' },
+                    { value: '1', label: 'B1' },
+                    { value: '2', label: 'A2' },
+                    { value: '3', label: 'B2' },
+                  ]}
+                />
+              </View>
+            )}
           </Card.Content>
           <Card.Actions>
             <Button

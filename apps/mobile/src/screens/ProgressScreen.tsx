@@ -134,7 +134,7 @@ export default function ProgressScreen() {
     return (
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.colors.background }}
-        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 32, paddingTop: insets.top + 12 }}
       >
         <TouchableOpacity
           onPress={() => setSelectedExercise(null)}

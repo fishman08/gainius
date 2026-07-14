@@ -9,7 +9,7 @@ import type { WeightSuggestion } from '../analytics/types';
 import type { GZCLPSuggestion } from '../analytics/gzclpProgression';
 import type { Profile } from '../onboarding/schema';
 
-const HISTORY_WINDOW_DAYS = 14;
+const HISTORY_WINDOW_DAYS = 28;
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -66,7 +66,8 @@ function formatSession(session: WorkoutSession, weightUnit: string): string {
           return `${w}x${s.reps}${rpe}`;
         })
         .join(', ');
-      return `  - ${ex.exerciseName}: ${setDetails} ${weightUnit}`;
+      const tierLabel = ex.tier ? ` [${ex.tier}]` : '';
+      return `  - ${ex.exerciseName}${tierLabel}: ${setDetails} ${weightUnit}`;
     })
     .join('\n');
 
@@ -81,6 +82,44 @@ function formatCardioSession(session: WorkoutSession): string {
   const durationStr = secs > 0 ? `${minutes}m ${secs}s` : `${minutes}m`;
   const kmStr = distanceMeters ? ` — ${(distanceMeters / 1000).toFixed(2)} km` : '';
   return `${session.date}: ${activityType} ${durationStr}${kmStr}`;
+}
+
+function buildGZCLPLastSessionMap(
+  sessions: WorkoutSession[],
+  suggestions: GZCLPSuggestion[],
+  weightUnit: string,
+): string[] {
+  const sorted = [...sessions].sort((a, b) => (a.date < b.date ? 1 : -1));
+  const keys = new Set(suggestions.map((s) => `${s.exerciseName}|${s.tier}`));
+  const seen = new Map<string, { date: string; setDetails: string }>();
+
+  for (const session of sorted) {
+    for (const ex of session.loggedExercises) {
+      if (!ex.tier) continue;
+      const key = `${ex.exerciseName}|${ex.tier}`;
+      if (!keys.has(key) || seen.has(key)) continue;
+      const completedSets = ex.sets.filter((s) => s.completed);
+      if (completedSets.length === 0) continue;
+      const setDetails = completedSets
+        .map((s) => {
+          const w = s.weight === 0 ? 'BW' : `${s.weight}`;
+          return `${w}x${s.reps}`;
+        })
+        .join(', ');
+      seen.set(key, { date: session.date, setDetails });
+      if (seen.size === keys.size) break;
+    }
+    if (seen.size === keys.size) break;
+  }
+
+  if (seen.size === 0) return [];
+  const lines: string[] = ['GZCLP last logged session per exercise per tier:'];
+  for (const [key, { date, setDetails }] of seen.entries()) {
+    const [name, tier] = key.split('|');
+    lines.push(`  - ${name} ${tier} (${date}): ${setDetails} ${weightUnit}`);
+  }
+  lines.push('Use this to answer questions like "what weight did I use last time for bench T1?"');
+  return lines;
 }
 
 function groupExercisesByDay(exercises: PlannedExercise[]): Map<number, PlannedExercise[]> {
@@ -284,6 +323,17 @@ export function buildSystemPrompt(options: ContextOptions): string {
       '',
       'Use these suggestions to inform your advice. Mention them when relevant to the conversation.',
     );
+  }
+
+  if (options.gzclpSuggestions && options.gzclpSuggestions.length > 0 && options.recentSessions) {
+    const lastSessionLines = buildGZCLPLastSessionMap(
+      options.recentSessions,
+      options.gzclpSuggestions,
+      weightUnit,
+    );
+    if (lastSessionLines.length > 0) {
+      parts.push('', ...lastSessionLines);
+    }
   }
 
   if (options.gzclpSuggestions && options.gzclpSuggestions.length > 0) {

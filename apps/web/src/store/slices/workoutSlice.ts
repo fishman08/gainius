@@ -17,6 +17,7 @@ import {
   normalizeExerciseName,
   GZCLP_ROTATION,
   seedT2Weight,
+  resolveProgressionForPlan,
 } from '@fitness-tracker/shared';
 
 export interface WorkoutState {
@@ -111,10 +112,43 @@ export const saveSession = createAsyncThunk(
     await storage.saveWorkoutSession(workout.activeSession);
 
     let updatedPlan: WorkoutPlan | null = null;
-    if (workout.activeSession.completed && workout.currentPlan?.progressionMode === 'gzclp') {
+    if (workout.activeSession.completed && workout.currentPlan) {
+      const currentPlan = workout.currentPlan;
+      const userId = workout.activeSession.userId;
+      const freshHistory = await storage.getWorkoutHistory(userId, 50);
+
+      let updatedExercises = currentPlan.exercises;
+      try {
+        const result = resolveProgressionForPlan(currentPlan, freshHistory);
+        if (result.mode === 'gzclp') {
+          updatedExercises = currentPlan.exercises.map((ex) => {
+            const suggestion = result.suggestions.find(
+              (s) => s.exerciseName === ex.exerciseName && s.tier === ex.tier,
+            );
+            if (!suggestion) return ex;
+            return {
+              ...ex,
+              suggestedWeight: suggestion.suggestedWeight,
+              stage: suggestion.newStage ?? ex.stage,
+            };
+          });
+        } else {
+          updatedExercises = currentPlan.exercises.map((ex) => {
+            const suggestion = result.suggestions.find((s) => s.exerciseName === ex.exerciseName);
+            if (!suggestion) return ex;
+            return { ...ex, suggestedWeight: suggestion.suggestedWeight };
+          });
+        }
+      } catch (e) {
+        console.warn('Progression write-back failed:', e);
+      }
+
       updatedPlan = {
-        ...workout.currentPlan,
-        rotationIndex: ((workout.currentPlan.rotationIndex ?? 0) + 1) % 4,
+        ...currentPlan,
+        exercises: updatedExercises,
+        ...(currentPlan.progressionMode === 'gzclp'
+          ? { rotationIndex: ((currentPlan.rotationIndex ?? 0) + 1) % 4 }
+          : {}),
       };
       await storage.saveWorkoutPlan(updatedPlan);
     }

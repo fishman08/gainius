@@ -52,7 +52,7 @@ export class SqliteStorageService implements StorageService {
 
   async saveWorkoutPlan(plan: WorkoutPlan): Promise<void> {
     await this.db.runAsync(
-      'INSERT OR REPLACE INTO workout_plans (id, user_id, week_number, start_date, end_date, created_by, conversation_id, exercises, progression_mode, rotation_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT OR REPLACE INTO workout_plans (id, user_id, week_number, start_date, end_date, created_by, conversation_id, exercises, progression_mode, rotation_index, program_template) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         plan.id,
         plan.userId,
@@ -64,6 +64,7 @@ export class SqliteStorageService implements StorageService {
         JSON.stringify(plan.exercises),
         plan.progressionMode ?? 'consistency',
         plan.rotationIndex ?? 0,
+        plan.programTemplate ?? null,
       ],
     );
   }
@@ -89,6 +90,7 @@ export class SqliteStorageService implements StorageService {
       exercises: JSON.parse(row.exercises as string),
       progressionMode: (row.progression_mode as WorkoutPlan['progressionMode']) ?? 'consistency',
       rotationIndex: (row.rotation_index as number) ?? 0,
+      programTemplate: (row.program_template as WorkoutPlan['programTemplate']) ?? undefined,
     };
   }
 

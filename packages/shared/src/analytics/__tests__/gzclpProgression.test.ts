@@ -377,7 +377,9 @@ describe('resolveProgressionForPlan — consistency isolation', () => {
     const result = resolveProgressionForPlan(plan, sessions);
 
     expect(result.mode).toBe('consistency');
-    expect(suggestWeightsForPlan).toHaveBeenCalledWith(sessions, plan.exercises);
+    expect(suggestWeightsForPlan).toHaveBeenCalledWith(sessions, plan.exercises, {
+      usePlannedTargets: false,
+    });
   });
 
   it('routes a gzclp plan to the gzclp path', () => {

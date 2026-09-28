@@ -18,6 +18,11 @@ import {
   GZCLP_ROTATION,
   seedT2Weight,
   resolveProgressionForPlan,
+  buildPhulPlan,
+  getSessionExercises,
+  isRotationPlan,
+  nextRotationIndex,
+  findSuggestionForExercise,
 } from '@fitness-tracker/shared';
 
 export interface WorkoutState {
@@ -55,10 +60,7 @@ export const startWorkout = createAsyncThunk(
     if (!plan) throw new Error('No workout plan loaded');
 
     const now = new Date().toISOString();
-    const sessionExercises =
-      plan.progressionMode === 'gzclp'
-        ? plan.exercises.filter((ex) => ex.dayOfWeek === (plan.rotationIndex ?? 0))
-        : plan.exercises;
+    const sessionExercises = getSessionExercises(plan);
     const loggedExercises: LoggedExercise[] = sessionExercises.map((ex) => {
       const sets: ExerciseSet[] = [];
       const targetSets = typeof ex.targetSets === 'number' ? ex.targetSets : 1;
@@ -134,7 +136,7 @@ export const saveSession = createAsyncThunk(
           });
         } else {
           updatedExercises = currentPlan.exercises.map((ex) => {
-            const suggestion = result.suggestions.find((s) => s.exerciseName === ex.exerciseName);
+            const suggestion = findSuggestionForExercise(result.suggestions, ex);
             if (!suggestion) return ex;
             return { ...ex, suggestedWeight: suggestion.suggestedWeight };
           });
@@ -146,9 +148,7 @@ export const saveSession = createAsyncThunk(
       updatedPlan = {
         ...currentPlan,
         exercises: updatedExercises,
-        ...(currentPlan.progressionMode === 'gzclp'
-          ? { rotationIndex: ((currentPlan.rotationIndex ?? 0) + 1) % 4 }
-          : {}),
+        ...(isRotationPlan(currentPlan) ? { rotationIndex: nextRotationIndex(currentPlan) } : {}),
       };
       await storage.saveWorkoutPlan(updatedPlan);
     }
@@ -211,6 +211,15 @@ export const seedGzclpPlan = createAsyncThunk(
       progressionMode: 'gzclp',
       rotationIndex: 0,
     };
+    await storage.saveWorkoutPlan(plan);
+    return plan;
+  },
+);
+
+export const seedPhulPlan = createAsyncThunk(
+  'workout/seedPhulPlan',
+  async ({ storage, userId }: { storage: StorageService; userId: string }) => {
+    const plan = buildPhulPlan(userId);
     await storage.saveWorkoutPlan(plan);
     return plan;
   },
@@ -531,6 +540,9 @@ const workoutSlice = createSlice({
         state.currentPlan = action.payload;
       })
       .addCase(seedGzclpPlan.fulfilled, (state, action) => {
+        state.currentPlan = action.payload;
+      })
+      .addCase(seedPhulPlan.fulfilled, (state, action) => {
         state.currentPlan = action.payload;
       })
       .addCase(clearCurrentPlan.fulfilled, (state) => {

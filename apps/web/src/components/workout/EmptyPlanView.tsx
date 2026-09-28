@@ -2,8 +2,9 @@ import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '../../store';
 import { useStorage } from '../../providers/StorageProvider';
 import { useTheme } from '../../providers/ThemeProvider';
-import { seedGzclpPlan } from '../../store/slices/workoutSlice';
+import { seedGzclpPlan, seedPhulPlan } from '../../store/slices/workoutSlice';
 import { useUserId } from '../../hooks/useUserId';
+import { PresetProgramCard } from './PresetProgramCard';
 
 export function EmptyPlanView() {
   const dispatch = useDispatch<AppDispatch>();
@@ -13,6 +14,10 @@ export function EmptyPlanView() {
 
   const handleStartGzclp = () => {
     dispatch(seedGzclpPlan({ storage, userId }));
+  };
+
+  const handleStartPhul = () => {
+    dispatch(seedPhulPlan({ storage, userId }));
   };
 
   return (
@@ -43,54 +48,37 @@ export function EmptyPlanView() {
           marginTop: 40,
           width: '100%',
           maxWidth: 400,
-          background: theme.colors.surface,
-          border: `1px solid ${theme.colors.surfaceBorder}`,
-          borderRadius: theme.borderRadius.md,
-          padding: 20,
+          fontSize: 13,
+          fontWeight: 600,
+          color: theme.colors.textSecondary,
+          textTransform: 'uppercase',
+          letterSpacing: 1,
+          marginBottom: 8,
         }}
       >
-        <div
-          style={{
-            fontSize: 13,
-            fontWeight: 600,
-            color: theme.colors.textSecondary,
-            textTransform: 'uppercase',
-            letterSpacing: 1,
-            marginBottom: 8,
-          }}
-        >
-          Or start a preset program
-        </div>
-        <div style={{ fontSize: 15, fontWeight: 600, color: theme.colors.text, marginBottom: 4 }}>
-          GZCLP Linear Progression
-        </div>
-        <div
-          style={{
-            fontSize: 13,
-            color: theme.colors.textSecondary,
-            marginBottom: 16,
-            lineHeight: 1.5,
-          }}
-        >
-          A proven beginner strength program. 4-session rotation (A1/B1/A2/B2) with automatic
-          T1/T2/T3 tier progression. Weights start at 45 lbs — update them in your first session.
-        </div>
-        <button
-          onClick={handleStartGzclp}
-          style={{
-            width: '100%',
-            padding: '12px 0',
-            background: theme.colors.primary,
-            color: theme.colors.primaryText,
-            border: 'none',
-            borderRadius: theme.borderRadius.sm,
-            fontSize: 15,
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
-          Start GZCLP Program
-        </button>
+        Or start a preset program
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
+          width: '100%',
+          alignItems: 'center',
+        }}
+      >
+        <PresetProgramCard
+          title="GZCLP Linear Progression"
+          description="A proven beginner strength program. 4-session rotation (A1/B1/A2/B2) with automatic T1/T2/T3 tier progression. Weights start at 45 lbs — update them in your first session."
+          actionLabel="Start GZCLP Program"
+          onStart={handleStartGzclp}
+        />
+        <PresetProgramCard
+          title="PHUL — Power Hypertrophy Upper Lower"
+          description="4-day split: heavy 4–6 rep power days, then 10–15 rep hypertrophy days. Weight goes up once you hit your target reps on every set. Enter your starting weights in your first session."
+          actionLabel="Start PHUL Program"
+          onStart={handleStartPhul}
+        />
       </div>
     </div>
   );

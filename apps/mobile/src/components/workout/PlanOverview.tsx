@@ -5,7 +5,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../../store';
 import { useStorage } from '../../providers/StorageProvider';
 import { startWorkout, loadHistory } from '../../store/slices/workoutSlice';
-import { suggestWeightsForPlan, GZCLP_ROTATION } from '@fitness-tracker/shared';
+import {
+  suggestWeightsForPlan,
+  getSessionExercises,
+  getRotationLabel,
+  usesPlannedRepTargets,
+  findSuggestionForExercise,
+} from '@fitness-tracker/shared';
 import WorkoutHistoryList from './WorkoutHistoryList';
 import EditWorkoutSession from './EditWorkoutSession';
 import PlanUpdateBanner from './PlanUpdateBanner';
@@ -24,7 +30,9 @@ export default function PlanOverview() {
 
   const suggestions = useMemo(() => {
     if (!currentPlan || history.length === 0) return [];
-    return suggestWeightsForPlan(history, currentPlan.exercises);
+    return suggestWeightsForPlan(history, currentPlan.exercises, {
+      usePlannedTargets: usesPlannedRepTargets(currentPlan),
+    });
   }, [currentPlan, history]);
 
   useEffect(() => {
@@ -50,13 +58,13 @@ export default function PlanOverview() {
     dispatch(startWorkout({ storage, userId }));
   };
 
-  const rotationIndex = currentPlan.rotationIndex ?? 0;
   const isGzclp = currentPlan.progressionMode === 'gzclp';
-  const todayExercises = isGzclp
-    ? currentPlan.exercises.filter((ex) => ex.dayOfWeek === rotationIndex)
-    : currentPlan.exercises;
-  const sessionLabel = isGzclp
-    ? `SESSION ${GZCLP_ROTATION[rotationIndex]?.label ?? ''}`
+  const todayExercises = getSessionExercises(currentPlan);
+  const rotationLabel = getRotationLabel(currentPlan);
+  const sessionLabel = rotationLabel
+    ? isGzclp
+      ? `SESSION ${rotationLabel}`
+      : rotationLabel.toUpperCase()
     : todayExercises[0]?.exerciseName
       ? inferDayLabel(todayExercises.map((e) => e.exerciseName))
       : `WEEK ${currentPlan.weekNumber} PLAN`;
@@ -97,7 +105,7 @@ export default function PlanOverview() {
           {/* Exercise chips */}
           <View style={styles.chipRow}>
             {todayExercises.slice(0, 5).map((ex) => {
-              const suggestion = suggestions.find((s) => s.exerciseName === ex.exerciseName);
+              const suggestion = findSuggestionForExercise(suggestions, ex);
               const label = suggestion
                 ? `${ex.exerciseName} · ${suggestion.suggestedWeight} lbs`
                 : ex.tier

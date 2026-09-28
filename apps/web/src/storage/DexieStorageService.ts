@@ -55,6 +55,7 @@ export class DexieStorageService implements StorageService {
       exercises: JSON.stringify(plan.exercises),
       progressionMode: plan.progressionMode ?? 'consistency',
       rotationIndex: plan.rotationIndex ?? 0,
+      programTemplate: plan.programTemplate,
     });
   }
 
@@ -80,6 +81,7 @@ export class DexieStorageService implements StorageService {
       exercises: JSON.parse(row.exercises),
       progressionMode: (row.progressionMode as WorkoutPlan['progressionMode']) ?? 'consistency',
       rotationIndex: row.rotationIndex ?? 0,
+      programTemplate: (row.programTemplate as WorkoutPlan['programTemplate']) ?? undefined,
     };
   }
 

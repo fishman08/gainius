@@ -102,4 +102,11 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
   } catch {
     // Column already exists — safe to ignore
   }
+
+  // Preset program template (e.g. 'phul'); NULL for AI-created plans
+  try {
+    await db.execAsync(`ALTER TABLE workout_plans ADD COLUMN program_template TEXT`);
+  } catch {
+    // Column already exists — safe to ignore
+  }
 }

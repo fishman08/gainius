@@ -3,6 +3,7 @@ import type { WeightSuggestion } from './types';
 import type { GZCLPSuggestion } from './gzclpProgression';
 import { resolveGZCLP } from './gzclpProgression';
 import { suggestWeightsForPlan } from './weightSuggestion';
+import { usesPlannedRepTargets } from './programTemplate';
 
 export type ProgressionResult =
   | { mode: 'consistency'; suggestions: WeightSuggestion[] }
@@ -69,5 +70,10 @@ export function resolveProgressionForPlan(
   if (plan.progressionMode === 'gzclp') {
     return { mode: 'gzclp', suggestions: resolveGZCLPForPlan(plan, sessions) };
   }
-  return { mode: 'consistency', suggestions: suggestWeightsForPlan(sessions, plan.exercises) };
+  return {
+    mode: 'consistency',
+    suggestions: suggestWeightsForPlan(sessions, plan.exercises, {
+      usePlannedTargets: usesPlannedRepTargets(plan),
+    }),
+  };
 }

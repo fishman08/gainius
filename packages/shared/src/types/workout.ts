@@ -9,6 +9,7 @@ export interface WorkoutPlan {
   conversationId: string;
   progressionMode?: 'consistency' | 'gzclp';
   rotationIndex?: number;
+  programTemplate?: 'gzclp' | 'phul';
 }
 
 export interface PlannedExercise {

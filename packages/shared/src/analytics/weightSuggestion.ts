@@ -5,10 +5,19 @@ function roundToNearest(value: number, nearest: number): number {
   return Math.round(value / nearest) * nearest;
 }
 
+export interface SuggestWeightOptions {
+  /** Judge rep consistency against this target instead of the most recent session's average. */
+  targetReps?: number;
+  /** Only read history logged against this planned exercise (separates same-named slots). */
+  plannedExerciseId?: string;
+}
+
 export function suggestWeight(
   sessions: WorkoutSession[],
   exerciseName: string,
+  options: SuggestWeightOptions = {},
 ): WeightSuggestion | null {
+  const { targetReps, plannedExerciseId } = options;
   // Collect completed sets for this exercise across sessions
   const exerciseSessions: {
     date: string;
@@ -21,7 +30,10 @@ export function suggestWeight(
 
   for (const session of sorted) {
     for (const exercise of session.loggedExercises) {
-      if (exercise.exerciseName !== exerciseName) continue;
+      const matches = plannedExerciseId
+        ? exercise.plannedExerciseId === plannedExerciseId
+        : exercise.exerciseName === exerciseName;
+      if (!matches) continue;
       const completedSets = exercise.sets
         .filter((s) => s.completed && s.weight > 0)
         .map((s) => ({ weight: s.weight, reps: s.reps, rpe: s.rpe }));
@@ -57,6 +69,7 @@ export function suggestWeight(
   if (avgRpe !== null && avgRpe > 9) {
     return {
       exerciseName,
+      ...(plannedExerciseId ? { plannedExerciseId } : {}),
       currentWeight,
       suggestedWeight: currentWeight,
       direction: 'same',
@@ -67,7 +80,7 @@ export function suggestWeight(
   }
 
   // Calculate rep consistency (% of sets hitting >= typical rep range)
-  const typicalTargetReps = Math.round(avgReps);
+  const typicalTargetReps = targetReps ?? Math.round(avgReps);
   const hittingTarget = atCurrentWeight.filter((s) => s.reps >= typicalTargetReps).length;
   const consistency = atCurrentWeight.length > 0 ? hittingTarget / atCurrentWeight.length : 0;
 
@@ -77,6 +90,7 @@ export function suggestWeight(
     const suggested = roundToNearest(currentWeight + Math.max(increase, 2.5), 2.5);
     return {
       exerciseName,
+      ...(plannedExerciseId ? { plannedExerciseId } : {}),
       currentWeight,
       suggestedWeight: suggested,
       direction: 'increase',
@@ -89,6 +103,7 @@ export function suggestWeight(
   if (consistency >= 0.7) {
     return {
       exerciseName,
+      ...(plannedExerciseId ? { plannedExerciseId } : {}),
       currentWeight,
       suggestedWeight: currentWeight,
       direction: 'same',
@@ -104,6 +119,7 @@ export function suggestWeight(
   if (suggested < currentWeight) {
     return {
       exerciseName,
+      ...(plannedExerciseId ? { plannedExerciseId } : {}),
       currentWeight,
       suggestedWeight: suggested,
       direction: 'decrease',
@@ -115,6 +131,7 @@ export function suggestWeight(
 
   return {
     exerciseName,
+    ...(plannedExerciseId ? { plannedExerciseId } : {}),
     currentWeight,
     suggestedWeight: currentWeight,
     direction: 'same',
@@ -127,10 +144,20 @@ export function suggestWeight(
 export function suggestWeightsForPlan(
   sessions: WorkoutSession[],
   exercises: PlannedExercise[],
+  options: { usePlannedTargets?: boolean } = {},
 ): WeightSuggestion[] {
   const suggestions: WeightSuggestion[] = [];
   for (const exercise of exercises) {
-    const suggestion = suggestWeight(sessions, exercise.exerciseName);
+    const suggestion = suggestWeight(
+      sessions,
+      exercise.exerciseName,
+      options.usePlannedTargets
+        ? {
+            targetReps: typeof exercise.targetReps === 'number' ? exercise.targetReps : undefined,
+            plannedExerciseId: exercise.id,
+          }
+        : {},
+    );
     if (suggestion) suggestions.push(suggestion);
   }
   return suggestions;

@@ -32,6 +32,9 @@ CREATE INDEX IF NOT EXISTS idx_workout_plans_user_id ON workout_plans(user_id);
 ALTER TABLE workout_plans ADD COLUMN IF NOT EXISTS progression_mode TEXT NOT NULL DEFAULT 'consistency';
 ALTER TABLE workout_plans ADD COLUMN IF NOT EXISTS rotation_index INTEGER NOT NULL DEFAULT 0;
 
+-- Preset program template column (migration; safe to re-run). NULL for AI-created plans.
+ALTER TABLE workout_plans ADD COLUMN IF NOT EXISTS program_template TEXT;
+
 -- 3. Workout sessions
 CREATE TABLE IF NOT EXISTS workout_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

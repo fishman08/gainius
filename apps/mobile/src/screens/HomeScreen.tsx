@@ -8,7 +8,12 @@ import { useStorage } from '../providers/StorageProvider';
 import { useAuth } from '../providers/AuthProvider';
 import OnboardingWizard from '../components/settings/OnboardingWizard';
 import AuthPromptModal from '../components/settings/AuthPromptModal';
-import { loadCurrentPlan, loadHistory, seedGzclpPlan } from '../store/slices/workoutSlice';
+import {
+  loadCurrentPlan,
+  loadHistory,
+  seedGzclpPlan,
+  seedPhulPlan,
+} from '../store/slices/workoutSlice';
 import { setCoachingNotes } from '../store/slices/syncSlice';
 import EmptyPlanView from '../components/workout/EmptyPlanView';
 import ActiveWorkout from '../components/workout/ActiveWorkout';
@@ -109,7 +114,10 @@ export function HomeScreen() {
         {currentPlan ? (
           <PlanOverview />
         ) : (
-          <EmptyPlanView onStartGzclp={() => dispatch(seedGzclpPlan({ storage, userId }))} />
+          <EmptyPlanView
+            onStartGzclp={() => dispatch(seedGzclpPlan({ storage, userId }))}
+            onStartPhul={() => dispatch(seedPhulPlan({ storage, userId }))}
+          />
         )}
 
         {/* Quick Add — Log Cardio */}

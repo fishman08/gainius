@@ -5,9 +5,10 @@ import { useAppTheme } from '../../providers/ThemeProvider';
 
 interface Props {
   onStartGzclp?: () => void;
+  onStartPhul?: () => void;
 }
 
-export default function EmptyPlanView({ onStartGzclp }: Props) {
+export default function EmptyPlanView({ onStartGzclp, onStartPhul }: Props) {
   const { theme } = useAppTheme();
 
   const themedStyles = useMemo(
@@ -39,9 +40,11 @@ export default function EmptyPlanView({ onStartGzclp }: Props) {
         Chat with your AI coach to create one!
       </Text>
 
+      {(onStartGzclp || onStartPhul) && (
+        <Text style={[styles.overline, themedStyles.overline]}>OR START A PRESET PROGRAM</Text>
+      )}
       {onStartGzclp && (
         <View style={[styles.card, themedStyles.card]}>
-          <Text style={[styles.overline, themedStyles.overline]}>OR START A PRESET PROGRAM</Text>
           <Text variant="titleMedium" style={[styles.cardTitle, themedStyles.cardTitle]}>
             GZCLP Linear Progression
           </Text>
@@ -51,6 +54,20 @@ export default function EmptyPlanView({ onStartGzclp }: Props) {
           </Text>
           <TouchableOpacity style={[styles.button, themedStyles.button]} onPress={onStartGzclp}>
             <Text style={[styles.buttonLabel, themedStyles.buttonLabel]}>Start GZCLP Program</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      {onStartPhul && (
+        <View style={[styles.card, styles.cardSpaced, themedStyles.card]}>
+          <Text variant="titleMedium" style={[styles.cardTitle, themedStyles.cardTitle]}>
+            PHUL — Power Hypertrophy Upper Lower
+          </Text>
+          <Text variant="bodySmall" style={[styles.cardBody, themedStyles.cardBody]}>
+            4-day split: heavy 4–6 rep power days, then 10–15 rep hypertrophy days. Weight goes up
+            once you hit your target reps on every set.
+          </Text>
+          <TouchableOpacity style={[styles.button, themedStyles.button]} onPress={onStartPhul}>
+            <Text style={[styles.buttonLabel, themedStyles.buttonLabel]}>Start PHUL Program</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -77,11 +94,15 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 8,
   },
+  cardSpaced: {
+    marginTop: 16,
+  },
   overline: {
+    alignSelf: 'flex-start',
     fontSize: 11,
     fontWeight: '600',
     letterSpacing: 1,
-    marginBottom: 2,
+    marginBottom: 8,
   },
   cardTitle: {
     marginBottom: 4,

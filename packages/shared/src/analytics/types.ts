@@ -40,6 +40,7 @@ export interface WeeklyVolume {
 
 export interface WeightSuggestion {
   exerciseName: string;
+  plannedExerciseId?: string;
   currentWeight: number;
   suggestedWeight: number;
   direction: 'increase' | 'same' | 'decrease';

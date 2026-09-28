@@ -23,6 +23,7 @@ export interface WorkoutPlanRow {
   exercises: unknown[];
   progression_mode?: string;
   rotation_index?: number;
+  program_template?: string | null;
   updated_at: string;
 }
 
@@ -83,6 +84,8 @@ export function workoutPlanToRow(plan: WorkoutPlan): Omit<WorkoutPlanRow, 'updat
     exercises: plan.exercises as unknown as unknown[],
     progression_mode: plan.progressionMode ?? 'consistency',
     rotation_index: plan.rotationIndex ?? 0,
+    // Only sent when set, so plans without a template sync even if the column is missing
+    ...(plan.programTemplate ? { program_template: plan.programTemplate } : {}),
   };
 }
 
@@ -148,6 +151,7 @@ export function rowToWorkoutPlan(row: WorkoutPlanRow): WorkoutPlan {
     exercises: row.exercises as unknown as WorkoutPlan['exercises'],
     progressionMode: (row.progression_mode as WorkoutPlan['progressionMode']) ?? 'consistency',
     rotationIndex: row.rotation_index ?? 0,
+    programTemplate: (row.program_template as WorkoutPlan['programTemplate']) ?? undefined,
   };
 }
 

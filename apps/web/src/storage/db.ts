@@ -21,6 +21,7 @@ interface WorkoutPlanRow {
   exercises: string;
   progressionMode?: string;
   rotationIndex?: number;
+  programTemplate?: string;
 }
 
 interface WorkoutSessionRow {
